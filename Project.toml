@@ -1,0 +1,13 @@
+name = "RxEnvironments"
+uuid = "5ea003d0-0c30-4e5c-84d5-cc22d8d83890"
+authors = ["Wouter Nuijten"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
