@@ -1,7 +1,10 @@
 name = "RxEnvironments"
 uuid = "5ea003d0-0c30-4e5c-84d5-cc22d8d83890"
 authors = ["Wouter Nuijten"]
-version = "1.0.0-DEV"
+version = "0.0.1"
+
+[deps]
+Rocket = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
 
 [compat]
 julia = "1"
