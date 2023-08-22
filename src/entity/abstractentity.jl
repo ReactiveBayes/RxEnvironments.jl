@@ -1,6 +1,6 @@
 using Rocket
 
-export AbstractEntity, observation_type, add!, act!, update!, observe
+export AbstractEntity, add!, act!, update!, observe
 
 """
     AbstractEntity

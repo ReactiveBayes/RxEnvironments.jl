@@ -6,12 +6,14 @@ struct RxEnvironment <: AbstractEnvironment
     entity
     observations::Rocket.RecentSubjectInstance
     actions::AbstractDict{AbstractEntity, Rocket.RecentSubjectInstance}
+    start_time::Float64
+    real_time_factor::Float64
 end
 
 environment(environment::RxEnvironment) = environment.entity
 
-function RxEnvironment(environment) 
-    env = RxEnvironment(environment, RecentSubject(Any), Dict{AbstractEntity, Rocket.RecentSubjectInstance}())
+function RxEnvironment(environment; real_time_factor=1.0) 
+    env = RxEnvironment(environment, RecentSubject(Any), Dict{AbstractEntity, Rocket.RecentSubjectInstance}(), time(), real_time_factor)
     instantiate!(env)
     return env
 end
