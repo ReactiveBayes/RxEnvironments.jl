@@ -9,7 +9,6 @@ struct ThermostatAction
     action::Float64
 end
 
-RxEnvironments.observation_type(agent::ThermostatAgent) = Float64
 
 mutable struct BayesianThermostat
     temperature::Float64
@@ -21,7 +20,6 @@ min_temp(env::BayesianThermostat) = env.min_temp
 max_temp(env::BayesianThermostat) = env.max_temp
 noise(env::BayesianThermostat) = Normal(0.0, 0.1)
 
-RxEnvironments.observation_type(env::BayesianThermostat) = ThermostatAction
 
 function RxEnvironments.act!(env::BayesianThermostat, actor::ThermostatAgent, action::ThermostatAction)
     value = action.action
@@ -34,8 +32,8 @@ function RxEnvironments.act!(env::BayesianThermostat, actor::ThermostatAgent, ac
     end
 end
 
-function RxEnvironments.observe(env::BayesianThermostat, actor::ThermostatAgent)
-    return env.temperature + rand(noise(env))
+function RxEnvironments.observe(receiver::ThermostatAgent, emitter::BayesianThermostat, stimulus)
+    return emitter.temperature + rand(noise(emitter))
 end
 
 function RxEnvironments.update!(env::BayesianThermostat)

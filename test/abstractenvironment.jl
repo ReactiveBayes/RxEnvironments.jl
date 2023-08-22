@@ -10,35 +10,32 @@ include("bayesianthermostat.jl")
     @testset "constructor" begin
         environment = BayesianThermostat(0.0, -10, 10)
         rxenv = RxEnvironment(environment)
-        @test rxenv isa RxEnvironment{ThermostatAction}
+        @test rxenv isa RxEnvironment
     end
 
     @testset "add actor" begin
-        import RxEnvironments: entities
+        import RxEnvironments: actions
         environment = BayesianThermostat(0.0, -10, 10)
         rxenv = RxEnvironment(environment)
 
         actor = ThermostatAgent()
         entity = add!(rxenv, actor)
-        @test first(entities(rxenv)) === entity
+        @test first(keys(actions(rxenv))) === entity
     end
 
     @testset "conduct action" begin
-        import RxEnvironments: action_subject
+        import RxEnvironments
         environment = BayesianThermostat(0.0, -10, 10)
         rxenv = RxEnvironment(environment)
 
         actor = ThermostatAgent()
         entity = add!(rxenv, actor)
-        next!(action_subject(entity), ThermostatAction(1.0))
+        next!(actions(entity, rxenv), ThermostatAction(1.0))
         @test environment.temperature == 1.0
-        next!(action_subject(entity), ThermostatAction(1.0))
+        next!(actions(entity, rxenv), ThermostatAction(1.0))
         @test environment.temperature == 2.0
     end
 
-    @testset "get observation" begin
-        import RxEnvironments: observation_subject
-    end
 end
 
 end
