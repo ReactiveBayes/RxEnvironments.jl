@@ -1,22 +1,19 @@
-using Rocket
 
-export AbstractEnvironment, observation_type, add!, act!
 
-"""
-    AbstractEnvironment
+abstract type AbstractEnvironment <: AbstractEntity end
 
-The AbstractEnvironment type supertypes all environments. It describes basic functionality all environments should have.
-"""
-abstract type AbstractEnvironment end
+start_time(environment::AbstractEnvironment) = environment.start_time
+real_time_factor(environment::AbstractEnvironment) = environment.real_time_factor
 
-function add_subscription_loop!(env::AbstractEnvironment, entity::AbstractEntity)
-    ltr = ObservationActor(entity, env)
-    rtl = ActionActor(entity, env)
-    subscribe!(subject(env), ltr)
-    subscribe!(action_subject(entity), rtl)
-end  
+function instantiate!(environment::AbstractEnvironment)
+    environmentactor = EnvironmentActor(environment)
+    subscribe!(observations(environment), environmentactor)
+end
 
-function observation_type end
-function update! end
-function act! end
-function observe end
+function update!(env::AbstractEnvironment)
+    update!(environment(env), time(env))
+end
+
+function Base.time(environment::AbstractEnvironment)
+    return (time() - start_time(environment)) * real_time_factor(environment)
+end

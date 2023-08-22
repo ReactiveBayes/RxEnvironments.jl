@@ -1,0 +1,7 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+ReTest = "e0db7c4e-2690-44b9-bad6-7687da720f89"
+Rocket = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TestSetExtensions = "98d24dd4-01ad-11ea-1b02-c9a08f80db04"

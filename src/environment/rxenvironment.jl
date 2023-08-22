@@ -2,30 +2,30 @@ using Rocket
 
 export RxEnvironment, add!
 
-Base.@kwdef struct RxEnvironment{T} <: AbstractEnvironment
-    entities::Vector{AbstractEntity}
-    action_subject = RecentSubject(T)
-    environment::Any
+struct RxEnvironment <: AbstractEnvironment
+    entity::Any
+    observations::Rocket.RecentSubjectInstance
+    actions::AbstractDict{Any,Rocket.RecentSubjectInstance}
+    start_time::Float64
+    real_time_factor::Float64
 end
 
-entities(env::RxEnvironment) = env.entities
-subject(env::RxEnvironment) = env.action_subject
-environment(env::RxEnvironment) = env.environment
-Rocket.next!(env::RxEnvironment, entry) = next!(subject(env), entry)
+environment(environment::RxEnvironment) = environment.entity
 
-function RxEnvironment(environment) 
-    obs_type = observation_type(environment)
-    RxEnvironment{obs_type}(AbstractActor[], RecentSubject(obs_type), environment)
+function RxEnvironment(environment; real_time_factor = 1.0)
+    env = RxEnvironment(
+        environment,
+        RecentSubject(Any),
+        Dict{Any,Rocket.RecentSubjectInstance}(),
+        time(),
+        real_time_factor,
+    )
+    instantiate!(env)
+    return env
 end
 
-
-function add!(env::RxEnvironment, entity)
-    entity = RxEntity(entity, environment(env))
-    add!(env, entity)
+function add!(environment::RxEnvironment, entity)
+    entity = RxEntity(entity)
+    __add!(environment, entity)
     return entity
-end
-
-function add!(env::RxEnvironment, entity::RxEntity)
-    push!(entities(env), entity)
-    add_subscription_loop!(env, entity)
 end
