@@ -74,7 +74,7 @@ Now we can have the agent conduct actions in our environment. Let's have the age
 
 ```julia
 # Subscribe a logger actor to the observations of the agent
-observations_observable = RxEnvironments.observations(agent) |> map(Any, x -> x[2])
+observations_observable = RxEnvironments.observations(agent) |> map(Float64, x -> RxEnvironments.data(x))
 subscribe!(observations_observable, logger())
 
 # Conduct 10 actions:

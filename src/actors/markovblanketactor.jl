@@ -12,5 +12,5 @@ recipient(actor::MarkovBlanketActor) = entity(rxrecipient(actor))
 
 function Rocket.on_next!(actor::MarkovBlanketActor, stimulus)
     observation = observe(recipient(actor), emitter(actor), stimulus)
-    next!(observations(rxrecipient(actor)), (rxemitter(actor), observation))
+    next!(observations(rxrecipient(actor)), Message(rxemitter(actor), observation))
 end

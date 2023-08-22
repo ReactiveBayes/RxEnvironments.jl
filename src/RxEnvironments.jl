@@ -1,5 +1,6 @@
 module RxEnvironments
 
+include("actors/message.jl")
 include("actors/markovblanketactor.jl")
 include("actors/environmentactor.jl")
 include("entity/abstractentity.jl")

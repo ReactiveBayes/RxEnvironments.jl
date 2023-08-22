@@ -33,5 +33,5 @@ function update! end
 function act! end
 function observe end
 observe(receiver, sender, stimulus) = stimulus
-act!(subject::AbstractEntity, action::Tuple{T,Any} where {T<:AbstractEntity}) =
-    act!(entity(subject), entity(first(action)), last(action))
+act!(subject::AbstractEntity, action::Message) =
+    act!(entity(subject), entity(sender(action)), data(action))

@@ -1,14 +1,7 @@
 using RxEnvironments
 using Distributions
 
-struct ThermostatAgent
-
-end
-
-struct ThermostatAction
-    action::Float64
-end
-
+struct ThermostatAgent end
 
 mutable struct BayesianThermostat
     temperature::Float64
@@ -16,6 +9,7 @@ mutable struct BayesianThermostat
     max_temp::Float64
 end
 
+temperature(env::BayesianThermostat) = env.temperature
 min_temp(env::BayesianThermostat) = env.min_temp
 max_temp(env::BayesianThermostat) = env.max_temp
 noise(env::BayesianThermostat) = Normal(0.0, 0.1)
@@ -24,10 +18,9 @@ noise(env::BayesianThermostat) = Normal(0.0, 0.1)
 function RxEnvironments.act!(
     env::BayesianThermostat,
     actor::ThermostatAgent,
-    action::ThermostatAction,
+    action::Float64,
 )
-    value = action.action
-    env.temperature += value
+    env.temperature += action
 
     if env.temperature < env.min_temp
         env.temperature = env.min_temp
@@ -41,9 +34,11 @@ function RxEnvironments.observe(
     emitter::BayesianThermostat,
     stimulus,
 )
-    return emitter.temperature + rand(noise(emitter))
+    # The agent receives a noisy observation of the environment's temperature
+    return tempreature(emitter) + rand(noise(emitter))
 end
 
 function RxEnvironments.update!(env::BayesianThermostat, elapsed_time)
-    # Do nothing
+    #The environment cools down over time
+    env.temperature -= 0.1 * elapsed_time
 end
