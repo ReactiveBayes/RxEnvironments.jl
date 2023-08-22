@@ -18,5 +18,5 @@ end
 end
 
 retest(RxEnvironments, RxEnvironmentsTests)
-retest(RxEnvironments, test_entity)
-retest(RxEnvironments, test_environment)
+retest(RxEnvironments, EntityTests)
+retest(RxEnvironments, EnvironmentTests)

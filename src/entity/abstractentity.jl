@@ -12,7 +12,7 @@ abstract type AbstractEntity end
 entity(entity::AbstractEntity) = entity.entity
 observations(entity::AbstractEntity) = entity.observations
 actions(entity::AbstractEntity) = entity.actions
-actions(entity::AbstractEntity, recipient::AbstractEntity) = entity.actions[recipient]
+actions(entity::AbstractEntity, recipient::Any) = entity.actions[recipient]
 
 Rocket.next!(entity::AbstractEntity, recipient::AbstractEntity, action) =
     next!(actions(entity, recipient), action)
@@ -24,6 +24,12 @@ function Rocket.subscribe!(entity::AbstractEntity, observer::AbstractEntity)
     subscription = subscribe!(actions(entity, observer), mbactor)
 end
 
+function Rocket.subscribe!(entity::AbstractEntity, observer::Rocket.Actor{Any})
+    actions(entity)[observer] = RecentSubject(Any)
+    subscription = subscribe!(actions(entity, observer), observer)
+end
+
+
 function __add!(first::AbstractEntity, second::AbstractEntity)
     subscribe!(first, second)
     subscribe!(second, first)
@@ -33,5 +39,8 @@ function update! end
 function act! end
 function observe end
 observe(receiver, sender, stimulus) = stimulus
-act!(subject::AbstractEntity, action::Message) =
-    act!(entity(subject), entity(sender(action)), data(action))
+act!(subject::AbstractEntity, action::Message) = act!(subject, sender(action), data(action))
+act!(recipient::AbstractEntity, sender::AbstractEntity, action::Any) =
+    act!(entity(recipient), entity(sender), action)
+act!(recipient::AbstractEntity, sender::Any, action::Any) =
+    act!(entity(recipient), sender, action)

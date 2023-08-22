@@ -1,39 +1,64 @@
-module test_environment
+module EnvironmentTests
 
 using ReTest
 using RxEnvironments
 using Rocket
 
-include("bayesianthermostat.jl")
+include("mockenvironment.jl")
 
 @testset "environment" begin
-    @testset "constructor" begin
-        environment = BayesianThermostat(0.0, -10, 10)
-        rxenv = RxEnvironment(environment)
-        @test rxenv isa RxEnvironment
+    @testset "creation" begin
+        import RxEnvironments: observations, Message
+
+        let env = RxEnvironment(MockEnvironment(0.0))
+            @test env isa RxEnvironment
+            # Check that the environment will pass messages coming into the observations to subscribed actors.
+            actor = keep(Any)
+            subscribe!(env, actor)
+            next!(observations(env), Message(MockAgent(), nothing))
+            @test actor.values == [RxEnvironments.EmptyMessage()]
+            next!(observations(env), Message(MockAgent(), nothing))
+            @test actor.values ==
+                  [RxEnvironments.EmptyMessage(), RxEnvironments.EmptyMessage()]
+        end
     end
 
-    @testset "add actor" begin
+    @testset "add to other entity" begin
         import RxEnvironments: actions
-        environment = BayesianThermostat(0.0, -10, 10)
-        rxenv = RxEnvironment(environment)
+        let env = RxEnvironment(MockEnvironment(0.0))
+            agent = MockAgent()
+            agent = add!(env, agent)
+            # Test that adding an agent to the environment works.
+            @test length(actions(env)) == 1
+            # Test that adding an agent propagates an observation to the agent.
+            actor = keep(Any)
+            subscribe!(observations(agent), actor)
+            next!(observations(env), Message(MockAgent(), nothing))
+            @test RxEnvironments.data.(actor.values) == [nothing]
 
-        actor = ThermostatAgent()
-        entity = add!(rxenv, actor)
-        @test first(keys(actions(rxenv))) === entity
+            second_agent = SecondMockAgent()
+            second_agent = add!(env, second_agent)
+            # Test that adding a second agent to the environment works.
+            @test length(actions(env)) == 2
+            # Test that adding a second agent propagates an observation to the agent.
+            actor = keep(Any)
+            subscribe!(observations(second_agent), actor)
+            next!(observations(env), Message(MockAgent(), nothing))
+            @test RxEnvironments.data.(actor.values) == [RxEnvironments.EmptyMessage()]
+        end
     end
 
-    @testset "conduct action" begin
-        import RxEnvironments
-        environment = BayesianThermostat(0.0, -10, 10)
-        rxenv = RxEnvironment(environment)
-
-        actor = ThermostatAgent()
-        entity = add!(rxenv, actor)
-        next!(actions(entity, rxenv), ThermostatAction(1.0))
-        @test environment.temperature == 1.0
-        next!(actions(entity, rxenv), ThermostatAction(1.0))
-        @test environment.temperature == 2.0
+    @testset "receive observation" begin
+        let env = RxEnvironment(MockEnvironment(0.0))
+            agent = MockAgent()
+            agent = add!(env, agent)
+            actor = keep(Any)
+            subscribe!(observations(env), actor)
+            for i = 1:10
+                next!(actions(agent, env), i)
+                @test RxEnvironments.data.(actor.values) == collect(1:i)
+            end
+        end
     end
 
 end

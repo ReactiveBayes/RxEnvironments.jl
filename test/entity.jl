@@ -1,8 +1,8 @@
-module test_entity
+module EntityTests
 
 using ReTest
 
-include("bayesianthermostat.jl")
+include("mockenvironment.jl")
 
 @testset "entity" begin
     @testset "creation" begin
