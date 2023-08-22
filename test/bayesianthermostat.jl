@@ -36,7 +36,7 @@ function RxEnvironments.observe(receiver::ThermostatAgent, emitter::BayesianTher
     return emitter.temperature + rand(noise(emitter))
 end
 
-function RxEnvironments.update!(env::BayesianThermostat)
+function RxEnvironments.update!(env::BayesianThermostat, elapsed_time)
     # Do nothing
 end
 

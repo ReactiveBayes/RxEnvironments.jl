@@ -1,2 +1,6 @@
+# Manifest files
 /Manifest.toml
+/test/Manifest.toml
+/scripts/Manifest.toml
+
 .DS_Store
