@@ -1,11 +1,11 @@
 using RxEnvironments
 using Distributions
 
-struct ThermostatAgent 
+struct ThermostatAgent
 
 end
 
-struct ThermostatAction 
+struct ThermostatAction
     action::Float64
 end
 
@@ -21,7 +21,11 @@ max_temp(env::BayesianThermostat) = env.max_temp
 noise(env::BayesianThermostat) = Normal(0.0, 0.1)
 
 
-function RxEnvironments.act!(env::BayesianThermostat, actor::ThermostatAgent, action::ThermostatAction)
+function RxEnvironments.act!(
+    env::BayesianThermostat,
+    actor::ThermostatAgent,
+    action::ThermostatAction,
+)
     value = action.action
     env.temperature += value
 
@@ -32,11 +36,14 @@ function RxEnvironments.act!(env::BayesianThermostat, actor::ThermostatAgent, ac
     end
 end
 
-function RxEnvironments.observe(receiver::ThermostatAgent, emitter::BayesianThermostat, stimulus)
+function RxEnvironments.observe(
+    receiver::ThermostatAgent,
+    emitter::BayesianThermostat,
+    stimulus,
+)
     return emitter.temperature + rand(noise(emitter))
 end
 
 function RxEnvironments.update!(env::BayesianThermostat, elapsed_time)
     # Do nothing
 end
-

@@ -10,7 +10,7 @@ function instantiate!(environment::AbstractEnvironment)
     subscribe!(observations(environment), environmentactor)
 end
 
-function update!(env::AbstractEnvironment) 
+function update!(env::AbstractEnvironment)
     update!(environment(env), time(env))
 end
 

@@ -1,8 +1,8 @@
 using Rocket
 
 struct MarkovBlanketActor <: Rocket.Actor{Any}
-    emitter
-    recipient
+    emitter::Any
+    recipient::Any
 end
 
 rxemitter(actor::MarkovBlanketActor) = actor.emitter

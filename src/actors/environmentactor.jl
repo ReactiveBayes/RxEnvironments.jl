@@ -1,7 +1,7 @@
 using Rocket
 
 struct EnvironmentActor <: Rocket.Actor{Any}
-    environment
+    environment::Any
 end
 
 rxenvironment(a::EnvironmentActor) = a.environment
@@ -17,4 +17,3 @@ function Rocket.on_next!(actor::EnvironmentActor, action)
         next!(action_subject, nothing)
     end
 end
-
