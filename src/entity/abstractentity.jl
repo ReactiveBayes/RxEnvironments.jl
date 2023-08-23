@@ -16,8 +16,6 @@ actions(entity::AbstractEntity, recipient::Any) = entity.actions[recipient]
 
 Rocket.next!(entity::AbstractEntity, recipient::AbstractEntity, action) =
     next!(actions(entity, recipient), action)
-Rocket.subscribe!(entity::AbstractEntity, observer::MarkovBlanketActor) =
-    subscribe!(observations(entity), observer)
 function Rocket.subscribe!(entity::AbstractEntity, observer::AbstractEntity)
     mbactor = MarkovBlanketActor(entity, observer)
     actions(entity)[observer] = RecentSubject(Any)
@@ -44,3 +42,4 @@ act!(recipient::AbstractEntity, sender::AbstractEntity, action::Any) =
     act!(entity(recipient), entity(sender), action)
 act!(recipient::AbstractEntity, sender::Any, action::Any) =
     act!(entity(recipient), sender, action)
+    

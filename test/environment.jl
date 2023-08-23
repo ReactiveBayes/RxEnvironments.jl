@@ -8,10 +8,10 @@ include("mockenvironment.jl")
 
 @testset "environment" begin
     @testset "creation" begin
-        import RxEnvironments: observations, Message
+        import RxEnvironments: DiscreteEnvironment, observations, Message
 
         let env = RxEnvironment(MockEnvironment(0.0))
-            @test env isa RxEnvironment
+            @test env isa DiscreteEnvironment
             # Check that the environment will pass messages coming into the observations to subscribed actors.
             actor = keep(Any)
             subscribe!(env, actor)

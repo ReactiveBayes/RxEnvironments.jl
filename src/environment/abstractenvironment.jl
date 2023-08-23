@@ -2,18 +2,19 @@
 
 abstract type AbstractEnvironment <: AbstractEntity end
 
-start_time(environment::AbstractEnvironment) = environment.start_time
-real_time_factor(environment::AbstractEnvironment) = environment.real_time_factor
+environment(environment::AbstractEnvironment) = environment.entity
 
 function instantiate!(environment::AbstractEnvironment)
     environmentactor = EnvironmentActor(environment)
     subscribe!(observations(environment), environmentactor)
 end
 
-function update!(env::AbstractEnvironment)
-    update!(environment(env), time(env))
+
+function add!(environment::AbstractEnvironment, entity)
+    entity = RxEntity(entity)
+    __add!(environment, entity)
+    return entity
 end
 
-function Base.time(environment::AbstractEnvironment)
-    return (time() - start_time(environment)) * real_time_factor(environment)
-end
+
+function update! end
