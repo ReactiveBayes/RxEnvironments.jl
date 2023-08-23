@@ -43,3 +43,8 @@ act!(recipient::AbstractEntity, sender::AbstractEntity, action::Any) =
 act!(recipient::AbstractEntity, sender::Any, action::Any) =
     act!(entity(recipient), sender, action)
     
+function inspect_observations(entity::AbstractEntity)
+    actor = keep(Any)
+    subscribe!(observations(entity), actor)
+    return actor
+end

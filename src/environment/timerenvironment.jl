@@ -28,7 +28,6 @@ function TimerEnvironment(environment, real_time_factor::Float64, emit_every_ms:
     )
     instantiate!(env)
     subscribe!(env.timer, TimerActor(env))
-    @show env
     return env
 end
 
