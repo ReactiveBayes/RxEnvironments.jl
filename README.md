@@ -56,9 +56,8 @@ function RxEnvironments.observe(
     return temperature(emitter) + rand(noise(emitter))
 end
 
-function RxEnvironments.update!(env::BayesianThermostat, elapsed_time)
-    #The environment cools down over time
-    env.temperature -= 0.1 * elapsed_time
+function RxEnvironments.update!(env::BayesianThermostat)
+    # The environment does not change inbetween actions.
 end
 
 ```
