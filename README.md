@@ -1,6 +1,6 @@
 # RxEnvironments
 
-[![Build Status](https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml?query=branch%3Amain) [![codecov](https://codecov.io/gh/biaslab/RxEnvironments.jl/graph/badge.svg?token=CxR2jysX7Z)](https://codecov.io/gh/biaslab/RxEnvironments.jl)
 
 `RxEnvironments` contains all boilerplate code to create reactive environments for self-learning agents. `RxEnvironments` exports the `RxEnvironment` and `RxEntity` wrapper structs, that facilitate all plumbing to make an environment fully reactive. Under the hood, `RxEnvironments` uses [Rocket.jl](https://www.github.com/biaslab/Rocket.jl).
 
@@ -56,9 +56,8 @@ function RxEnvironments.observe(
     return temperature(emitter) + rand(noise(emitter))
 end
 
-function RxEnvironments.update!(env::BayesianThermostat, elapsed_time)
-    #The environment cools down over time
-    env.temperature -= 0.1 * elapsed_time
+function RxEnvironments.update!(env::BayesianThermostat)
+    # The environment does not change inbetween actions.
 end
 
 ```

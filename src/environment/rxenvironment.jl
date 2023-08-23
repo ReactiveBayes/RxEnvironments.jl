@@ -2,30 +2,12 @@ using Rocket
 
 export RxEnvironment, add!
 
-struct RxEnvironment <: AbstractEnvironment
-    entity::Any
-    observations::Rocket.RecentSubjectInstance
-    actions::AbstractDict{Any,Rocket.RecentSubjectInstance}
-    start_time::Float64
-    real_time_factor::Float64
-end
 
-environment(environment::RxEnvironment) = environment.entity
 
-function RxEnvironment(environment; real_time_factor = 1.0)
-    env = RxEnvironment(
-        environment,
-        RecentSubject(Any),
-        Dict{Any,Rocket.RecentSubjectInstance}(),
-        time(),
-        real_time_factor,
-    )
-    instantiate!(env)
-    return env
-end
-
-function add!(environment::RxEnvironment, entity)
-    entity = RxEntity(entity)
-    __add!(environment, entity)
-    return entity
-end
+RxEnvironment(environment; real_time_factor = nothing, emit_every_ms = nothing) = RxEnvironment(environment, real_time_factor, emit_every_ms)
+RxEnvironment(environment, real_time_factor::Nothing, emit_every_ms::Int64) =
+    RxEnvironment(environment, 1.0, emit_every_ms)
+RxEnvironment(environment, real_time_factor::Float64, emit_every_ms::Int64) =
+    TimerEnvironment(environment, real_time_factor, emit_every_ms)
+RxEnvironment(environment, real_time_factor::Nothing, emit_every_ms::Nothing) =
+    DiscreteEnvironment(environment)
