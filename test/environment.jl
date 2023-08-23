@@ -97,6 +97,20 @@ include("mockenvironment.jl")
         end
     end
 
+    @testset "show" begin
+        let env = RxEnvironment(MockEnvironment(0.0))
+            io = IOBuffer()
+            ioc = IOContext(io)
+            show(io, env)
+        end
+
+        let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
+            io = IOBuffer()
+            ioc = IOContext(io)
+            show(io, env)
+        end
+    end
+
 end
 
 end
