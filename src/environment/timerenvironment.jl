@@ -24,7 +24,7 @@ function TimerEnvironment(environment, real_time_factor::Float64, emit_every_ms:
         TimeStamp(time()),
         TimeStamp(0),
         real_time_factor,
-        Rocket.interval(emit_every_ms)
+        Rocket.interval(emit_every_ms),
     )
     instantiate!(env)
     subscribe!(env.timer, TimerActor(env))
@@ -36,7 +36,10 @@ last_update(environment::TimerEnvironment) = time(environment.last_update)
 real_time_factor(environment::TimerEnvironment) = environment.real_time_factor
 
 function Base.show(io::IO, environment::TimerEnvironment)
-    println(io, "Timed RxEnvironment, emitting every $(environment.timer.period) milliseconds, on a clock speed of $(environment.real_time_factor) times real time.")
+    println(
+        io,
+        "Timed RxEnvironment, emitting every $(environment.timer.period) milliseconds, on a clock speed of $(environment.real_time_factor) times real time.",
+    )
     println(io, "Subscribed entities: $(keys(environment.actions))")
 end
 
@@ -68,7 +71,7 @@ function Rocket.on_next!(actor::TimerActor, time::Int)
 end
 
 function Rocket.on_error!(actor::TimerActor, error)
-    @error "Error in TimerActor for environment " exception=(error, catch_backtrace())
+    @error "Error in TimerActor for environment " exception = (error, catch_backtrace())
 end
 
 

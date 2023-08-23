@@ -1,6 +1,6 @@
 using Rocket
 
-struct Message{M, D}
+struct Message{M,D}
     sender::M
     data::D
 end
