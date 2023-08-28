@@ -40,7 +40,6 @@ function Base.show(io::IO, environment::TimerEnvironment)
         io,
         "Timed RxEnvironment, emitting every $(environment.timer.period) milliseconds, on a clock speed of $(environment.real_time_factor) times real time.",
     )
-    println(io, "Subscribed entities: $(keys(environment.actions))")
 end
 
 function set_last_update!(environment::TimerEnvironment, time::Float64)

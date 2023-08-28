@@ -16,5 +16,6 @@ function add!(environment::AbstractEnvironment, entity)
     return entity
 end
 
+add!(environment::AbstractEnvironment, entity::AbstractEntity) = __add!(environment, entity)
 
 function update! end
