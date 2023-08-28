@@ -16,7 +16,6 @@ end
 
 function Base.show(io::IO, env::DiscreteEnvironment)
     println(io, "Discrete RxEnvironment $(typeof(environment(env))).")
-    println(io, "Subscribed entities: $(keys(env.actions))")
 end
 
 function update!(env::DiscreteEnvironment)

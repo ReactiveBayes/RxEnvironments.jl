@@ -13,6 +13,7 @@ entity(entity::AbstractEntity) = entity.entity
 observations(entity::AbstractEntity) = entity.observations
 actions(entity::AbstractEntity) = entity.actions
 actions(entity::AbstractEntity, recipient::Any) = entity.actions[recipient]
+subscribed_entities(entity::AbstractEntity) = collect(keys(actions(entity)))
 
 Rocket.next!(entity::AbstractEntity, recipient::AbstractEntity, action) =
     next!(actions(entity, recipient), action)
@@ -48,3 +49,10 @@ function inspect_observations(entity::AbstractEntity)
     subscribe!(observations(entity), actor)
     return actor
 end
+
+function inspect_observations(entity::AbstractEntity, actor)
+    subscribe!(observations(entity), actor)
+    return actor
+end
+
+Base.show(io::IO, entity::AbstractEntity) = println(io, "AbstractEntity $(typeof(entity))")
