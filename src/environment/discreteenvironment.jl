@@ -4,10 +4,7 @@ struct DiscreteEnvironment <: AbstractEnvironment
 end
 
 function DiscreteEnvironment(environment)
-    env = DiscreteEnvironment(
-        environment,
-        MarkovBlanket()
-    )
+    env = DiscreteEnvironment(environment, MarkovBlanket())
     instantiate!(env)
     return env
 end

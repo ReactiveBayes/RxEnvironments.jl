@@ -3,7 +3,15 @@ module TestMarkovBlanket
 using ReTest
 using Rocket
 using RxEnvironments
-import RxEnvironments: Actuator, Sensor, MarkovBlanket, RxEntity, markov_blanket, inspect_observations, conduct_action!, NotSubscribedException
+import RxEnvironments:
+    Actuator,
+    Sensor,
+    MarkovBlanket,
+    RxEntity,
+    markov_blanket,
+    inspect_observations,
+    conduct_action!,
+    NotSubscribedException
 
 include("mockenvironment.jl")
 

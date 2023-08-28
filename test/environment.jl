@@ -19,8 +19,7 @@ include("mockenvironment.jl")
             next!(observations(env), Observation(MockAgent(), nothing))
             @test actor.values == [state(env)]
             next!(observations(env), Observation(MockAgent(), nothing))
-            @test actor.values ==
-                  [state(env), state(env)]
+            @test actor.values == [state(env), state(env)]
         end
 
         import RxEnvironments: last_update
