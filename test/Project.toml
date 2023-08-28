@@ -1,6 +1,7 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Coverage = "a2441757-f6aa-5fb2-8edb-039e3f45d037"
+Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
 ReTest = "e0db7c4e-2690-44b9-bad6-7687da720f89"
 Rocket = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

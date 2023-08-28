@@ -4,6 +4,7 @@ using ReTest
 
 include("entity.jl")
 include("environment.jl")
+include("markovblanket.jl")
 
 module RxEnvironmentsTests
 
@@ -20,3 +21,4 @@ end
 retest(RxEnvironments, RxEnvironmentsTests)
 retest(RxEnvironments, EntityTests)
 retest(RxEnvironments, EnvironmentTests)
+retest(RxEnvironments, TestMarkovBlanket)

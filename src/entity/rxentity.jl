@@ -2,12 +2,11 @@ using Rocket
 
 struct RxEntity <: AbstractEntity
     entity::Any
-    observations::Rocket.RecentSubjectInstance
-    actions::AbstractDict{Any,Rocket.RecentSubjectInstance}
+    markov_blanket::MarkovBlanket
 end
 
 function RxEntity(entity)
-    return RxEntity(entity, RecentSubject(Any), Dict{Any,Rocket.RecentSubjectInstance}())
+    return RxEntity(entity, MarkovBlanket())
 end
 
 function Base.:(==)(a::RxEntity, b::RxEntity)

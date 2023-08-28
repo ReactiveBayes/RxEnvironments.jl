@@ -1,9 +1,12 @@
 module RxEnvironments
 
+include("exceptions.jl")
+
 include("actors/message.jl")
-include("actors/markovblanketactor.jl")
+
 include("actors/environmentactor.jl")
 include("entity/abstractentity.jl")
+include("markovblanket.jl")
 include("environment/abstractenvironment.jl")
 include("entity/rxentity.jl")
 include("environment/discreteenvironment.jl")

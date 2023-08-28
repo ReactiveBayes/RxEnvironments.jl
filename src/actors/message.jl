@@ -1,12 +1,12 @@
 using Rocket
 
-struct Message{M,D}
-    sender::M
+struct Observation{M,D}
+    emitter::M
     data::D
 end
 
-sender(message::Message) = message.sender
-data(message::Message) = message.data
+emitter(message::Observation) = message.emitter
+data(message::Observation) = message.data
 
 
 struct EmptyMessage end

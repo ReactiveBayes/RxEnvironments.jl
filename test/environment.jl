@@ -3,23 +3,24 @@ module EnvironmentTests
 using ReTest
 using RxEnvironments
 using Rocket
+import RxEnvironments: conduct_action!, Observation, state
 
 include("mockenvironment.jl")
 
 @testset "environment" begin
     @testset "creation" begin
-        import RxEnvironments: DiscreteEnvironment, TimerEnvironment, observations, Message
+        import RxEnvironments: DiscreteEnvironment, TimerEnvironment, observations
 
         let env = RxEnvironment(MockEnvironment(0.0))
             @test env isa DiscreteEnvironment
             # Check that the environment will pass messages coming into the observations to subscribed actors.
             actor = keep(Any)
             subscribe!(env, actor)
-            next!(observations(env), Message(MockAgent(), nothing))
-            @test actor.values == [RxEnvironments.EmptyMessage()]
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
+            @test actor.values == [state(env)]
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test actor.values ==
-                  [RxEnvironments.EmptyMessage(), RxEnvironments.EmptyMessage()]
+                  [state(env), state(env)]
         end
 
         import RxEnvironments: last_update
@@ -29,7 +30,7 @@ include("mockenvironment.jl")
             @test last_update(env) == 0.0
             actor = keep(Any)
             subscribe!(env, actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             for i = 1:10
                 prev_num_values = length(actor.values)
                 sleep(0.01)
@@ -40,28 +41,28 @@ include("mockenvironment.jl")
     end
 
     @testset "add to other entity" begin
-        import RxEnvironments: actions, subscribed_entities, AbstractEntity
+        import RxEnvironments: subscribed_entities, AbstractEntity
         let env = RxEnvironment(MockEnvironment(0.0))
             agent = MockAgent()
             agent = add!(env, agent)
             # Test that adding an agent to the environment works.
-            @test length(actions(env)) == 1
+            @test length(subscribed_entities(env)) == 1
             @test subscribed_entities(env) == [agent]
             # Test that adding an agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [nothing]
 
             second_agent = SecondMockAgent()
             second_agent = add!(env, second_agent)
             # Test that adding a second agent to the environment works.
-            @test length(actions(env)) == 2
+            @test length(subscribed_entities(env)) == 2
             @test subscribed_entities(env) == Any[agent, second_agent]
             # Test that adding a second agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(second_agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [RxEnvironments.EmptyMessage()]
         end
 
@@ -69,21 +70,21 @@ include("mockenvironment.jl")
             agent = MockAgent()
             agent = add!(env, agent)
             # Test that adding an agent to the environment works.
-            @test length(actions(env)) == 1
+            @test length(subscribed_entities(env)) == 1
             # Test that adding an agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [nothing]
 
             second_agent = SecondMockAgent()
             second_agent = add!(env, second_agent)
             # Test that adding a second agent to the environment works.
-            @test length(actions(env)) == 2
+            @test length(subscribed_entities(env)) == 2
             # Test that adding a second agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(second_agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [RxEnvironments.EmptyMessage()]
         end
     end
@@ -95,7 +96,7 @@ include("mockenvironment.jl")
             actor = keep(Any)
             subscribe!(observations(env), actor)
             for i = 1:10
-                next!(actions(agent, env), i)
+                conduct_action!(agent, env, i)
                 @test RxEnvironments.data.(actor.values) == collect(1:i)
             end
         end
@@ -106,26 +107,20 @@ include("mockenvironment.jl")
         let env = RxEnvironment(MockEnvironment(0.0))
             agent = MockAgent()
             agent = add!(env, agent)
-            @test length(actions(env)) == 1
-            @test actions(env, agent) isa Rocket.RecentSubjectInstance
+            @test length(subscribed_entities(env)) == 1
         end
 
         let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
             agent = MockAgent()
             agent = add!(env, agent)
-            @test length(actions(env)) == 1
-            @test actions(env, agent) isa Rocket.RecentSubjectInstance
+            @test length(subscribed_entities(env)) == 1
         end
 
         let env1 = RxEnvironment(MockEnvironment(0.0))
             let env2 = RxEnvironment(MockEnvironment(0.0))
                 add!(env1, env2)
-                @test length(actions(env1)) == 1
                 @test subscribed_entities(env1) == [env2]
-                @test actions(env1, env2) isa Rocket.RecentSubjectInstance
-                @test length(actions(env2)) == 1
                 @test subscribed_entities(env2) == [env1]
-                @test actions(env2, env1) isa Rocket.RecentSubjectInstance
             end
         end
 

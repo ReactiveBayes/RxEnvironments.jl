@@ -1,14 +1,12 @@
 struct DiscreteEnvironment <: AbstractEnvironment
     entity::Any
-    observations::Rocket.RecentSubjectInstance
-    actions::AbstractDict{Any,Rocket.RecentSubjectInstance}
+    markov_blanket::MarkovBlanket
 end
 
 function DiscreteEnvironment(environment)
     env = DiscreteEnvironment(
         environment,
-        RecentSubject(Any),
-        Dict{Any,Rocket.RecentSubjectInstance}(),
+        MarkovBlanket()
     )
     instantiate!(env)
     return env
