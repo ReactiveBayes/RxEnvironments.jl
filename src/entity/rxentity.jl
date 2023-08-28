@@ -9,3 +9,7 @@ end
 function RxEntity(entity)
     return RxEntity(entity, RecentSubject(Any), Dict{Any,Rocket.RecentSubjectInstance}())
 end
+
+function Base.:(==)(a::RxEntity, b::RxEntity)
+    return a.entity == b.entity
+end
