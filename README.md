@@ -28,29 +28,32 @@ temperature(env::BayesianThermostat) = env.temperature
 min_temp(env::BayesianThermostat) = env.min_temp
 max_temp(env::BayesianThermostat) = env.max_temp
 noise(env::BayesianThermostat) = Normal(0.0, 0.1)
+set_temperature(env::BayesianThermostat, temp) = env.temperature = temp
+add_temperature(env::BayesianThermostat, diff) = env.temperature += diff
 ```
 
 By overriding `RxEnvironments.act!`, `RxEnvironments.observe` and `RxEnvironments.update!` for our environment, we can fully specify the behaviour of our environment, and `RxEnvironments` will take care of the rest. In order to follow along with the sanity checks, please install `Rocket.jl` as well.
 
 ```julia
+using Rocket
+
 function RxEnvironments.act!(
     env::BayesianThermostat,
     actor::ThermostatAgent,
     action::Float64,
 )
-    env.temperature += action
+    add_temperature(env, action)
 
-    if env.temperature < env.min_temp
-        env.temperature = env.min_temp
-    elseif env.temperature > env.max_temp
-        env.temperature = env.max_temp
+    if temperature(env) < min_temp(env)
+        set_temperature(env, min_temp(env))
+    elseif temperature(env) > max_temp(env)
+        set_temperature(env, max_temp(env))
     end
 end
 
 function RxEnvironments.observe(
     receiver::ThermostatAgent,
     emitter::BayesianThermostat,
-    stimulus,
 )
     # The agent receives a noisy observation of the environment's temperature
     return temperature(emitter) + rand(noise(emitter))
@@ -65,7 +68,7 @@ end
 Now we've fully specified our environment, and we can interact with it. In order to create the environment, we use the `RxEnvironment` struct, and we add an agent to this environment using `add!`:
 
 ```julia
-environment = RxEnvironments.RxEnvironment(BayesianThermostat(0.0, -10, 10))
+environment = RxEnvironment(BayesianThermostat(0.0, -10, 10))
 agent = add!(environment, ThermostatAgent())
 ```
 
@@ -73,13 +76,12 @@ Now we can have the agent conduct actions in our environment. Let's have the age
 
 ```julia
 # Subscribe a logger actor to the observations of the agent
-observations_observable = RxEnvironments.observations(agent) |> map(Float64, x -> RxEnvironments.data(x))
-subscribe!(observations_observable, logger())
+RxEnvironments.inspect_observations(agent, logger())
 
 # Conduct 10 actions:
 for i in 1:10
     action = rand()
-    next!(agent, environment, action)
+    RxEnvironments.conduct_action!(agent, environment, action)
 end
 ```
 
