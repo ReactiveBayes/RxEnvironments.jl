@@ -26,12 +26,8 @@ function __add!(first::AbstractEntity, second::AbstractEntity)
 end
 
 function update! end
-function act! end
-function observe end
-function state end
 
 observe(subject::AbstractEntity, environment) = observe(entity(subject), environment)
-observe(subject, environment) = state(environment)
 
 act!(subject::AbstractEntity, action::Observation) =
     act!(subject, emitter(action), data(action))
@@ -40,7 +36,6 @@ act!(recipient::AbstractEntity, sender::AbstractEntity, action::Any) =
 act!(recipient::AbstractEntity, sender::Any, action::Any) =
     act!(entity(recipient), sender, action)
 
-state(subject::AbstractEntity) = state(entity(subject))
 
 function inspect_observations(entity::AbstractEntity, actor)
     subscribe!(observations(entity), actor)

@@ -1,4 +1,5 @@
 using RxEnvironments
+using Rocket
 
 struct MockAgent end
 
@@ -14,5 +15,5 @@ RxEnvironments.act!(environment::MockEnvironment, agent::Any, action::Any) = not
 RxEnvironments.observe(agent::MockAgent, environment::MockEnvironment) = nothing
 RxEnvironments.observe(agent::SecondMockAgent, environment::MockEnvironment) =
     RxEnvironments.EmptyMessage()
-RxEnvironments.state(environment::MockEnvironment) = environment.state
-RxEnvironments.state(agent::MockAgent) = nothing
+
+RxEnvironments.observe(agent::Rocket.Actor{Any}, environment::MockEnvironment) = environment.state

@@ -3,23 +3,23 @@ module EnvironmentTests
 using ReTest
 using RxEnvironments
 using Rocket
-import RxEnvironments: conduct_action!, Observation, state
+import RxEnvironments: conduct_action!, Observation
 
 include("mockenvironment.jl")
 
 @testset "environment" begin
     @testset "creation" begin
         import RxEnvironments: DiscreteEnvironment, TimerEnvironment, observations
-
-        let env = RxEnvironment(MockEnvironment(0.0))
+        state = 0.0
+        let env = RxEnvironment(MockEnvironment(state))
             @test env isa DiscreteEnvironment
             # Check that the environment will pass messages coming into the observations to subscribed actors.
             actor = keep(Any)
             subscribe!(env, actor)
             next!(observations(env), Observation(MockAgent(), nothing))
-            @test actor.values == [state(env)]
+            @test actor.values == [state]
             next!(observations(env), Observation(MockAgent(), nothing))
-            @test actor.values == [state(env), state(env)]
+            @test actor.values == [state, state]
         end
 
         import RxEnvironments: last_update

@@ -5,6 +5,7 @@ using ReTest
 include("entity.jl")
 include("environment.jl")
 include("markovblanket.jl")
+include("exceptions.jl")
 
 module RxEnvironmentsTests
 
@@ -22,3 +23,4 @@ retest(RxEnvironments, RxEnvironmentsTests)
 retest(RxEnvironments, EntityTests)
 retest(RxEnvironments, EnvironmentTests)
 retest(RxEnvironments, TestMarkovBlanket)
+retest(RxEnvironments, TestExceptions)
