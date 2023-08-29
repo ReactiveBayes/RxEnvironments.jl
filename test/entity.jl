@@ -3,38 +3,39 @@ module EntityTests
 using ReTest
 using Rocket
 using RxEnvironments
+import RxEnvironments: entity, observations, markov_blanket, conduct_action!, Observation
 
 include("mockenvironment.jl")
 
 @testset "entity" begin
     @testset "constructor" begin
-        import RxEnvironments: RxEntity
-        let entity = RxEntity(MockAgent())
-            @test entity.entity isa MockAgent
-            @test entity.observations isa Rocket.RecentSubjectInstance
-            @test entity.actions isa AbstractDict
+        import RxEnvironments: RxEntity, MarkovBlanket
+        let rxentity = RxEntity(MockAgent())
+            @test entity(rxentity) isa MockAgent
+            @test observations(rxentity) isa Rocket.RecentSubjectInstance
+            @test markov_blanket(rxentity) isa MarkovBlanket
         end
     end
 
     @testset "mutual subscribe" begin
-        import RxEnvironments: __add!, inspect_observations, data
+        import RxEnvironments: __add!, subscribe_to_observations!, data
         let first_entity = RxEntity(MockAgent())
             let second_entity = RxEntity(MockAgent())
                 __add!(first_entity, second_entity)
-                obs = inspect_observations(second_entity)
-                next!(first_entity, second_entity, 10)
-                @test data.(obs.values) == [10]
+                @test is_subscribed(first_entity, second_entity)
+                @test is_subscribed(second_entity, first_entity)
             end
         end
     end
 
-    @testset "inspect_observations" begin
-        import RxEnvironments: inspect_observations, observations, Message
+    @testset "subscribe to observations" begin
+        import RxEnvironments: subscribe_to_observations!, observations
         let env = RxEnvironment(MockEnvironment(0.0))
             actor = add!(env, MockAgent())
-            obs = inspect_observations(actor)
+            obs = keep(Any)
+            subscribe_to_observations!(actor, obs)
             @test length(obs) == 0
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(actor, nothing))
             @test length(obs) == 1
         end
     end

@@ -8,8 +8,7 @@ Base.time(time::TimeStamp) = time.time
 
 struct TimerEnvironment <: AbstractEnvironment
     entity::Any
-    observations::Rocket.RecentSubjectInstance
-    actions::AbstractDict{Any,Rocket.RecentSubjectInstance}
+    markov_blanket::MarkovBlanket
     start_time::TimeStamp
     last_update::TimeStamp
     real_time_factor::Float64
@@ -19,8 +18,7 @@ end
 function TimerEnvironment(environment, real_time_factor::Float64, emit_every_ms::Int64)
     env = TimerEnvironment(
         environment,
-        RecentSubject(Any),
-        Dict{Any,Rocket.RecentSubjectInstance}(),
+        MarkovBlanket(),
         TimeStamp(time()),
         TimeStamp(0),
         real_time_factor,
@@ -40,7 +38,6 @@ function Base.show(io::IO, environment::TimerEnvironment)
         io,
         "Timed RxEnvironment, emitting every $(environment.timer.period) milliseconds, on a clock speed of $(environment.real_time_factor) times real time.",
     )
-    println(io, "Subscribed entities: $(keys(environment.actions))")
 end
 
 function set_last_update!(environment::TimerEnvironment, time::Float64)

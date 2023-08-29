@@ -1,6 +1,7 @@
 using Rocket
 
-export AbstractEntity, add!, act!, update!, observe
+export AbstractEntity,
+    add!, act!, update!, observe, is_subscribed, subscribers, subscribed_to
 
 """
     AbstractEntity
@@ -10,23 +11,14 @@ The AbstractEntity type supertypes all entities. It describes basic functionalit
 abstract type AbstractEntity end
 
 entity(entity::AbstractEntity) = entity.entity
-observations(entity::AbstractEntity) = entity.observations
-actions(entity::AbstractEntity) = entity.actions
-actions(entity::AbstractEntity, recipient::Any) = entity.actions[recipient]
-
-Rocket.next!(entity::AbstractEntity, recipient::AbstractEntity, action) =
-    next!(actions(entity, recipient), action)
-function Rocket.subscribe!(entity::AbstractEntity, observer::AbstractEntity)
-    mbactor = MarkovBlanketActor(entity, observer)
-    actions(entity)[observer] = RecentSubject(Any)
-    subscription = subscribe!(actions(entity, observer), mbactor)
-end
-
-function Rocket.subscribe!(entity::AbstractEntity, observer::Rocket.Actor{Any})
-    actions(entity)[observer] = RecentSubject(Any)
-    subscription = subscribe!(actions(entity, observer), observer)
-end
-
+observations(entity::AbstractEntity) = observations(markov_blanket(entity))
+actuators(entity::AbstractEntity) = actuators(markov_blanket(entity))
+sensors(entity::AbstractEntity) = sensors(markov_blanket(entity))
+subscribers(entity::AbstractEntity) = collect(keys(actuators(entity)))
+subscribed_to(entity::AbstractEntity) = collect(keys(sensors(entity)))
+markov_blanket(entity::AbstractEntity) = entity.markov_blanket
+get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
+    get_actuator(markov_blanket(emitter), recipient)
 
 function __add!(first::AbstractEntity, second::AbstractEntity)
     subscribe!(first, second)
@@ -34,17 +26,30 @@ function __add!(first::AbstractEntity, second::AbstractEntity)
 end
 
 function update! end
-function act! end
-function observe end
-observe(receiver, sender, stimulus) = stimulus
-act!(subject::AbstractEntity, action::Message) = act!(subject, sender(action), data(action))
+
+observe(subject::AbstractEntity, environment) = observe(entity(subject), environment)
+
+act!(subject::AbstractEntity, action::Observation) =
+    act!(subject, emitter(action), data(action))
 act!(recipient::AbstractEntity, sender::AbstractEntity, action::Any) =
     act!(entity(recipient), entity(sender), action)
 act!(recipient::AbstractEntity, sender::Any, action::Any) =
     act!(entity(recipient), sender, action)
 
-function inspect_observations(entity::AbstractEntity)
-    actor = keep(Any)
+
+function subscribe_to_observations!(entity::AbstractEntity, actor)
     subscribe!(observations(entity), actor)
     return actor
+end
+
+Base.show(io::IO, entity::AbstractEntity) = println(io, "AbstractEntity $(typeof(entity))")
+
+
+function is_subscribed(subject::AbstractEntity, target::AbstractEntity)
+    return haskey(actuators(markov_blanket(target)), subject) &&
+           haskey(sensors(markov_blanket(subject)), target)
+end
+
+function is_subscribed(subject::Rocket.Actor{Any}, target::AbstractEntity)
+    return haskey(actuators(markov_blanket(target)), subject)
 end

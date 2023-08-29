@@ -3,23 +3,23 @@ module EnvironmentTests
 using ReTest
 using RxEnvironments
 using Rocket
+import RxEnvironments: conduct_action!, Observation
 
 include("mockenvironment.jl")
 
 @testset "environment" begin
     @testset "creation" begin
-        import RxEnvironments: DiscreteEnvironment, TimerEnvironment, observations, Message
-
-        let env = RxEnvironment(MockEnvironment(0.0))
+        import RxEnvironments: DiscreteEnvironment, TimerEnvironment, observations
+        state = 0.0
+        let env = RxEnvironment(MockEnvironment(state))
             @test env isa DiscreteEnvironment
             # Check that the environment will pass messages coming into the observations to subscribed actors.
             actor = keep(Any)
             subscribe!(env, actor)
-            next!(observations(env), Message(MockAgent(), nothing))
-            @test actor.values == [RxEnvironments.EmptyMessage()]
-            next!(observations(env), Message(MockAgent(), nothing))
-            @test actor.values ==
-                  [RxEnvironments.EmptyMessage(), RxEnvironments.EmptyMessage()]
+            next!(observations(env), Observation(MockAgent(), nothing))
+            @test actor.values == [state]
+            next!(observations(env), Observation(MockAgent(), nothing))
+            @test actor.values == [state, state]
         end
 
         import RxEnvironments: last_update
@@ -29,35 +29,39 @@ include("mockenvironment.jl")
             @test last_update(env) == 0.0
             actor = keep(Any)
             subscribe!(env, actor)
-            next!(observations(env), Message(MockAgent(), nothing))
-            sleep(0.008)
-            @test length(actor.values) === 2
-            sleep(0.008)
-            @test length(actor.values) === 3
+            next!(observations(env), Observation(MockAgent(), nothing))
+            for i = 1:10
+                prev_num_values = length(actor.values)
+                sleep(0.01)
+                num_values = length(actor.values)
+                @test num_values > prev_num_values
+            end
         end
     end
 
     @testset "add to other entity" begin
-        import RxEnvironments: actions
+        import RxEnvironments: AbstractEntity
         let env = RxEnvironment(MockEnvironment(0.0))
             agent = MockAgent()
             agent = add!(env, agent)
             # Test that adding an agent to the environment works.
-            @test length(actions(env)) == 1
+            @test length(subscribers(env)) == 1
+            @test subscribers(env) == [agent]
             # Test that adding an agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [nothing]
 
             second_agent = SecondMockAgent()
             second_agent = add!(env, second_agent)
             # Test that adding a second agent to the environment works.
-            @test length(actions(env)) == 2
+            @test length(subscribers(env)) == 2
+            @test subscribers(env) == Any[agent, second_agent]
             # Test that adding a second agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(second_agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [RxEnvironments.EmptyMessage()]
         end
 
@@ -65,21 +69,21 @@ include("mockenvironment.jl")
             agent = MockAgent()
             agent = add!(env, agent)
             # Test that adding an agent to the environment works.
-            @test length(actions(env)) == 1
+            @test length(subscribers(env)) == 1
             # Test that adding an agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [nothing]
 
             second_agent = SecondMockAgent()
             second_agent = add!(env, second_agent)
             # Test that adding a second agent to the environment works.
-            @test length(actions(env)) == 2
+            @test length(subscribers(env)) == 2
             # Test that adding a second agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(second_agent), actor)
-            next!(observations(env), Message(MockAgent(), nothing))
+            next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [RxEnvironments.EmptyMessage()]
         end
     end
@@ -91,23 +95,63 @@ include("mockenvironment.jl")
             actor = keep(Any)
             subscribe!(observations(env), actor)
             for i = 1:10
-                next!(actions(agent, env), i)
+                conduct_action!(agent, env, i)
                 @test RxEnvironments.data.(actor.values) == collect(1:i)
             end
         end
+    end
+
+    @testset "add" begin
+        let env = RxEnvironment(MockEnvironment(0.0))
+            agent = MockAgent()
+            agent = add!(env, agent)
+            @test length(subscribers(env)) == 1
+        end
+
+        let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
+            agent = MockAgent()
+            agent = add!(env, agent)
+            @test length(subscribers(env)) == 1
+        end
+
+        let env1 = RxEnvironment(MockEnvironment(0.0))
+            let env2 = RxEnvironment(MockEnvironment(0.0))
+                add!(env1, env2)
+                @test subscribers(env1) == [env2]
+                @test subscribers(env2) == [env1]
+            end
+        end
+
     end
 
     @testset "show" begin
         let env = RxEnvironment(MockEnvironment(0.0))
             io = IOBuffer()
             ioc = IOContext(io)
+            agent = MockAgent()
+            agent = add!(env, agent)
             show(io, env)
+            result = String(take!(io))
+            @test occursin("Discrete RxEnvironment", result)
         end
 
         let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
             io = IOBuffer()
             ioc = IOContext(io)
             show(io, env)
+            result = String(take!(io))
+            @test occursin("Timed RxEnvironment", result)
+        end
+
+        let env1 = RxEnvironment(MockEnvironment(0.0))
+            let env2 = RxEnvironment(MockEnvironment(0.0))
+                add!(env1, env2)
+                io = IOBuffer()
+                ioc = IOContext(io)
+                show(io, env1)
+                result = String(take!(io))
+                @test occursin("Discrete RxEnvironment", result)
+            end
         end
     end
 
