@@ -10,7 +10,7 @@ env = RxEnvironment(MockEnvironment(0.0))
 agent = MockAgent()
 
 @testset "NotSubscribedException" begin
-   
+
     let exception = NotSubscribedException(env, agent)
         @test exception isa NotSubscribedException
         @test origin(exception) === env

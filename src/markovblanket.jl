@@ -79,8 +79,12 @@ function Rocket.unsubscribe!(emitter::AbstractEntity, receiver::AbstractEntity)
     delete!(actuators(emitter), receiver)
 end
 
-function Rocket.unsubscribe!(emitter::AbstractEntity, subscription::Teardown)
-    @warn "Deleting from actuator list not possible for Actors, unsubscription will still be processed."
+function Rocket.unsubscribe!(
+    emitter::AbstractEntity,
+    actor::Rocket.Actor,
+    subscription::Teardown,
+)
+    delete!(actuators(emitter), actor)
     unsubscribe!(subscription)
 end
 

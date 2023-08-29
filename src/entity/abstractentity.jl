@@ -1,7 +1,7 @@
 using Rocket
 
 export AbstractEntity,
-    add!, act!, update!, observe, is_subscribed, subscribed_entities, subscribed_to
+    add!, act!, update!, observe, is_subscribed, subscribers, subscribed_to
 
 """
     AbstractEntity
@@ -14,7 +14,7 @@ entity(entity::AbstractEntity) = entity.entity
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
 actuators(entity::AbstractEntity) = actuators(markov_blanket(entity))
 sensors(entity::AbstractEntity) = sensors(markov_blanket(entity))
-subscribed_entities(entity::AbstractEntity) = collect(keys(actuators(entity)))
+subscribers(entity::AbstractEntity) = collect(keys(actuators(entity)))
 subscribed_to(entity::AbstractEntity) = collect(keys(sensors(entity)))
 markov_blanket(entity::AbstractEntity) = entity.markov_blanket
 get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
@@ -37,7 +37,7 @@ act!(recipient::AbstractEntity, sender::Any, action::Any) =
     act!(entity(recipient), sender, action)
 
 
-function inspect_observations(entity::AbstractEntity, actor)
+function subscribe_to_observations!(entity::AbstractEntity, actor)
     subscribe!(observations(entity), actor)
     return actor
 end

@@ -40,13 +40,13 @@ include("mockenvironment.jl")
     end
 
     @testset "add to other entity" begin
-        import RxEnvironments: subscribed_entities, AbstractEntity
+        import RxEnvironments: AbstractEntity
         let env = RxEnvironment(MockEnvironment(0.0))
             agent = MockAgent()
             agent = add!(env, agent)
             # Test that adding an agent to the environment works.
-            @test length(subscribed_entities(env)) == 1
-            @test subscribed_entities(env) == [agent]
+            @test length(subscribers(env)) == 1
+            @test subscribers(env) == [agent]
             # Test that adding an agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(agent), actor)
@@ -56,8 +56,8 @@ include("mockenvironment.jl")
             second_agent = SecondMockAgent()
             second_agent = add!(env, second_agent)
             # Test that adding a second agent to the environment works.
-            @test length(subscribed_entities(env)) == 2
-            @test subscribed_entities(env) == Any[agent, second_agent]
+            @test length(subscribers(env)) == 2
+            @test subscribers(env) == Any[agent, second_agent]
             # Test that adding a second agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(second_agent), actor)
@@ -69,7 +69,7 @@ include("mockenvironment.jl")
             agent = MockAgent()
             agent = add!(env, agent)
             # Test that adding an agent to the environment works.
-            @test length(subscribed_entities(env)) == 1
+            @test length(subscribers(env)) == 1
             # Test that adding an agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(agent), actor)
@@ -79,7 +79,7 @@ include("mockenvironment.jl")
             second_agent = SecondMockAgent()
             second_agent = add!(env, second_agent)
             # Test that adding a second agent to the environment works.
-            @test length(subscribed_entities(env)) == 2
+            @test length(subscribers(env)) == 2
             # Test that adding a second agent propagates an observation to the agent.
             actor = keep(Any)
             subscribe!(observations(second_agent), actor)
@@ -102,24 +102,23 @@ include("mockenvironment.jl")
     end
 
     @testset "add" begin
-        import RxEnvironments: add!, subscribed_entities
         let env = RxEnvironment(MockEnvironment(0.0))
             agent = MockAgent()
             agent = add!(env, agent)
-            @test length(subscribed_entities(env)) == 1
+            @test length(subscribers(env)) == 1
         end
 
         let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
             agent = MockAgent()
             agent = add!(env, agent)
-            @test length(subscribed_entities(env)) == 1
+            @test length(subscribers(env)) == 1
         end
 
         let env1 = RxEnvironment(MockEnvironment(0.0))
             let env2 = RxEnvironment(MockEnvironment(0.0))
                 add!(env1, env2)
-                @test subscribed_entities(env1) == [env2]
-                @test subscribed_entities(env2) == [env1]
+                @test subscribers(env1) == [env2]
+                @test subscribers(env2) == [env1]
             end
         end
 

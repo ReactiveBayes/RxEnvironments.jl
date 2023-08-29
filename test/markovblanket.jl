@@ -9,7 +9,7 @@ import RxEnvironments:
     MarkovBlanket,
     RxEntity,
     markov_blanket,
-    inspect_observations,
+    subscribe_to_observations!,
     conduct_action!,
     NotSubscribedException
 
@@ -19,6 +19,7 @@ include("mockenvironment.jl")
     @testset "constructor" begin
         let actuator = Actuator()
             @test actuator isa Actuator
+            @test_throws MethodError Actuator(10)
         end
     end
 
@@ -51,25 +52,27 @@ end
             second_agent = RxEntity(MockAgent())
             subscribe!(env, second_agent)
             @test is_subscribed(second_agent, env)
-            @test length(subscribed_entities(env)) == 2
-            @test subscribed_entities(env) == [agent, second_agent]
+            @test length(subscribers(env)) == 2
+            @test subscribers(env) == [agent, second_agent]
 
             unsubscribe!(env, agent)
             @test !is_subscribed(agent, env)
             @test is_subscribed(second_agent, env)
-            @test length(subscribed_entities(env)) == 1
+            @test length(subscribers(env)) == 1
             @test_throws NotSubscribedException conduct_action!(env, agent, 10)
 
             unsubscribe!(env, second_agent)
             @test !is_subscribed(agent, env)
             @test !is_subscribed(second_agent, env)
-            @test length(subscribed_entities(env)) == 0
+            @test length(subscribers(env)) == 0
         end
 
         let env = RxEnvironment(MockEnvironment(0.0))
             actor = keep(Any)
-            subscribe!(env, actor)
+            sub = subscribe!(env, actor)
             @test is_subscribed(actor, env)
+            unsubscribe!(env, actor, sub)
+            @test !is_subscribed(actor, env)
         end
     end
 
@@ -88,14 +91,14 @@ end
         agent = RxEntity(MockAgent())
         subscribe!(env, agent)
         actor = keep(Any)
-        inspect_observations(agent, actor)
+        subscribe_to_observations!(agent, actor)
         conduct_action!(env, agent, 10)
         @test RxEnvironments.data.(actor.values) == [10]
 
         second_agent = RxEntity(MockAgent())
         subscribe!(env, second_agent)
         second_actor = keep(Any)
-        inspect_observations(second_agent, second_actor)
+        subscribe_to_observations!(second_agent, second_actor)
         conduct_action!(env, second_agent, 20)
         @test RxEnvironments.data.(actor.values) == [10]
         @test RxEnvironments.data.(second_actor.values) == [20]

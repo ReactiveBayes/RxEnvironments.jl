@@ -16,4 +16,5 @@ RxEnvironments.observe(agent::MockAgent, environment::MockEnvironment) = nothing
 RxEnvironments.observe(agent::SecondMockAgent, environment::MockEnvironment) =
     RxEnvironments.EmptyMessage()
 
-RxEnvironments.observe(agent::Rocket.Actor{Any}, environment::MockEnvironment) = environment.state
+RxEnvironments.observe(agent::Rocket.Actor{Any}, environment::MockEnvironment) =
+    environment.state

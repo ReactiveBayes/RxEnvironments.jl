@@ -18,24 +18,22 @@ include("mockenvironment.jl")
     end
 
     @testset "mutual subscribe" begin
-        import RxEnvironments: __add!, inspect_observations, data
+        import RxEnvironments: __add!, subscribe_to_observations!, data
         let first_entity = RxEntity(MockAgent())
             let second_entity = RxEntity(MockAgent())
                 __add!(first_entity, second_entity)
-                obs = keep(Any)
-                inspect_observations(second_entity, obs)
-                conduct_action!(first_entity, second_entity, 10)
-                @test data.(obs.values) == [10]
+                @test is_subscribed(first_entity, second_entity)
+                @test is_subscribed(second_entity, first_entity)
             end
         end
     end
 
-    @testset "inspect_observations" begin
-        import RxEnvironments: inspect_observations, observations
+    @testset "subscribe to observations" begin
+        import RxEnvironments: subscribe_to_observations!, observations
         let env = RxEnvironment(MockEnvironment(0.0))
             actor = add!(env, MockAgent())
             obs = keep(Any)
-            inspect_observations(actor, obs)
+            subscribe_to_observations!(actor, obs)
             @test length(obs) == 0
             next!(observations(env), Observation(actor, nothing))
             @test length(obs) == 1
