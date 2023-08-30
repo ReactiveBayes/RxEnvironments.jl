@@ -6,42 +6,59 @@ end
 
 Base.time(time::TimeStamp) = time.time
 
-struct TimerEnvironment{T} <: AbstractEnvironment{T}
-    entity::T
-    markov_blanket::MarkovBlanket
+struct Clock
     start_time::TimeStamp
     last_update::TimeStamp
-    real_time_factor::Float64
+    real_time_factor::Real
     timer::Rocket.TimerObservable
 end
 
+start_time(clock::Clock) = time(clock.start_time)
+last_update(clock::Clock) = time(clock.last_update)
+real_time_factor(clock::Clock) = clock.real_time_factor
+timer(clock::Clock) = clock.timer
+
+Rocket.subscribe!(clock::Clock, actor::Rocket.Actor) = Rocket.subscribe!(timer(clock), actor)
+
+struct TimerEnvironment{T} <: AbstractEnvironment{T}
+    entity::T
+    markov_blanket::MarkovBlanket
+    clock::Clock
+end
+
 function TimerEnvironment(environment, real_time_factor::Float64, emit_every_ms::Int64)
-    env = TimerEnvironment(
-        environment,
-        MarkovBlanket(),
+    c = Clock(
         TimeStamp(time()),
         TimeStamp(0),
         real_time_factor,
         Rocket.interval(emit_every_ms),
     )
+    env = TimerEnvironment(
+        environment,
+        MarkovBlanket(),
+        c,
+    )
     instantiate!(env)
-    subscribe!(env.timer, TimerActor(env))
+    subscribe!(clock(env), TimerActor(env))
     return env
 end
 
-start_time(environment::TimerEnvironment) = time(environment.start_time)
-last_update(environment::TimerEnvironment) = time(environment.last_update)
-real_time_factor(environment::TimerEnvironment) = environment.real_time_factor
+clock(environment::TimerEnvironment) = environment.clock
+
+start_time(environment::TimerEnvironment) = start_time(clock(environment))
+last_update(environment::TimerEnvironment) = last_update(clock(environment))
+real_time_factor(environment::TimerEnvironment) = real_time_factor(clock(environment))
+timer(environment::TimerEnvironment) = timer(clock(environment))
 
 function Base.show(io::IO, environment::TimerEnvironment)
     println(
         io,
-        "Timed RxEnvironment, emitting every $(environment.timer.period) milliseconds, on a clock speed of $(environment.real_time_factor) times real time.",
+        "Timed RxEnvironment, emitting every $(timer(environment).period) milliseconds, on a clock speed of $(real_time_factor(environment)) times real time.",
     )
 end
 
 function set_last_update!(environment::TimerEnvironment, time::Float64)
-    environment.last_update.time = time
+    environment.clock.last_update.time = time
 end
 
 function Base.time(environment::AbstractEnvironment)
