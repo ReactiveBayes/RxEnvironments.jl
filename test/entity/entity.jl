@@ -5,7 +5,7 @@ using Rocket
 using RxEnvironments
 import RxEnvironments: entity, observations, markov_blanket, conduct_action!, Observation
 
-include("mockenvironment.jl")
+include("../mockenvironment.jl")
 
 @testset "entity" begin
     @testset "constructor" begin
@@ -38,6 +38,41 @@ include("mockenvironment.jl")
             next!(observations(env), Observation(actor, nothing))
             @test length(obs) == 1
         end
+    end
+
+    @testset "terminate!" begin
+        let env = RxEnvironment(MockEnvironment(0.0))
+            agent = add!(env, MockAgent())
+            terminate!(agent)
+            @test !is_subscribed(agent, env)
+            @test is_terminated(agent)
+            @test length(subscribers(env)) == 0
+        end
+
+        let env = RxEnvironment(MockEnvironment(0.0))
+            agent = add!(env, MockAgent())
+            terminate!(env)
+            @test !is_subscribed(agent, env)
+            @test is_terminated(env)
+            @test length(subscribers(agent)) == 0
+        end
+
+        let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
+            agent = add!(env, MockAgent())
+            terminate!(agent)
+            @test !is_subscribed(agent, env)
+            @test is_terminated(agent)
+            @test length(subscribers(env)) == 0
+        end
+
+        let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
+            agent = add!(env, MockAgent())
+            terminate!(env)
+            @test !is_subscribed(agent, env)
+            @test is_terminated(env)
+            @test length(subscribers(agent)) == 0
+        end
+
     end
 
 end

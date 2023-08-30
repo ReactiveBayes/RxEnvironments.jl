@@ -13,5 +13,7 @@ include("environment/discreteenvironment.jl")
 include("environment/timerenvironment.jl")
 include("environment/rxenvironment.jl")
 
+include("visualization/plotting.jl")
+
 
 end

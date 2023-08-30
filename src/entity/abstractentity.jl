@@ -1,14 +1,22 @@
 using Rocket
 
 export AbstractEntity,
-    add!, act!, update!, observe, is_subscribed, subscribers, subscribed_to
+    add!,
+    act!,
+    update!,
+    observe,
+    is_subscribed,
+    subscribers,
+    subscribed_to,
+    terminate!,
+    is_terminated
 
 """
     AbstractEntity
 
 The AbstractEntity type supertypes all entities. It describes basic functionality all entities should have.
 """
-abstract type AbstractEntity end
+abstract type AbstractEntity{T} end
 
 entity(entity::AbstractEntity) = entity.entity
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
@@ -19,6 +27,7 @@ subscribed_to(entity::AbstractEntity) = collect(keys(sensors(entity)))
 markov_blanket(entity::AbstractEntity) = entity.markov_blanket
 get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
     get_actuator(markov_blanket(emitter), recipient)
+is_terminated(entity::AbstractEntity) = is_terminated(entity.terminated)
 
 function __add!(first::AbstractEntity, second::AbstractEntity)
     subscribe!(first, second)
@@ -26,6 +35,16 @@ function __add!(first::AbstractEntity, second::AbstractEntity)
 end
 
 function update! end
+
+function terminate!(entity::AbstractEntity)
+    terminate!(entity.terminated)
+    for subscriber in subscribers(entity)
+        unsubscribe!(entity, subscriber)
+    end
+    for subscribed_to in subscribed_to(entity)
+        unsubscribe!(subscribed_to, entity)
+    end
+end
 
 observe(subject::AbstractEntity, environment) = observe(entity(subject), environment)
 

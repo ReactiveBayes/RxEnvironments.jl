@@ -1,6 +1,6 @@
 
 
-abstract type AbstractEnvironment <: AbstractEntity end
+abstract type AbstractEnvironment{T} <: AbstractEntity{T} end
 
 environment(environment::AbstractEnvironment) = environment.entity
 

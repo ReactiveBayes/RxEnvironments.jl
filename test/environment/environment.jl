@@ -5,7 +5,7 @@ using RxEnvironments
 using Rocket
 import RxEnvironments: conduct_action!, Observation
 
-include("mockenvironment.jl")
+include("../mockenvironment.jl")
 
 @testset "environment" begin
     @testset "creation" begin
