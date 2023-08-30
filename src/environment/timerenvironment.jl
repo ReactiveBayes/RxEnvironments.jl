@@ -1,4 +1,4 @@
-struct TimerMessage end
+using Rocket
 
 mutable struct TimeStamp
     time::Float64
@@ -6,8 +6,8 @@ end
 
 Base.time(time::TimeStamp) = time.time
 
-struct TimerEnvironment <: AbstractEnvironment
-    entity::Any
+struct TimerEnvironment{T} <: AbstractEnvironment{T}
+    entity::T
     markov_blanket::MarkovBlanket
     start_time::TimeStamp
     last_update::TimeStamp

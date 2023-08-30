@@ -8,7 +8,7 @@ export AbstractEntity,
 
 The AbstractEntity type supertypes all entities. It describes basic functionality all entities should have.
 """
-abstract type AbstractEntity end
+abstract type AbstractEntity{T} end
 
 entity(entity::AbstractEntity) = entity.entity
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))

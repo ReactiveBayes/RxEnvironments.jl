@@ -1,5 +1,5 @@
-struct DiscreteEnvironment <: AbstractEnvironment
-    entity::Any
+struct DiscreteEnvironment{T} <: AbstractEnvironment{T}
+    entity::T
     markov_blanket::MarkovBlanket
 end
 

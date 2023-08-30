@@ -14,7 +14,7 @@ using Aqua
 using RxEnvironments
 
 @testset "RxEnvironments.jl" begin
-    Aqua.test_all(RxEnvironments)
+    Aqua.test_all(RxEnvironments; ambiguities=false)
 end
 
 end

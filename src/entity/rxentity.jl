@@ -1,7 +1,7 @@
 using Rocket
 
-struct RxEntity <: AbstractEntity
-    entity::Any
+struct RxEntity{T} <: AbstractEntity{T}
+    entity::T
     markov_blanket::MarkovBlanket
 end
 
