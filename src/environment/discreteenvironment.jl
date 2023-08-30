@@ -1,10 +1,11 @@
 struct DiscreteEnvironment{T} <: AbstractEnvironment{T}
     entity::T
     markov_blanket::MarkovBlanket
+    terminated::Terminated
 end
 
 function DiscreteEnvironment(environment)
-    env = DiscreteEnvironment(environment, MarkovBlanket())
+    env = DiscreteEnvironment(environment, MarkovBlanket(), Terminated(false))
     instantiate!(env)
     return env
 end

@@ -18,12 +18,14 @@ last_update(clock::Clock) = time(clock.last_update)
 real_time_factor(clock::Clock) = clock.real_time_factor
 timer(clock::Clock) = clock.timer
 
-Rocket.subscribe!(clock::Clock, actor::Rocket.Actor) = Rocket.subscribe!(timer(clock), actor)
+Rocket.subscribe!(clock::Clock, actor::Rocket.Actor) =
+    Rocket.subscribe!(timer(clock), actor)
 
 struct TimerEnvironment{T} <: AbstractEnvironment{T}
     entity::T
     markov_blanket::MarkovBlanket
     clock::Clock
+    terminated::Terminated
 end
 
 function TimerEnvironment(environment, real_time_factor::Float64, emit_every_ms::Int64)
@@ -33,11 +35,7 @@ function TimerEnvironment(environment, real_time_factor::Float64, emit_every_ms:
         real_time_factor,
         Rocket.interval(emit_every_ms),
     )
-    env = TimerEnvironment(
-        environment,
-        MarkovBlanket(),
-        c,
-    )
+    env = TimerEnvironment(environment, MarkovBlanket(), c, Terminated(false))
     instantiate!(env)
     subscribe!(clock(env), TimerActor(env))
     return env
