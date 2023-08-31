@@ -12,9 +12,11 @@ export AbstractEntity,
     is_terminated
 
 """
-    AbstractEntity
+    AbstractEntity{T}
 
-The AbstractEntity type supertypes all entities. It describes basic functionality all entities should have.
+The AbstractEntity type supertypes all entities. It describes basic functionality all entities should have. It is assumed that every 
+entity has a markov blanket, which has actuators and sensors. The AbstractEntity also has a field that describes whether or not the
+entity is terminated. 
 """
 abstract type AbstractEntity{T} end
 
@@ -29,7 +31,11 @@ get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
     get_actuator(markov_blanket(emitter), recipient)
 is_terminated(entity::AbstractEntity) = is_terminated(entity.terminated)
 
-function __add!(first::AbstractEntity, second::AbstractEntity)
+"""
+
+
+"""
+function add!(first::AbstractEntity, second::AbstractEntity)
     subscribe!(first, second)
     subscribe!(second, first)
 end

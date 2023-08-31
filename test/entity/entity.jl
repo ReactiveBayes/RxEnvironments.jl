@@ -21,7 +21,7 @@ include("../mockenvironment.jl")
         import RxEnvironments: __add!, subscribe_to_observations!, data
         let first_entity = RxEntity(MockAgent())
             let second_entity = RxEntity(MockAgent())
-                __add!(first_entity, second_entity)
+                add!(first_entity, second_entity)
                 @test is_subscribed(first_entity, second_entity)
                 @test is_subscribed(second_entity, first_entity)
             end
