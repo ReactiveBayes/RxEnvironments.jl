@@ -3,6 +3,7 @@ module RxEnvironments
 include("exceptions.jl")
 
 include("actors/message.jl")
+include("actors/timer.jl")
 
 include("actors/environmentactor.jl")
 include("entity/abstractentity.jl")

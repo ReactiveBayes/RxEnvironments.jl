@@ -78,3 +78,14 @@ end
 function is_subscribed(subject::Rocket.Actor{Any}, target::AbstractEntity)
     return haskey(actuators(markov_blanket(target)), subject)
 end
+
+function add_timer!(entity::AbstractEntity, emit_every_ms; real_time_factor::Real=1.0)
+    @assert real_time_factor > 0.0
+    c = Clock(real_time_factor, emit_every_ms)
+    add_timer!(entity, c)
+end
+
+function add_timer!(entity::AbstractEntity, clock::Clock)
+    actor = TimerActor(entity)
+    subscribe!(timer(clock), actor)
+end

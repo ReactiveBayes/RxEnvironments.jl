@@ -18,7 +18,7 @@ include("../mockenvironment.jl")
     end
 
     @testset "mutual subscribe" begin
-        import RxEnvironments: __add!, subscribe_to_observations!, data
+        import RxEnvironments: subscribe_to_observations!, data
         let first_entity = RxEntity(MockAgent())
             let second_entity = RxEntity(MockAgent())
                 add!(first_entity, second_entity)
