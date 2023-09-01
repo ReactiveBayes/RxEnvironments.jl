@@ -60,11 +60,14 @@ function get_actuator(markov_blanket::MarkovBlanket, agent::AbstractEntity)
     return actuators(markov_blanket)[agent]
 end
 
+add_to_state!(entity, to_add) = nothing
+
 function Rocket.subscribe!(emitter::AbstractEntity, receiver::AbstractEntity)
     actuator = Actuator()
     insert!(actuators(markov_blanket(emitter)), receiver, actuator)
     sensor = Sensor(emitter, receiver)
     insert!(sensors(markov_blanket(receiver)), emitter, sensor)
+    add_to_state!(entity(emitter), entity(receiver))
 end
 
 function Rocket.subscribe!(emitter::AbstractEntity, receiver::Rocket.Actor{T} where {T})

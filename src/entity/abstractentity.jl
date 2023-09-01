@@ -1,14 +1,24 @@
 using Rocket
 
 export AbstractEntity,
-    add!, act!, update!, observe, is_subscribed, subscribers, subscribed_to
+    add!,
+    act!,
+    update!,
+    observe,
+    is_subscribed,
+    subscribers,
+    subscribed_to,
+    terminate!,
+    is_terminated
 
 """
-    AbstractEntity
+    AbstractEntity{T}
 
-The AbstractEntity type supertypes all entities. It describes basic functionality all entities should have.
+The AbstractEntity type supertypes all entities. It describes basic functionality all entities should have. It is assumed that every 
+entity has a markov blanket, which has actuators and sensors. The AbstractEntity also has a field that describes whether or not the
+entity is terminated. 
 """
-abstract type AbstractEntity end
+abstract type AbstractEntity{T} end
 
 entity(entity::AbstractEntity) = entity.entity
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
@@ -19,13 +29,28 @@ subscribed_to(entity::AbstractEntity) = collect(keys(sensors(entity)))
 markov_blanket(entity::AbstractEntity) = entity.markov_blanket
 get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
     get_actuator(markov_blanket(emitter), recipient)
+is_terminated(entity::AbstractEntity) = is_terminated(entity.terminated)
 
-function __add!(first::AbstractEntity, second::AbstractEntity)
+"""
+
+
+"""
+function add!(first::AbstractEntity, second::AbstractEntity)
     subscribe!(first, second)
     subscribe!(second, first)
 end
 
 function update! end
+
+function terminate!(entity::AbstractEntity)
+    terminate!(entity.terminated)
+    for subscriber in subscribers(entity)
+        unsubscribe!(entity, subscriber)
+    end
+    for subscribed_to in subscribed_to(entity)
+        unsubscribe!(subscribed_to, entity)
+    end
+end
 
 observe(subject::AbstractEntity, environment) = observe(entity(subject), environment)
 
@@ -52,4 +77,15 @@ end
 
 function is_subscribed(subject::Rocket.Actor{Any}, target::AbstractEntity)
     return haskey(actuators(markov_blanket(target)), subject)
+end
+
+function add_timer!(entity::AbstractEntity, emit_every_ms; real_time_factor::Real=1.0)
+    @assert real_time_factor > 0.0
+    c = Clock(real_time_factor, emit_every_ms)
+    add_timer!(entity, c)
+end
+
+function add_timer!(entity::AbstractEntity, clock::Clock)
+    actor = TimerActor(entity)
+    subscribe!(timer(clock), actor)
 end

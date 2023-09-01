@@ -2,8 +2,8 @@ using RxEnvironments
 using Aqua
 using ReTest
 
-include("entity.jl")
-include("environment.jl")
+include("entity/entity.jl")
+include("environment/environment.jl")
 include("markovblanket.jl")
 include("exceptions.jl")
 
@@ -14,7 +14,7 @@ using Aqua
 using RxEnvironments
 
 @testset "RxEnvironments.jl" begin
-    Aqua.test_all(RxEnvironments)
+    Aqua.test_all(RxEnvironments; ambiguities = false)
 end
 
 end

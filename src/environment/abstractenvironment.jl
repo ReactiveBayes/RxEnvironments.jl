@@ -1,6 +1,6 @@
 
 
-abstract type AbstractEnvironment <: AbstractEntity end
+abstract type AbstractEnvironment{T} <: AbstractEntity{T} end
 
 environment(environment::AbstractEnvironment) = environment.entity
 
@@ -10,12 +10,16 @@ function instantiate!(environment::AbstractEnvironment)
 end
 
 
-function add!(environment::AbstractEnvironment, entity)
+function add!(environment::AbstractEntity, entity)
     entity = RxEntity(entity)
-    __add!(environment, entity)
+    add!(environment, entity)
     return entity
 end
 
-add!(environment::AbstractEnvironment, entity::AbstractEntity) = __add!(environment, entity)
+"""
+    RxEnvironments.update!()
 
+Updates the environment in the absence of any observations coming through the Markov Blanket. In a `TimedEnvironment` this will also take
+the `elapsed_time` as an argument in order to calcualte the state transition for the required time.
+"""
 function update! end

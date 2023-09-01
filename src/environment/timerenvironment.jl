@@ -1,75 +1,36 @@
-struct TimerMessage end
+using Rocket
 
-mutable struct TimeStamp
-    time::Float64
-end
 
-Base.time(time::TimeStamp) = time.time
-
-struct TimerEnvironment <: AbstractEnvironment
-    entity::Any
+struct TimerEnvironment{T} <: AbstractEnvironment{T}
+    entity::T
     markov_blanket::MarkovBlanket
-    start_time::TimeStamp
-    last_update::TimeStamp
-    real_time_factor::Float64
-    timer::Rocket.TimerObservable
+    clock::Clock
+    terminated::Terminated
 end
 
 function TimerEnvironment(environment, real_time_factor::Float64, emit_every_ms::Int64)
-    env = TimerEnvironment(
-        environment,
-        MarkovBlanket(),
-        TimeStamp(time()),
-        TimeStamp(0),
-        real_time_factor,
-        Rocket.interval(emit_every_ms),
-    )
+    c = Clock(real_time_factor, emit_every_ms)
+    env = TimerEnvironment(environment, MarkovBlanket(), c, Terminated(false))
     instantiate!(env)
-    subscribe!(env.timer, TimerActor(env))
+    add_timer!(env, c)
     return env
 end
 
-start_time(environment::TimerEnvironment) = time(environment.start_time)
-last_update(environment::TimerEnvironment) = time(environment.last_update)
-real_time_factor(environment::TimerEnvironment) = environment.real_time_factor
+clock(environment::TimerEnvironment) = environment.clock
+
+start_time(environment::TimerEnvironment) = start_time(clock(environment))
+last_update(environment::TimerEnvironment) = last_update(clock(environment))
+real_time_factor(environment::TimerEnvironment) = real_time_factor(clock(environment))
+timer(environment::TimerEnvironment) = timer(clock(environment))
 
 function Base.show(io::IO, environment::TimerEnvironment)
     println(
         io,
-        "Timed RxEnvironment, emitting every $(environment.timer.period) milliseconds, on a clock speed of $(environment.real_time_factor) times real time.",
+        "Timed RxEnvironment, emitting every $(timer(environment).period) milliseconds, on a clock speed of $(real_time_factor(environment)) times real time.",
     )
 end
 
-function set_last_update!(environment::TimerEnvironment, time::Float64)
-    environment.last_update.time = time
-end
-
-function Base.time(environment::AbstractEnvironment)
-    return (time() - start_time(environment)) / real_time_factor(environment)
-end
-
-function elapsed_time(environment::TimerEnvironment)
-    return time(environment) - last_update(environment)
-end
-
 function update!(env::TimerEnvironment)
-    update!(environment(env), elapsed_time(env))
-    set_last_update!(env, time(env))
+    update!(environment(env), elapsed_time(clock(env)))
+    set_last_update!(clock(env), time(clock(env)))
 end
-
-struct TimerActor <: Rocket.Actor{Int}
-    environment::TimerEnvironment
-end
-
-environment(actor::TimerActor) = actor.environment
-
-function Rocket.on_next!(actor::TimerActor, time::Int)
-    next!(observations(environment(actor)), TimerMessage())
-end
-
-function Rocket.on_error!(actor::TimerActor, error)
-    @error "Error in TimerActor for environment " exception = (error, catch_backtrace())
-end
-
-
-act!(recepient::TimerEnvironment, action::TimerMessage) = nothing
