@@ -1,5 +1,6 @@
 using Rocket
 using Dictionaries
+import Dictionaries: Dictionary
 
 struct Actuator
     subject::Rocket.RecentSubjectInstance
@@ -37,16 +38,45 @@ Sensor(actor::SensorActor) =
     Sensor(actor, subscribe!(get_actuator(emitter(actor), receiver(actor)), actor))
 Rocket.unsubscribe!(sensor::Sensor) = Rocket.unsubscribe!(sensor.subscription)
 
-struct MarkovBlanket
-    actuators::Dictionary{Any,Actuator}
-    sensors::Dictionary{Any,Sensor}
-    observations::Rocket.RecentSubjectInstance
+struct Observations{T}
+    state_space::T
+    buffer::AbstractDictionary{Any, Union{Observation, Nothing}}
+    target::Rocket.RecentSubjectInstance
 end
 
-MarkovBlanket() = MarkovBlanket(
-    Dictionaries.Dictionary{Any,Actuator}(),
-    Dictionaries.Dictionary{Any,Sensor}(),
-    RecentSubject(Any),
+Observations(state_space::Discrete) = Observations(state_space, Dictionary{Any, Union{Observation, Nothing}}(), RecentSubject(ObservationCollection))
+Observations(state_space::Continuous) = Observations(state_space, Dictionary{Any, Union{Observation, Nothing}}(), RecentSubject(AbstractObservation))
+target(observations::Observations) = observations.target
+function clear_buffer!(observations::Observations) 
+    for (key, value) in pairs(observations.buffer)
+        observations.buffer[key] = nothing
+    end
+end
+
+Rocket.subscribe!(observations::Observations, actor::Rocket.Actor{T} where T) = subscribe!(target(observations), actor)
+
+Rocket.next!(observations::Observations{Continuous}, observation::Union{Observation, TimerMessage}) = next!(target(observations), observation)
+function Rocket.next!(observations::Observations{Discrete}, observation::Observation)
+    observations.buffer[emitter(observation)] = observation
+    if sum(values(observations.buffer) .== nothing) == 0
+        next!(target(observations), ObservationCollection(Tuple(observations.buffer)))
+        clear_buffer!(observations)
+    end
+end
+function Rocket.next!(observations::Observations{Discrete}, observation::TimerMessage)
+    @error "Clocked environment not supported for Discrete state space"
+end
+
+struct MarkovBlanket{T}
+    actuators::AbstractDictionary{Any,Actuator}
+    sensors::AbstractDictionary{Any,Sensor}
+    observations::Observations{T}
+end
+
+MarkovBlanket(state_space) = MarkovBlanket(
+    Dictionary{Any,Actuator}(),
+    Dictionary{Any,Sensor}(),
+    Observations(state_space),
 )
 
 actuators(markov_blanket::MarkovBlanket) = markov_blanket.actuators
@@ -62,11 +92,21 @@ end
 
 add_to_state!(entity, to_add) = nothing
 
+function add_sensor!(markov_blanket::MarkovBlanket{Discrete}, emitter::AbstractEntity, receiver::AbstractEntity)
+    sensor = Sensor(emitter, receiver)
+    insert!(sensors(markov_blanket), emitter, sensor)
+    insert!(observations(markov_blanket).buffer, emitter, nothing)
+end
+
+function add_sensor!(markov_blanket::MarkovBlanket{Continuous}, emitter::AbstractEntity, receiver::AbstractEntity)
+    sensor = Sensor(emitter, receiver)
+    insert!(sensors(markov_blanket), emitter, sensor)
+end
+
 function Rocket.subscribe!(emitter::AbstractEntity, receiver::AbstractEntity)
     actuator = Actuator()
     insert!(actuators(markov_blanket(emitter)), receiver, actuator)
-    sensor = Sensor(emitter, receiver)
-    insert!(sensors(markov_blanket(receiver)), emitter, sensor)
+    add_sensor!(markov_blanket(receiver), emitter, receiver)
     add_to_state!(entity(emitter), entity(receiver))
 end
 

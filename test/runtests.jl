@@ -3,9 +3,10 @@ using Aqua
 using ReTest
 
 include("entity/entity.jl")
-include("environment/environment.jl")
 include("markovblanket.jl")
 include("exceptions.jl")
+include("environment/environment.jl")
+include("environment/discreteenvironment.jl")
 
 module RxEnvironmentsTests
 
@@ -21,6 +22,7 @@ end
 
 retest(RxEnvironments, RxEnvironmentsTests)
 retest(RxEnvironments, EntityTests)
-retest(RxEnvironments, EnvironmentTests)
 retest(RxEnvironments, TestMarkovBlanket)
 retest(RxEnvironments, TestExceptions)
+retest(RxEnvironments, EnvironmentTests)
+retest(RxEnvironments, TestDiscreteEnvironment)
