@@ -15,7 +15,8 @@ export AbstractEntity,
     subscribers,
     subscribed_to,
     terminate!,
-    is_terminated
+    is_terminated,
+    animate_state
 
 """
     AbstractEntity{T}
@@ -120,3 +121,6 @@ function add_timer!(entity::AbstractEntity, clock::Clock)
     subscribe!(timer(clock), actor)
     set_clock!(entity, clock)
 end
+
+function animate_state end
+function plot_state end
