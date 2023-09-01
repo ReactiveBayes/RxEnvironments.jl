@@ -114,7 +114,7 @@ end
 
 function add_timer!(entity::AbstractEntity{T, Continuous, E} where {T, E}, clock::Clock)
     actor = TimerActor(entity)
-    subscribe!(timer(clock), actor)
+    subscribe!(clock, actor)
     set_clock!(entity, clock)
 end
 
