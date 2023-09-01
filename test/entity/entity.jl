@@ -3,24 +3,24 @@ module EntityTests
 using ReTest
 using Rocket
 using RxEnvironments
-import RxEnvironments: entity, observations, markov_blanket, conduct_action!, Observation
+import RxEnvironments: entity, observations, markov_blanket, conduct_action!, Observation, create_entity, Continuous, Discrete, IsEnvironment, IsNotEnvironment
 
 include("../mockenvironment.jl")
 
 @testset "entity" begin
     @testset "constructor" begin
-        import RxEnvironments: RxEntity, MarkovBlanket
-        let rxentity = RxEntity(MockAgent())
+        import RxEnvironments: RxEntity, MarkovBlanket, Observations
+        let rxentity = create_entity(MockAgent(), Continuous(), IsNotEnvironment())
             @test entity(rxentity) isa MockAgent
-            @test observations(rxentity) isa Rocket.RecentSubjectInstance
+            @test observations(rxentity) isa Observations
             @test markov_blanket(rxentity) isa MarkovBlanket
         end
     end
 
     @testset "mutual subscribe" begin
         import RxEnvironments: subscribe_to_observations!, data
-        let first_entity = RxEntity(MockAgent())
-            let second_entity = RxEntity(MockAgent())
+        let first_entity = create_entity(MockAgent(), Continuous(), IsNotEnvironment())
+            let second_entity = create_entity(MockAgent(), Continuous(), IsNotEnvironment())
                 add!(first_entity, second_entity)
                 @test is_subscribed(first_entity, second_entity)
                 @test is_subscribed(second_entity, first_entity)

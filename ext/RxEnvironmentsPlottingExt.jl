@@ -1,10 +1,10 @@
-using GLMakie
+module RxEnvironmentsPlottingExt
 
-export animate_state
+using RxEnvironments, GLMakie
 
-function plot_state end
 
-animate_state(subject::AbstractEntity; fps = 60, seconds = 10) =
+
+RxEnvironments.animate_state(subject::AbstractEntity; fps = 60, seconds = 10) =
     @async(__animate_state(subject, fps, seconds))
 
 
@@ -19,7 +19,9 @@ function __animate_state(subject::AbstractEntity, fps, seconds)
         empty!(ax)
         ax.cycler.counters[Scatter] = 0
         ax.cycler.counters[Lines] = 0
-        plot_state(ax, underlying)
+        plot_state(ax, underlying) 
         sleep(1 / fps)
     end
+end
+
 end

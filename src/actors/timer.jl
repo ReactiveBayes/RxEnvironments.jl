@@ -1,9 +1,5 @@
 using Rocket
 
-struct TimerMessage end
-
-act!(recepient, action::TimerMessage) = nothing
-
 
 mutable struct TimeStamp
     time::Float64
@@ -54,5 +50,5 @@ function Rocket.on_next!(actor::TimerActor, time::Int)
 end
 
 function Rocket.on_error!(actor::TimerActor, error)
-    @error "Error in TimerActor for entity " exception = (error, catch_backtrace())
+    showerror(stdout, error, catch_backtrace())
 end

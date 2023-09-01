@@ -3,8 +3,21 @@ struct Observation{M,D}
     data::D
 end
 
+struct TimerMessage end
+
+const AbstractObservation = Union{Observation, TimerMessage}
+
 emitter(message::Observation) = message.emitter
 data(message::Observation) = message.data
+
+
+struct ObservationCollection{N}
+    observations::NTuple{N, Observation}
+end
+
+Base.iterate(collection::ObservationCollection) = iterate(collection.observations)
+Base.iterate(collection::ObservationCollection, state) = iterate(collection.observations, state)
+
 
 struct EmptyMessage end
 

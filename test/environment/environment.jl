@@ -3,29 +3,30 @@ module EnvironmentTests
 using ReTest
 using RxEnvironments
 using Rocket
-import RxEnvironments: conduct_action!, Observation
+import RxEnvironments: conduct_action!, Observation, Discrete, Continuous, state_space
 
 include("../mockenvironment.jl")
 
 @testset "environment" begin
     @testset "creation" begin
-        import RxEnvironments: DiscreteEnvironment, TimerEnvironment, observations
+        import RxEnvironments: observations
         state = 0.0
-        let env = RxEnvironment(MockEnvironment(state))
-            @test env isa DiscreteEnvironment
+        let env = RxEnvironment(MockEnvironment(state), discrete=true)
+            @test state_space(env) == Discrete()
             # Check that the environment will pass messages coming into the observations to subscribed actors.
+            agent = add!(env, MockAgent())
             actor = keep(Any)
             subscribe!(env, actor)
-            next!(observations(env), Observation(MockAgent(), nothing))
+            next!(observations(env), Observation(agent, nothing))
             @test actor.values == [state]
-            next!(observations(env), Observation(MockAgent(), nothing))
+            next!(observations(env), Observation(agent, nothing))
             @test actor.values == [state, state]
         end
 
         import RxEnvironments: last_update
 
         let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
-            @test env isa TimerEnvironment
+            @test  state_space(env) == Continuous()
             @test last_update(env) == 0.0
             actor = keep(Any)
             subscribe!(env, actor)
@@ -121,40 +122,7 @@ include("../mockenvironment.jl")
                 @test subscribers(env2) == [env1]
             end
         end
-
     end
-
-    @testset "show" begin
-        let env = RxEnvironment(MockEnvironment(0.0))
-            io = IOBuffer()
-            ioc = IOContext(io)
-            agent = MockAgent()
-            agent = add!(env, agent)
-            show(io, env)
-            result = String(take!(io))
-            @test occursin("Discrete RxEnvironment", result)
-        end
-
-        let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
-            io = IOBuffer()
-            ioc = IOContext(io)
-            show(io, env)
-            result = String(take!(io))
-            @test occursin("Timed RxEnvironment", result)
-        end
-
-        let env1 = RxEnvironment(MockEnvironment(0.0))
-            let env2 = RxEnvironment(MockEnvironment(0.0))
-                add!(env1, env2)
-                io = IOBuffer()
-                ioc = IOContext(io)
-                show(io, env1)
-                result = String(take!(io))
-                @test occursin("Discrete RxEnvironment", result)
-            end
-        end
-    end
-
 end
 
 end
