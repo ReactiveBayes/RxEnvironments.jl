@@ -63,9 +63,6 @@ function Rocket.next!(observations::Observations{Discrete}, observation::Observa
         clear_buffer!(observations)
     end
 end
-function Rocket.next!(observations::Observations{Discrete}, observation::TimerMessage)
-    @error "Clocked environment not supported for Discrete state space"
-end
 
 struct MarkovBlanket{T}
     actuators::AbstractDictionary{Any,Actuator}

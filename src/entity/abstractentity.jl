@@ -41,8 +41,6 @@ clock(entity::AbstractEntity) = properties(entity).clock
 last_update(entity::AbstractEntity{T, Continuous, E}) where {T, E} = last_update(clock(entity))
 state_space(entity::AbstractEntity) = properties(entity).state_space
 
-environment(env::AbstractEntity{T, S, IsEnvironment} where {T, S}) = entity(env)
-
 
 
 function add!(environment::AbstractEntity{T, S, E}, entity) where {T, S, E}
@@ -96,8 +94,6 @@ function subscribe_to_observations!(entity::AbstractEntity, actor)
     return actor
 end
 
-Base.show(io::IO, entity::AbstractEntity) = println(io, "AbstractEntity $(typeof(entity))")
-
 
 function is_subscribed(subject::AbstractEntity, target::AbstractEntity)
     return haskey(actuators(markov_blanket(target)), subject) &&
@@ -110,13 +106,13 @@ end
 
 set_clock!(entity::AbstractEntity, clock::Clock) = properties(entity).clock = clock
 
-function add_timer!(entity::AbstractEntity, emit_every_ms::Int; real_time_factor::Real=1.0)
+function add_timer!(entity::AbstractEntity{T, Continuous, E} where {T, E}, emit_every_ms::Int; real_time_factor::Real=1.0)
     @assert real_time_factor > 0.0
     c = Clock(real_time_factor, emit_every_ms)  
     add_timer!(entity, c)
 end
 
-function add_timer!(entity::AbstractEntity, clock::Clock)
+function add_timer!(entity::AbstractEntity{T, Continuous, E} where {T, E}, clock::Clock)
     actor = TimerActor(entity)
     subscribe!(timer(clock), actor)
     set_clock!(entity, clock)

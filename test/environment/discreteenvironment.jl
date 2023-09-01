@@ -3,7 +3,7 @@ module TestDiscreteEnvironment
 using RxEnvironments
 using Rocket
 using ReTest
-import RxEnvironments: subscribe_to_observations!, conduct_action!
+import RxEnvironments: subscribe_to_observations!, conduct_action!, add_timer!
 
 include("../mockenvironment.jl")
 
@@ -25,6 +25,13 @@ include("../mockenvironment.jl")
             @test length(values.values) == 2
         end
     end
+
+    @testset "not possible to add timer" begin
+        let env = RxEnvironment(MockEnvironment(0.0), discrete=true)
+            @test_throws MethodError add_timer!(env, 1000)
+        end
+    end
+
 end
 
 end
