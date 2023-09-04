@@ -18,11 +18,37 @@ function landscape(x)
     return 0.05 * h
 end
 
+mutable struct MountainCarTrajectory
+    recompute::Bool
+    time_left::Real
+    trajectory
+    T::Real
+end
+
+recompute(trajectory::MountainCarTrajectory) = trajectory.recompute
+time_left(trajectory::MountainCarTrajectory) = trajectory.time_left
+total_time(trajectory::MountainCarTrajectory) = trajectory.T
+Base.getindex(trajectory::MountainCarTrajectory, index) = trajectory.trajectory(index)
+set_trajectory!(t::MountainCarTrajectory, trajectory) =
+    t.trajectory = trajectory
+set_recompute!(trajectory::MountainCarTrajectory, recompute) =
+    trajectory.recompute = recompute
+set_time_left!(trajectory::MountainCarTrajectory, time_left) =
+    trajectory.time_left = time_left
+reduce_time_left!(trajectory::MountainCarTrajectory, elapsed_time) =
+    set_time_left!(trajectory, time_left(trajectory) - elapsed_time)
+set_total_time!(trajectory::MountainCarTrajectory, T) =
+    trajectory.T = T
+
 mutable struct MountainCarState
     position::Float64
     velocity::Float64
     throttle::Float64
+    trajectory::MountainCarTrajectory
 end
+
+MountainCarState(position::Real, velocity::Real, throttle::Real) =
+    MountainCarState(position, velocity, throttle, MountainCarTrajectory(true, 0.0, [], 0.0))
 
 position(state::MountainCarState) = state.position
 velocity(state::MountainCarState) = state.velocity
@@ -30,6 +56,8 @@ throttle(state::MountainCarState) = state.throttle
 set_position!(state::MountainCarState, position::Real) = state.position = position
 set_velocity!(state::MountainCarState, velocity::Real) = state.velocity = velocity
 set_throttle!(state::MountainCarState, throttle::Real) = state.throttle = throttle
+trajectory(state::MountainCarState) = state.trajectory
+
 
 
 struct MountainCarAgent
@@ -59,6 +87,7 @@ set_throttle!(car::MountainCarAgent, throttle::Real) =
     set_throttle!(state(car), throttle)
 engine_power(car::MountainCarAgent) = car.engine_power
 friction_coefficient(car::MountainCarAgent) = car.friction_coefficient
+trajectory(car::MountainCarAgent) = trajectory(state(car))
 
 
 struct MountainCarEnvironment
@@ -75,12 +104,10 @@ struct Throttle
     Throttle(throttle::Real) = new(clamp(throttle, -1, 1))
 end
 
-power(throttle::Throttle, car::MountainCarAgent) =
-    car.engine_power * tanh(throttle.throttle)
-friction(car::MountainCarAgent) = velocity(car) * -friction_coefficient(car)
+friction(car::MountainCarAgent, v) = v * -friction_coefficient(car)
 
-function gravitation(car::MountainCarAgent, landscape)
-    result = -9.81 * sin(atan(ForwardDiff.derivative(landscape, position(car))))
+function gravitation(position, landscape)
+    result = -9.81 * sin(atan(ForwardDiff.derivative(landscape, position)))
     return result
 end
 
@@ -89,7 +116,7 @@ function act!(
     agent::MountainCarAgent,
     action::Throttle,
 )
-    set_throttle!(agent, action.throttle * agent.engine_power)
+    set_throttle!(agent, action.throttle * engine_power(agent))
 end
 
 function observe(
@@ -99,19 +126,35 @@ function observe(
     return state(agent)
 end
 
+function __mountain_car_dynamics(du, u, s, t)
+    agent, env = s
+    momentum = u[2]
+    du[1] = momentum
+    du[2] = throttle(agent) + friction(agent, momentum) + gravitation(u[1], env.landscape)
+    @show du
+end
+
+function __compute_mountain_car_dynamics(agent::MountainCarAgent, environment::MountainCarEnvironment)
+    T = 10.0
+    initial_state = [position(agent), velocity(agent)]
+    tspan = (0.0, T)
+    prob = ODEProblem(__mountain_car_dynamics, initial_state, tspan, (agent, environment))
+    sol = solve(prob, Tsit5())
+    set_trajectory!(trajectory(agent), sol)
+    set_recompute!(trajectory(agent), false)
+    set_time_left!(trajectory(agent), T)
+    set_total_time!(trajectory(agent), T)
+end
+
 function update!(environment::MountainCarEnvironment, elapsed_time::Float64)
     for agent in environment.actors
-        set_position!(agent, position(agent) + elapsed_time * velocity(agent))
-        set_velocity!(
-            agent,
-            velocity(agent) + (
-                elapsed_time * (
-                    throttle(agent) +
-                    friction(agent) +
-                    gravitation(agent, environment.landscape)
-                )
-            ),
-        )
+        if recompute(trajectory(agent)) || time_left(trajectory(agent)) < elapsed_time
+            __compute_mountain_car_dynamics(agent, environment)
+        end
+        reduce_time_left!(trajectory(agent), elapsed_time)
+        new_state = trajectory(agent)[total_time(trajectory(agent)) - time_left(trajectory(agent))]
+        set_position!(agent, new_state[1])
+        set_velocity!(agent, new_state[2])
     end
 end
 
@@ -127,8 +170,8 @@ end
 
 function MountainCar(
     num_actors::Int;
-    engine_power::Float64 = 0.6,
-    friction_coefficient::Float64 = 0.9,
+    engine_power::Real = 0.6,
+    friction_coefficient::Real = 3,
     emit_every_ms::Int = 10,
     real_time_factor::Real = 1.0,
     landscape = landscape,
