@@ -24,4 +24,14 @@ function __animate_state(subject::AbstractEntity, fps, seconds)
     end
 end
 
+function RxEnvironments.plot_state(ax, environment::RxEnvironments.MountainCarEnvironment)
+    x = range(-2, 2, 100)
+    y = environment.landscape.(x)
+    lines!(ax, x, y)
+    for agent in environment.actors
+        position = RxEnvironments.position(agent)
+        scatter!(ax, position, environment.landscape(position))
+    end
+end
+
 end

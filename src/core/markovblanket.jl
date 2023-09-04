@@ -44,12 +44,12 @@ struct Observations{T}
     target::Rocket.RecentSubjectInstance
 end
 
-Observations(state_space::Discrete) = Observations(
+Observations(state_space::DiscreteEntity) = Observations(
     state_space,
     Dictionary{Any,Union{Observation,Nothing}}(),
     RecentSubject(ObservationCollection),
 )
-Observations(state_space::Continuous) = Observations(
+Observations(state_space::ContinuousEntity) = Observations(
     state_space,
     Dictionary{Any,Union{Observation,Nothing}}(),
     RecentSubject(AbstractObservation),
@@ -65,10 +65,10 @@ Rocket.subscribe!(observations::Observations, actor::Rocket.Actor{T} where {T}) 
     subscribe!(target(observations), actor)
 
 Rocket.next!(
-    observations::Observations{Continuous},
+    observations::Observations{ContinuousEntity},
     observation::Union{Observation,TimerMessage},
 ) = next!(target(observations), observation)
-function Rocket.next!(observations::Observations{Discrete}, observation::Observation)
+function Rocket.next!(observations::Observations{DiscreteEntity}, observation::Observation)
     observations.buffer[emitter(observation)] = observation
     if sum(values(observations.buffer) .== nothing) == 0
         next!(target(observations), ObservationCollection(Tuple(observations.buffer)))
@@ -102,7 +102,7 @@ end
 add_to_state!(entity, to_add) = nothing
 
 function add_sensor!(
-    markov_blanket::MarkovBlanket{Discrete},
+    markov_blanket::MarkovBlanket{DiscreteEntity},
     emitter::AbstractEntity,
     receiver::AbstractEntity,
 )
@@ -112,7 +112,7 @@ function add_sensor!(
 end
 
 function add_sensor!(
-    markov_blanket::MarkovBlanket{Continuous},
+    markov_blanket::MarkovBlanket{ContinuousEntity},
     emitter::AbstractEntity,
     receiver::AbstractEntity,
 )

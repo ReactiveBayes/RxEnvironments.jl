@@ -3,8 +3,8 @@ using Rocket
 struct IsEnvironment end
 struct IsNotEnvironment end
 
-struct Discrete end
-struct Continuous end
+struct DiscreteEntity end
+struct ContinuousEntity end
 
 export AbstractEntity,
     add!,
@@ -38,7 +38,8 @@ get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
     get_actuator(markov_blanket(emitter), recipient)
 is_terminated(entity::AbstractEntity) = is_terminated(properties(entity).terminated)
 clock(entity::AbstractEntity) = properties(entity).clock
-last_update(entity::AbstractEntity{T,Continuous,E}) where {T,E} = last_update(clock(entity))
+last_update(entity::AbstractEntity{T,ContinuousEntity,E}) where {T,E} =
+    last_update(clock(entity))
 state_space(entity::AbstractEntity) = properties(entity).state_space
 
 
@@ -54,12 +55,12 @@ function add!(first::AbstractEntity{T,S,E}, second::AbstractEntity{O,S,P}) where
     subscribe!(second, first)
 end
 
-function update!(e::AbstractEntity{T,Continuous,E}) where {T,E}
+function update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
     update!(entity(e), elapsed_time(clock(e)))
     set_last_update!(clock(e), time(clock(e)))
 end
 
-update!(e::AbstractEntity{T,Discrete,E}) where {T,E} = update!(entity(e))
+update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} = update!(entity(e))
 
 function terminate!(entity::AbstractEntity)
     terminate!(properties(entity).terminated)
@@ -107,7 +108,7 @@ end
 set_clock!(entity::AbstractEntity, clock::Clock) = properties(entity).clock = clock
 
 function add_timer!(
-    entity::AbstractEntity{T,Continuous,E} where {T,E},
+    entity::AbstractEntity{T,ContinuousEntity,E} where {T,E},
     emit_every_ms::Int;
     real_time_factor::Real = 1.0,
 )
@@ -116,7 +117,7 @@ function add_timer!(
     add_timer!(entity, c)
 end
 
-function add_timer!(entity::AbstractEntity{T,Continuous,E} where {T,E}, clock::Clock)
+function add_timer!(entity::AbstractEntity{T,ContinuousEntity,E} where {T,E}, clock::Clock)
     actor = TimerActor(entity)
     subscribe!(clock, actor)
     set_clock!(entity, clock)

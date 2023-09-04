@@ -36,6 +36,12 @@ end
 
 properties(entity::RxEntity) = entity.properties
 
+function create_entity(entity; state_space::Bool = true, is_environment::Bool = false)
+    state_space = state_space ? ContinuousEntity() : DiscreteEntity()
+    is_environment = is_environment ? IsEnvironment() : IsNotEnvironment()
+    return create_entity(entity, state_space, is_environment)
+end
+
 function create_entity(entity, state_space, is_environment)
     result = RxEntity(
         entity,

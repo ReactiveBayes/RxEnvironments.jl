@@ -8,4 +8,6 @@ include("core/markovblanket.jl")
 include("core/rxentity.jl")
 include("core/rxenvironment.jl")
 
+include("environments/mountaincar.jl")
+
 end
