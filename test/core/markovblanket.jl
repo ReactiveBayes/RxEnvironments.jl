@@ -16,7 +16,7 @@ import RxEnvironments:
     ContinuousEntity,
     create_entity
 
-include("mockenvironment.jl")
+include("../mockenvironment.jl")
 
 @testset "actuator" begin
     @testset "constructor" begin

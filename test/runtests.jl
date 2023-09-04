@@ -2,11 +2,11 @@ using RxEnvironments
 using Aqua
 using ReTest
 
-include("entity/entity.jl")
-include("markovblanket.jl")
-include("exceptions.jl")
-include("environment/environment.jl")
-include("environment/discreteenvironment.jl")
+include("core/entity.jl")
+include("core/markovblanket.jl")
+include("core/exceptions.jl")
+include("core/environment.jl")
+include("core/discreteenvironment.jl")
 
 module RxEnvironmentsTests
 
