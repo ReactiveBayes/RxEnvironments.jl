@@ -14,12 +14,8 @@ struct Clock
     timer::Rocket.TimerObservable
 end
 
-Clock(real_time_factor, emit_every_ms) = Clock(
-    TimeStamp(time()),
-    TimeStamp(0),
-    real_time_factor,
-    Rocket.interval(emit_every_ms),
-)
+Clock(real_time_factor, emit_every_ms) =
+    Clock(TimeStamp(time()), TimeStamp(0), real_time_factor, Rocket.interval(emit_every_ms))
 
 start_time(clock::Clock) = time(clock.start_time)
 last_update(clock::Clock) = time(clock.last_update)
@@ -38,7 +34,7 @@ end
 function elapsed_time(clock::Clock)
     return time(clock) - last_update(clock)
 end
-    
+
 struct TimerActor{T} <: Rocket.Actor{Int}
     entity::T
 end

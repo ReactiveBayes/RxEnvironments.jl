@@ -25,7 +25,7 @@ The AbstractEntity type supertypes all entities. It describes basic functionalit
 entity has a markov blanket, which has actuators and sensors. The AbstractEntity also has a field that describes whether or not the
 entity is terminated. 
 """
-abstract type AbstractEntity{T, S, E} end
+abstract type AbstractEntity{T,S,E} end
 
 entity(entity::AbstractEntity) = entity.entity
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
@@ -38,28 +38,28 @@ get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
     get_actuator(markov_blanket(emitter), recipient)
 is_terminated(entity::AbstractEntity) = is_terminated(properties(entity).terminated)
 clock(entity::AbstractEntity) = properties(entity).clock
-last_update(entity::AbstractEntity{T, Continuous, E}) where {T, E} = last_update(clock(entity))
+last_update(entity::AbstractEntity{T,Continuous,E}) where {T,E} = last_update(clock(entity))
 state_space(entity::AbstractEntity) = properties(entity).state_space
 
 
 
-function add!(environment::AbstractEntity{T, S, E}, entity) where {T, S, E}
+function add!(environment::AbstractEntity{T,S,E}, entity) where {T,S,E}
     entity = create_entity(entity, state_space(environment), IsNotEnvironment())
     add!(environment, entity)
     return entity
 end
 
-function add!(first::AbstractEntity{T, S, E}, second::AbstractEntity{O, S, P}) where {T, S, E, O, P}
+function add!(first::AbstractEntity{T,S,E}, second::AbstractEntity{O,S,P}) where {T,S,E,O,P}
     subscribe!(first, second)
     subscribe!(second, first)
 end
 
-function update!(e::AbstractEntity{T, Continuous, E}) where {T, E}
+function update!(e::AbstractEntity{T,Continuous,E}) where {T,E}
     update!(entity(e), elapsed_time(clock(e)))
     set_last_update!(clock(e), time(clock(e)))
 end
 
-update!(e::AbstractEntity{T, Discrete, E}) where {T, E} = update!(entity(e))
+update!(e::AbstractEntity{T,Discrete,E}) where {T,E} = update!(entity(e))
 
 function terminate!(entity::AbstractEntity)
     terminate!(properties(entity).terminated)
@@ -106,13 +106,17 @@ end
 
 set_clock!(entity::AbstractEntity, clock::Clock) = properties(entity).clock = clock
 
-function add_timer!(entity::AbstractEntity{T, Continuous, E} where {T, E}, emit_every_ms::Int; real_time_factor::Real=1.0)
+function add_timer!(
+    entity::AbstractEntity{T,Continuous,E} where {T,E},
+    emit_every_ms::Int;
+    real_time_factor::Real = 1.0,
+)
     @assert real_time_factor > 0.0
-    c = Clock(real_time_factor, emit_every_ms)  
+    c = Clock(real_time_factor, emit_every_ms)
     add_timer!(entity, c)
 end
 
-function add_timer!(entity::AbstractEntity{T, Continuous, E} where {T, E}, clock::Clock)
+function add_timer!(entity::AbstractEntity{T,Continuous,E} where {T,E}, clock::Clock)
     actor = TimerActor(entity)
     subscribe!(clock, actor)
     set_clock!(entity, clock)

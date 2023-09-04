@@ -3,7 +3,17 @@ module EntityTests
 using ReTest
 using Rocket
 using RxEnvironments
-import RxEnvironments: entity, observations, markov_blanket, conduct_action!, Observation, create_entity, Continuous, Discrete, IsEnvironment, IsNotEnvironment
+import RxEnvironments:
+    entity,
+    observations,
+    markov_blanket,
+    conduct_action!,
+    Observation,
+    create_entity,
+    Continuous,
+    Discrete,
+    IsEnvironment,
+    IsNotEnvironment
 
 include("../mockenvironment.jl")
 

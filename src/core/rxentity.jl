@@ -3,18 +3,18 @@ using Rocket
 mutable struct EntityProperties{T}
     state_space::T
     terminated::Terminated
-    clock::Union{Clock, Nothing}
+    clock::Union{Clock,Nothing}
 end
 
 EntityProperties(state_space) = EntityProperties(state_space, Terminated(false), nothing)
 
-struct EntityActor{S, E} <: Rocket.Actor{Any}
-    entity::AbstractEntity{T, S, E} where T
+struct EntityActor{S,E} <: Rocket.Actor{Any}
+    entity::AbstractEntity{T,S,E} where {T}
 end
 
 entity(actor::EntityActor) = actor.entity
 
-function Rocket.on_next!(actor::EntityActor{S, IsEnvironment} where S, action)
+function Rocket.on_next!(actor::EntityActor{S,IsEnvironment} where {S}, action)
     update!(entity(actor))
     act!(entity(actor), action)
     for (target, actuator) in pairs(actuators(entity(actor)))
@@ -23,11 +23,11 @@ function Rocket.on_next!(actor::EntityActor{S, IsEnvironment} where S, action)
     end
 end
 
-function Rocket.on_next!(actor::EntityActor{S, IsNotEnvironment} where S, action)
+function Rocket.on_next!(actor::EntityActor{S,IsNotEnvironment} where {S}, action)
     act!(entity(actor), action)
 end
 
-struct RxEntity{T, S, E} <: AbstractEntity{T, S, E}
+struct RxEntity{T,S,E} <: AbstractEntity{T,S,E}
     entity::T
     markov_blanket::MarkovBlanket
     properties::EntityProperties{S}
@@ -37,7 +37,12 @@ end
 properties(entity::RxEntity) = entity.properties
 
 function create_entity(entity, state_space, is_environment)
-    result = RxEntity(entity, MarkovBlanket(state_space), EntityProperties(state_space), is_environment)
+    result = RxEntity(
+        entity,
+        MarkovBlanket(state_space),
+        EntityProperties(state_space),
+        is_environment,
+    )
     entity_actor = EntityActor(result)
     subscribe_to_observations!(result, entity_actor)
     return result
