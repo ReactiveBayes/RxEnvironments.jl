@@ -4,7 +4,7 @@ using Distributions
 using ForwardDiff
 using DifferentialEquations
 
-export MountainCar
+export MountainCar, get_agent
 
 function landscape(x)
     if x < 0
@@ -27,9 +27,9 @@ end
 position(state::MountainCarState) = state.position
 velocity(state::MountainCarState) = state.velocity
 throttle(state::MountainCarState) = state.throttle
-set_position!(state::MountainCarState, position::Float64) = state.position = position
-set_velocity!(state::MountainCarState, velocity::Float64) = state.velocity = velocity
-set_throttle!(state::MountainCarState, throttle::Float64) = state.throttle = throttle
+set_position!(state::MountainCarState, position::Real) = state.position = position
+set_velocity!(state::MountainCarState, velocity::Real) = state.velocity = velocity
+set_throttle!(state::MountainCarState, throttle::Real) = state.throttle = throttle
 
 
 struct MountainCarAgent
@@ -39,15 +39,23 @@ struct MountainCarAgent
     target::Float64
 end
 
+MountainCarAgent(position::Real, engine_power::Real, friction_coefficient::Real, target::Real) =
+    MountainCarAgent(
+        MountainCarState(position, 0.0, 0.0),
+        engine_power,
+        friction_coefficient,
+        target
+    )
+
 state(car::MountainCarAgent) = car.state
 position(car::MountainCarAgent) = position(state(car))
 velocity(car::MountainCarAgent) = velocity(state(car))
 throttle(car::MountainCarAgent) = throttle(state(car))
-set_position!(car::MountainCarAgent, position::Float64) =
+set_position!(car::MountainCarAgent, position::Real) =
     set_position!(state(car), position)
-set_velocity!(car::MountainCarAgent, velocity::Float64) =
+set_velocity!(car::MountainCarAgent, velocity::Real) =
     set_velocity!(state(car), velocity)
-set_throttle!(car::MountainCarAgent, throttle::Float64) =
+set_throttle!(car::MountainCarAgent, throttle::Real) =
     set_throttle!(state(car), throttle)
 engine_power(car::MountainCarAgent) = car.engine_power
 friction_coefficient(car::MountainCarAgent) = car.friction_coefficient
@@ -60,7 +68,7 @@ end
 
 MountainCarEnvironment(landscape) = MountainCarEnvironment([], landscape)
 get_agent(env::AbstractEntity{MountainCarEnvironment}; index::Int = 1) =
-    entity(env).actors[index]
+    subscribers(env)[index]
 
 struct Throttle
     throttle::Real
@@ -76,22 +84,22 @@ function gravitation(car::MountainCarAgent, landscape)
     return result
 end
 
-function RxEnvironments.act!(
+function act!(
     environment::MountainCarEnvironment,
     agent::MountainCarAgent,
     action::Throttle,
 )
-    set_throttle!(agent, power(action, agent))
+    set_throttle!(agent, action.throttle * agent.engine_power)
 end
 
-function RxEnvironments.observe(
+function observe(
     agent::MountainCarAgent,
     environment::MountainCarEnvironment,
 )
     return state(agent)
 end
 
-function RxEnvironments.update!(environment::MountainCarEnvironment, elapsed_time::Float64)
+function update!(environment::MountainCarEnvironment, elapsed_time::Float64)
     for agent in environment.actors
         set_position!(agent, position(agent) + elapsed_time * velocity(agent))
         set_velocity!(
@@ -107,7 +115,9 @@ function RxEnvironments.update!(environment::MountainCarEnvironment, elapsed_tim
     end
 end
 
-function RxEnvironments.add_to_state!(
+update!(environment::MountainCarEnvironment) = update!(environment, 0.0025)
+
+function add_to_state!(
     environment::MountainCarEnvironment,
     agent::MountainCarAgent,
 )

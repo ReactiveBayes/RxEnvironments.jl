@@ -16,7 +16,8 @@ export AbstractEntity,
     subscribed_to,
     terminate!,
     is_terminated,
-    animate_state
+    animate_state,
+    subscribe_to_observations!
 
 """
     AbstractEntity{T}
@@ -73,6 +74,7 @@ function terminate!(entity::AbstractEntity)
 end
 
 observe(subject::AbstractEntity, environment) = observe(entity(subject), environment)
+observe(subject, emitter) = nothing
 
 function act!(subject::AbstractEntity, actions::ObservationCollection)
     for observation in actions

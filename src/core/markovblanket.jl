@@ -23,7 +23,7 @@ emitter(actor::SensorActor) = actor.emitter
 receiver(actor::SensorActor) = actor.receiver
 
 Rocket.on_next!(actor::SensorActor, stimulus) =
-    receive_observation!(receiver(actor), Observation(emitter(actor), stimulus))
+    next!(observations(receiver(actor)), Observation(emitter(actor), stimulus))
 Rocket.on_error!(actor::SensorActor, error) = println("Error in SensorActor: $error")
 Rocket.on_complete!(actor::SensorActor) = println("SensorActor completed")
 
@@ -66,8 +66,9 @@ Rocket.subscribe!(observations::Observations, actor::Rocket.Actor{T} where {T}) 
 
 Rocket.next!(
     observations::Observations{ContinuousEntity},
-    observation::Union{Observation,TimerMessage},
+    observation::AbstractObservation,
 ) = next!(target(observations), observation)
+
 function Rocket.next!(observations::Observations{DiscreteEntity}, observation::Observation)
     observations.buffer[emitter(observation)] = observation
     if sum(values(observations.buffer) .== nothing) == 0
@@ -151,9 +152,4 @@ end
 function conduct_action!(emitter::AbstractEntity, receiver::AbstractEntity, action::Any)
     actuator = get_actuator(emitter, receiver)
     send_action!(actuator, action)
-end
-
-
-function receive_observation!(entity::AbstractEntity, observation::Observation)
-    next!(observations(entity), observation)
 end

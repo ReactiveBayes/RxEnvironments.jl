@@ -8,6 +8,8 @@ include("core/exceptions.jl")
 include("core/environment.jl")
 include("core/discreteenvironment.jl")
 
+include("environments/mountaincar.jl")
+
 module RxEnvironmentsTests
 
 using ReTest
@@ -20,9 +22,12 @@ end
 
 end
 
+
 retest(RxEnvironments, RxEnvironmentsTests)
 retest(RxEnvironments, EntityTests)
 retest(RxEnvironments, TestMarkovBlanket)
 retest(RxEnvironments, TestExceptions)
 retest(RxEnvironments, EnvironmentTests)
 retest(RxEnvironments, TestDiscreteEnvironment)
+
+retest(RxEnvironments, TestMountainCarEnvironment)
