@@ -20,7 +20,7 @@ include("../mockenvironment.jl")
 @testset "entity" begin
     @testset "constructor" begin
         import RxEnvironments: RxEntity, MarkovBlanket, Observations
-        let rxentity = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+        let rxentity = create_entity(MockAgent(); continuous = true, is_environment = false)
             @test entity(rxentity) isa MockAgent
             @test observations(rxentity) isa Observations
             @test markov_blanket(rxentity) isa MarkovBlanket
@@ -30,9 +30,9 @@ include("../mockenvironment.jl")
     @testset "mutual subscribe" begin
         import RxEnvironments: subscribe_to_observations!, data
         let first_entity =
-                create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+                create_entity(MockAgent(); continuous = true, is_environment = false)
             let second_entity =
-                    create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+                    create_entity(MockAgent(); continuous = true, is_environment = false)
                 add!(first_entity, second_entity)
                 @test is_subscribed(first_entity, second_entity)
                 @test is_subscribed(second_entity, first_entity)
