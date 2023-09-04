@@ -104,7 +104,7 @@ struct Throttle
     Throttle(throttle::Real) = new(clamp(throttle, -1, 1))
 end
 
-friction(car::MountainCarAgent, v) = v * -friction_coefficient(car)
+friction(car::MountainCarAgent, velocity) = velocity * -friction_coefficient(car)
 
 function gravitation(position, landscape)
     result = -9.81 * sin(atan(ForwardDiff.derivative(landscape, position)))
@@ -131,7 +131,6 @@ function __mountain_car_dynamics(du, u, s, t)
     momentum = u[2]
     du[1] = momentum
     du[2] = throttle(agent) + friction(agent, momentum) + gravitation(u[1], env.landscape)
-    @show du
 end
 
 function __compute_mountain_car_dynamics(agent::MountainCarAgent, environment::MountainCarEnvironment)
