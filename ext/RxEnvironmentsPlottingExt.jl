@@ -14,12 +14,12 @@ function __animate_state(subject::AbstractEntity, fps, seconds)
     figure = Figure()
     ax = Axis(figure[1, 1])
     display(figure)
-    underlying = entity(subject)
-    while !is_terminated(subject)
+    underlying = RxEnvironments.entity(subject)
+    while !RxEnvironments.is_terminated(subject)
         empty!(ax)
         ax.cycler.counters[Scatter] = 0
         ax.cycler.counters[Lines] = 0
-        plot_state(ax, underlying) 
+        RxEnvironments.plot_state(ax, underlying) 
         sleep(1 / fps)
     end
 end
