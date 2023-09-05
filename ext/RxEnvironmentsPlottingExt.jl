@@ -25,7 +25,7 @@ function __animate_state(subject::AbstractEntity, fps, seconds)
 end
 
 function RxEnvironments.plot_state(ax, environment::RxEnvironments.MountainCarEnvironment)
-    x = range(-2, 2, 100)
+    x = range(-2.5, 2.5, 100)
     y = environment.landscape.(x)
     lines!(ax, x, y)
     for agent in environment.actors

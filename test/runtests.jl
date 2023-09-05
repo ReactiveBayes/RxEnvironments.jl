@@ -22,6 +22,7 @@ end
 
 end
 
+retest(RxEnvironments, TestMountainCarEnvironment)
 
 retest(RxEnvironments, RxEnvironmentsTests)
 retest(RxEnvironments, EntityTests)
@@ -30,4 +31,4 @@ retest(RxEnvironments, TestExceptions)
 retest(RxEnvironments, EnvironmentTests)
 retest(RxEnvironments, TestDiscreteEnvironment)
 
-retest(RxEnvironments, TestMountainCarEnvironment)
+

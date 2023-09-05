@@ -24,7 +24,7 @@ receiver(actor::SensorActor) = actor.receiver
 
 Rocket.on_next!(actor::SensorActor, stimulus) =
     next!(observations(receiver(actor)), Observation(emitter(actor), stimulus))
-Rocket.on_error!(actor::SensorActor, error) = println("Error in SensorActor: $error")
+Rocket.on_error!(actor::SensorActor, error) = @error("Error in SensorActor for entity $(receiver(actor))", exception=(error, catch_backtrace()))
 Rocket.on_complete!(actor::SensorActor) = println("SensorActor completed")
 
 struct Sensor

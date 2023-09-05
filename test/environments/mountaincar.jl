@@ -28,17 +28,19 @@ import RxEnvironments: RxEntity, MountainCarEnvironment, MountainCarAgent, Mount
 
     @testset "gravity" begin
         import RxEnvironments: gravitation
-
-        @test gravitation(0, (_) -> 1) == 0
-        @test gravitation(0, (x) -> x) == -sin(π / 4) * 9.81
-        @test gravitation(0, (x) -> 2x) == -sin(atan(2)) * 9.81
-        @test gravitation(0, (x) -> x^2) == 0
+        let agent = MountainCarAgent(0.0, 1, 1, 1, 0)
+            @test gravitation(agent, 0, (_) -> 1) == 0
+            @test gravitation(agent, 0, (x) -> x) == -sin(π / 4) * 9.81
+            @test gravitation(agent, 0, (x) -> 2x) == -sin(atan(2)) * 9.81
+            @test gravitation(agent, 0, (x) -> x^2) == 0
+        end
+        
 
     end
 
     @testset "friction" begin
         import RxEnvironments: friction, set_velocity!
-        let agent = MountainCarAgent(0.0, 1, 1, 1)
+        let agent = MountainCarAgent(0.0, 1, 1, 1, 0)
             @test friction(agent, 0) == 0
             @test friction(agent, 1) == -1
             @test friction(agent, -1) == 1
@@ -54,6 +56,14 @@ import RxEnvironments: RxEntity, MountainCarEnvironment, MountainCarAgent, Mount
             @test length(actor.values) == 1
         end
 
+    end
+
+    @testset "observe" begin
+        import RxEnvironments: entity
+        let env = MountainCar(1)
+            agent = get_agent(env)
+            @test length(RxEnvironments.observe(entity(agent), entity(env))) == 2
+        end
     end
 end
 
