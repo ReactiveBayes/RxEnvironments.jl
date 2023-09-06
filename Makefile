@@ -3,3 +3,9 @@ scripts_init:
 
 format: scripts_init ## Code formating run
 	julia --startup-file=no --project=scripts/ scripts/format.jl --overwrite
+
+doc_init:
+	julia --project=docs -e 'ENV["PYTHON"]=""; using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate();'
+
+docs: doc_init ## Generate documentation
+	julia --project=docs/ docs/make.jl
