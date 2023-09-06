@@ -16,6 +16,8 @@ Pkg.add("RxEnvironments")
 ```@contents
 Pages = [
   "lib/getting_started.md",
+  "lib/advanced_example.md",
+  "lib/philosophy.md
 ]
 Depth = 2
 ```
