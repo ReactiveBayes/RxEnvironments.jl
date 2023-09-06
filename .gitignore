@@ -2,5 +2,6 @@
 /Manifest.toml
 /test/Manifest.toml
 /scripts/Manifest.toml
+/docs/Manifest.toml
 
 .DS_Store
