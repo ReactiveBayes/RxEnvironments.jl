@@ -10,7 +10,7 @@ include("../mockenvironment.jl")
 @testset "discrete environment" begin
 
     @testset "wait until all actors fire" begin
-        let env = RxEnvironment(MockEnvironment(0.0), discrete=true)
+        let env = RxEnvironment(MockEnvironment(0.0), discrete = true)
             first_agent = add!(env, MockAgent())
             second_agent = add!(env, SecondMockAgent())
             values = subscribe_to_observations!(second_agent, keep(Any))
@@ -27,7 +27,7 @@ include("../mockenvironment.jl")
     end
 
     @testset "not possible to add timer" begin
-        let env = RxEnvironment(MockEnvironment(0.0), discrete=true)
+        let env = RxEnvironment(MockEnvironment(0.0), discrete = true)
             @test_throws MethodError add_timer!(env, 1000)
         end
     end

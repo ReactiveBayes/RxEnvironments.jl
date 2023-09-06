@@ -1,15 +1,13 @@
 module RxEnvironments
 
-include("exceptions.jl")
+include("core/exceptions.jl")
+include("core/message.jl")
+include("core/timer.jl")
+include("core/abstractentity.jl")
+include("core/markovblanket.jl")
+include("core/rxentity.jl")
+include("core/rxenvironment.jl")
 
-include("actors/message.jl")
-include("actors/timer.jl")
-
-include("entity/abstractentity.jl")
-include("markovblanket.jl")
-include("entity/rxentity.jl")
-include("environment/rxenvironment.jl")
-
-
+include("environments/mountaincar.jl")
 
 end

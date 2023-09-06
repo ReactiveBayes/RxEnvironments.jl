@@ -3,7 +3,8 @@ module EnvironmentTests
 using ReTest
 using RxEnvironments
 using Rocket
-import RxEnvironments: conduct_action!, Observation, Discrete, Continuous, state_space
+import RxEnvironments:
+    conduct_action!, Observation, DiscreteEntity, ContinuousEntity, state_space
 
 include("../mockenvironment.jl")
 
@@ -11,8 +12,8 @@ include("../mockenvironment.jl")
     @testset "creation" begin
         import RxEnvironments: observations
         state = 0.0
-        let env = RxEnvironment(MockEnvironment(state), discrete=true)
-            @test state_space(env) == Discrete()
+        let env = RxEnvironment(MockEnvironment(state), discrete = true)
+            @test state_space(env) == DiscreteEntity()
             # Check that the environment will pass messages coming into the observations to subscribed actors.
             agent = add!(env, MockAgent())
             actor = keep(Any)
@@ -26,7 +27,7 @@ include("../mockenvironment.jl")
         import RxEnvironments: last_update
 
         let env = RxEnvironment(MockEnvironment(0.0); emit_every_ms = 10)
-            @test  state_space(env) == Continuous()
+            @test state_space(env) == ContinuousEntity()
             @test last_update(env) == 0.0
             actor = keep(Any)
             subscribe!(env, actor)

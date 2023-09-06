@@ -4,7 +4,7 @@ using ReTest
 using RxEnvironments
 import RxEnvironments: NotSubscribedException, origin, recipient
 
-include("mockenvironment.jl")
+include("../mockenvironment.jl")
 
 env = RxEnvironment(MockEnvironment(0.0))
 agent = MockAgent()
