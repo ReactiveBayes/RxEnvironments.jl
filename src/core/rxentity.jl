@@ -1,7 +1,7 @@
 using Rocket
 
-mutable struct EntityProperties{T}
-    state_space::T
+mutable struct EntityProperties{S}
+    state_space::S
     terminated::Terminated
     clock::Union{Clock,Nothing}
 end
@@ -36,8 +36,8 @@ end
 
 properties(entity::RxEntity) = entity.properties
 
-function create_entity(entity; continuous::Bool = true, is_environment::Bool = false)
-    state_space = continuous ? ContinuousEntity() : DiscreteEntity()
+function create_entity(entity; discrete::Bool = false, is_environment::Bool = false)
+    state_space = discrete ? DiscreteEntity() : ContinuousEntity()
     is_environment = is_environment ? IsEnvironment() : IsNotEnvironment()
     return create_entity(entity, state_space, is_environment)
 end

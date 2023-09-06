@@ -30,5 +30,3 @@ retest(RxEnvironments, TestMarkovBlanket)
 retest(RxEnvironments, TestExceptions)
 retest(RxEnvironments, EnvironmentTests)
 retest(RxEnvironments, TestDiscreteEnvironment)
-
-

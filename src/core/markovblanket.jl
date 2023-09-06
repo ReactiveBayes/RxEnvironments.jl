@@ -24,7 +24,10 @@ receiver(actor::SensorActor) = actor.receiver
 
 Rocket.on_next!(actor::SensorActor, stimulus) =
     next!(observations(receiver(actor)), Observation(emitter(actor), stimulus))
-Rocket.on_error!(actor::SensorActor, error) = @error("Error in SensorActor for entity $(receiver(actor))", exception=(error, catch_backtrace()))
+Rocket.on_error!(actor::SensorActor, error) = @error(
+    "Error in SensorActor for entity $(receiver(actor))",
+    exception = (error, catch_backtrace())
+)
 Rocket.on_complete!(actor::SensorActor) = println("SensorActor completed")
 
 struct Sensor
@@ -119,37 +122,4 @@ function add_sensor!(
 )
     sensor = Sensor(emitter, receiver)
     insert!(sensors(markov_blanket), emitter, sensor)
-end
-
-function Rocket.subscribe!(emitter::AbstractEntity, receiver::AbstractEntity)
-    actuator = Actuator()
-    insert!(actuators(markov_blanket(emitter)), receiver, actuator)
-    add_sensor!(markov_blanket(receiver), emitter, receiver)
-    add_to_state!(entity(emitter), entity(receiver))
-end
-
-function Rocket.subscribe!(emitter::AbstractEntity, receiver::Rocket.Actor{T} where {T})
-    actuator = Actuator()
-    insert!(actuators(emitter), receiver, actuator)
-    return subscribe!(actuator, receiver)
-end
-
-function Rocket.unsubscribe!(emitter::AbstractEntity, receiver::AbstractEntity)
-    Rocket.unsubscribe!(sensors(receiver)[emitter])
-    delete!(sensors(receiver), emitter)
-    delete!(actuators(emitter), receiver)
-end
-
-function Rocket.unsubscribe!(
-    emitter::AbstractEntity,
-    actor::Rocket.Actor,
-    subscription::Teardown,
-)
-    delete!(actuators(emitter), actor)
-    unsubscribe!(subscription)
-end
-
-function conduct_action!(emitter::AbstractEntity, receiver::AbstractEntity, action::Any)
-    actuator = get_actuator(emitter, receiver)
-    send_action!(actuator, action)
 end

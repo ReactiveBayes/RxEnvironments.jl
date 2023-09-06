@@ -4,11 +4,20 @@ using RxEnvironments
 using ReTest
 using Rocket
 
-import RxEnvironments: RxEntity, MountainCarEnvironment, MountainCarAgent, MountainCarState, subscribers, get_agent, conduct_action!, Throttle, entity
+import RxEnvironments:
+    RxEntity,
+    MountainCarEnvironment,
+    MountainCarAgent,
+    MountainCarState,
+    subscribers,
+    get_agent,
+    conduct_action!,
+    Throttle,
+    entity
 
 @testset "Mountain car environment" begin
     @testset "Create environment" begin
-        let env = MountainCar(1) 
+        let env = MountainCar(1)
             @test env isa RxEntity{RxEnvironments.MountainCarEnvironment}
             @test length(subscribers(env)) == 1
         end
@@ -34,7 +43,7 @@ import RxEnvironments: RxEntity, MountainCarEnvironment, MountainCarAgent, Mount
             @test gravitation(agent, 0, (x) -> 2x) == -sin(atan(2)) * 9.81
             @test gravitation(agent, 0, (x) -> x^2) == 0
         end
-        
+
 
     end
 
@@ -48,7 +57,7 @@ import RxEnvironments: RxEntity, MountainCarEnvironment, MountainCarAgent, Mount
     end
 
     @testset "Discrete MountainCar" begin
-        let env = MountainCar(1; discrete=true)
+        let env = MountainCar(1; discrete = true)
             agent = get_agent(env)
             actor = keep(Any)
             subscribe_to_observations!(agent, actor)
