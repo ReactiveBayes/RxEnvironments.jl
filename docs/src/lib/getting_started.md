@@ -1,31 +1,5 @@
-| **Documentation**                                                         | **Build Status**                 | **Coverage**                       |
-|:-------------------------------------------------------------------------:|:--------------------------------:|:----------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![CI][ci-img]][ci-url]         | [![Codecov][codecov-img]][codecov-url] |
 
-
-[docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://biaslab.github.io/RxEnvironments.jl/dev
-
-[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://biaslab.github.io/RxEnvironments.jl/stable
-
-[ci-img]: https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml/badge.svg?branch=main
-[ci-url]: https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml?query=branch%3Amain
-
-[codecov-img]: https://codecov.io/gh/biaslab/RxEnvironments.jl/graph/badge.svg?token=CxR2jysX7Z
-[codecov-url]: https://codecov.io/gh/biaslab/RxEnvironments.jl?branch=master
-
-# RxEnvironments
-
-`RxEnvironments` contains all boilerplate code to create reactive environments for self-learning agents, allowing for state transitions with variable time between state updates.`RxEnvironments` exports the `RxEnvironment` and `RxEntity` wrapper structs, that facilitate all plumbing to make an environment fully reactive. Under the hood, `RxEnvironments` uses [Rocket.jl](https://www.github.com/biaslab/Rocket.jl).
-
-# Installation
-`RxEnvironments.jl` can be installed through the Julia Registry:
-```bash
-pkg> add RxEnvironments
-```
-# Example
-
+# [Getting Started](@id lib-started)
 When using RxEnvironments, you only have to specify the dynamics of your environment. Let's create the Bayesian Thermostat environment in `RxEnvironments`. For this example, you need `Distributions.jl` installed in your environment as well. 
 
 Let's create the basics of our environment:
@@ -74,7 +48,7 @@ RxEnvironments.update!(env::BayesianThermostat, elapsed_time)= add_temperature!(
 Now we've fully specified our environment, and we can interact with it. In order to create the environment, we use the `RxEnvironment` struct, and we add an agent to this environment using `add!`:
 
 ```julia
-environment = RxEnvironment(BayesianThermostat(0.0, -10, 10); emit_every_ms = 900)
+environment = RxEnvironment(BayesianThermostat(0.0, -10, 10))
 agent = add!(environment, ThermostatAgent())
 ```
 
@@ -90,7 +64,7 @@ RxEnvironments.subscribe_to_observations!(agent, logger())
 for i in 1:10
     action = rand()
     RxEnvironments.conduct_action!(agent, environment, action)
-    sleep(1)
+    sleep(1/5)
 end
 ```
 
@@ -120,13 +94,3 @@ end
 ```
 
 Congratulations! You've now implemented a basic environment in `RxEnvironments`.
-
-# Next steps
-You can head to the [documentation](https://biaslab.github.io/RxEnvironments.jl/stable) for a more extensive reference on the contents of the package. 
-
-# Missing anything?
-
-This package is a WIP, feel free to open an issue with a feature request.
-
-# License
-This package is open-source and available under the [MIT License](https://github.com/biaslab/RxEnvironments.jl/blob/main/LICENSE).
