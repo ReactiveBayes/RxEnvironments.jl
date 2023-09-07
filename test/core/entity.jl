@@ -4,10 +4,9 @@ using ReTest
 using Rocket
 using RxEnvironments
 import RxEnvironments:
-    entity,
+    decorated,
     observations,
     markov_blanket,
-    conduct_action!,
     Observation,
     create_entity,
     ContinuousEntity,
@@ -22,7 +21,7 @@ include("../mockenvironment.jl")
         import RxEnvironments: RxEntity, MarkovBlanket, Observations
         let rxentity = create_entity(MockAgent())
             @test rxentity isa RxEntity{MockAgent}
-            @test entity(rxentity) isa MockAgent
+            @test decorated(rxentity) isa MockAgent
             @test observations(rxentity) isa Observations
             @test markov_blanket(rxentity) isa MarkovBlanket
         end
@@ -127,15 +126,15 @@ include("../mockenvironment.jl")
     end
 
     @testset "two generic agents sending message" begin
-        import RxEnvironments: create_entity, conduct_action!
+        import RxEnvironments: create_entity
         let agent_1 = create_entity(MockAgent())
             let agent_2 = create_entity(MockAgent())
                 add!(agent_1, agent_2)
                 result = keep(RxEnvironments.AbstractObservation)
                 subscribe_to_observations!(agent_2, result)
-                conduct_action!(agent_1, agent_2, 1)
+                send!(agent_2, agent_1, 1)
                 @test RxEnvironments.data.(result.values) == [1]
-                conduct_action!(agent_1, agent_2, 2)
+                send!(agent_2, agent_1, 2)
                 @test RxEnvironments.data.(result.values) == [1, 2]
             end
         end

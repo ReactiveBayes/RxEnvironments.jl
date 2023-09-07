@@ -14,27 +14,25 @@ end
 
 entity(actor::EntityActor) = actor.entity
 
-function Rocket.on_next!(actor::EntityActor{S,IsEnvironment} where {S}, action)
-    update!(entity(actor))
-    act!(entity(actor), action)
-    for (target, actuator) in pairs(actuators(entity(actor)))
-        observation = observe(target, entity(entity(actor)))
-        send_action!(actuator, observation)
+function Rocket.on_next!(actor::EntityActor{S,IsEnvironment} where {S}, observation)
+    subject = entity(actor)
+    update!(subject)
+    receive!(subject, observation)
+    for listener in subscribers(subject)
+        send!(listener, subject)
     end
 end
 
-function Rocket.on_next!(actor::EntityActor{S,IsNotEnvironment} where {S}, action)
-    act!(entity(actor), action)
+function Rocket.on_next!(actor::EntityActor{S,IsNotEnvironment} where {S}, observation)
+    receive!(entity(actor), observation)
 end
 
 struct RxEntity{T,S,E} <: AbstractEntity{T,S,E}
-    entity::T
+    decorated::T
     markov_blanket::MarkovBlanket
     properties::EntityProperties{S}
     is_environment::E
 end
-
-properties(entity::RxEntity) = entity.properties
 
 function create_entity(entity; discrete::Bool = false, is_environment::Bool = false)
     state_space = discrete ? DiscreteEntity() : ContinuousEntity()
@@ -55,5 +53,5 @@ function create_entity(entity, state_space, is_environment)
 end
 
 function Base.:(==)(a::RxEntity, b::RxEntity)
-    return a.entity == b.entity
+    return a.decorated == b.decorated
 end

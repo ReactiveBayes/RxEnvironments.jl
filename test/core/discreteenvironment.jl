@@ -3,7 +3,7 @@ module TestDiscreteEnvironment
 using RxEnvironments
 using Rocket
 using ReTest
-import RxEnvironments: subscribe_to_observations!, conduct_action!, add_timer!
+import RxEnvironments: subscribe_to_observations!, add_timer!
 
 include("../mockenvironment.jl")
 
@@ -14,14 +14,14 @@ include("../mockenvironment.jl")
             first_agent = add!(env, MockAgent())
             second_agent = add!(env, SecondMockAgent())
             values = subscribe_to_observations!(second_agent, keep(Any))
-            RxEnvironments.conduct_action!(first_agent, env, 0.0)
-            RxEnvironments.conduct_action!(first_agent, env, 0.0)
+            send!(env, first_agent, 0.0)
+            send!(env, first_agent, 0.0)
             @test length(values.values) == 0
-            RxEnvironments.conduct_action!(second_agent, env, 0.0)
+            send!(env, second_agent, 0.0)
             @test length(values.values) == 1
-            RxEnvironments.conduct_action!(second_agent, env, 0.0)
+            send!(env, second_agent, 0.0)
             @test length(values.values) == 1
-            RxEnvironments.conduct_action!(first_agent, env, 0.0)
+            send!(env, first_agent, 0.0)
             @test length(values.values) == 2
         end
     end
