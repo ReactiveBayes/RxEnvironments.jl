@@ -2,9 +2,15 @@ using Documenter
 using RxEnvironments
 
 makedocs(
-    sitename = "RxEnvironments",
+    sitename = "RxEnvironments.jl",
     format = Documenter.HTML(),
-    modules = [RxEnvironments]
+    modules = [RxEnvironments],
+    pages = [
+        "Introduction" => "index.md",
+        "Getting Started" => "lib/getting_started.md",
+        "Advanced Usage" => "lib/advanced_example.md",
+        "Design Philosophy" => "lib/philosophy.md",
+    ]
 )
 
 # Documenter can also automatically deploy documentation to gh-pages.
