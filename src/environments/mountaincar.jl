@@ -159,7 +159,7 @@ function __compute_mountain_car_dynamics(
     set_trajectory!(agent, MountainCarTrajectory(false, T, sol, T))
 end
 
-function update!(environment::MountainCarEnvironment, elapsed_time::Float64)
+function update!(environment::MountainCarEnvironment, elapsed_time::Real)
     for agent in environment.actors
         if recompute(trajectory(agent)) || time_left(trajectory(agent)) < elapsed_time
             __compute_mountain_car_dynamics(agent, environment)

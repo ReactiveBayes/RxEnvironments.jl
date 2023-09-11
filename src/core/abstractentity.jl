@@ -159,7 +159,7 @@ end
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
 
-Update the state of the entity `e` based on its current state and the time elapsed since the last update. Acts as state transition funciton.
+Update the state of the entity `e` based on its current state and the time elapsed since the last update. Acts as state transition function.
 
 # Arguments
 - `e::AbstractEntity{T,ContinuousEntity,E}`: The entity to update.
@@ -172,11 +172,23 @@ end
 
 update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} = update!(decorated(e))
 
+"""
+    send!(recipient::AbstractEntity, emitter::AbstractEntity, action::Any)
+
+Send an action from `emitter` to `recipient`.
+"""
 function send!(recipient::Union{AbstractEntity, Rocket.Actor}, emitter::AbstractEntity, action::Any)
     actuator = get_actuator(emitter, recipient)
     send_action!(actuator, action)
 end
 
+"""
+    send!(recipient::AbstractEntity, emitter::AbstractEntity)
+
+Send an action from `emitter` to `recipient`. Should use the state of `emitter` to determine the action to send.
+
+See also: [`RxEnvironments.receive!`](@ref)
+"""
 function send!(recipient::AbstractEntity, emitter::AbstractEntity)
     action = send!(decorated(recipient), decorated(emitter))
     send!(recipient, emitter, action)
@@ -190,20 +202,28 @@ end
 send!(recipient, emitter::AbstractEntity) = send!(recipient, decorated(emitter))
 send!(recipient, emitter) = nothing
 
+
 function receive!(recipient::AbstractEntity, observations::ObservationCollection)
     for observation in observations
         receive!(recipient, observation)
     end
 end
 
+"""
+    receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any)
+
+Receive an observation from `emitter` and update the state of `recipient` accordingly.
+
+See also: [`RxEnvironments.send!`](@ref)
+"""
 receive!(recipient::AbstractEntity, observation::Observation) =
     receive!(recipient, emitter(observation), data(observation))
-receive!(recipient::AbstractEntity, emitter::AbstractEntity, action::Any) =
-    receive!(decorated(recipient), decorated(emitter), action)
-recieve!(recipient::AbstractEntity, emitter::Any, action::Any) =
-    receive!(decorated(recipient), emitter, action)
-receive!(recipient::AbstractEntity, action::Any) = nothing
-receive!(recipient, emitter, action) = nothing
+receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any) =
+    receive!(decorated(recipient), decorated(emitter), observation)
+recieve!(recipient::AbstractEntity, emitter::Any, observation::Any) =
+    receive!(decorated(recipient), emitter, observation)
+receive!(recipient::AbstractEntity, observation::Any) = nothing
+receive!(recipient, emitter, observation) = nothing
 
 
 
