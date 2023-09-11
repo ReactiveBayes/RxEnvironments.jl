@@ -125,7 +125,7 @@ friction(car::MountainCarAgent, velocity) = velocity * -friction_coefficient(car
 gravitation(car::MountainCarAgent, position, landscape) =
     mass(car) * -9.81 * sin(atan(ForwardDiff.derivative(landscape, position)))
 
-function act!(
+function receive!(
     environment::MountainCarEnvironment,
     agent::MountainCarAgent,
     action::Throttle,
@@ -134,7 +134,7 @@ function act!(
     set_throttle!(agent, throttle(action) * engine_power(agent))
 end
 
-observe(agent::MountainCarAgent, environment::MountainCarEnvironment) =
+send!(agent::MountainCarAgent, environment::MountainCarEnvironment) =
     return rand(MvNormal(observable_state(agent), I(2)))
 
 function __mountain_car_dynamics(du, u, s, t)
@@ -159,7 +159,7 @@ function __compute_mountain_car_dynamics(
     set_trajectory!(agent, MountainCarTrajectory(false, T, sol, T))
 end
 
-function update!(environment::MountainCarEnvironment, elapsed_time::Float64)
+function update!(environment::MountainCarEnvironment, elapsed_time::Real)
     for agent in environment.actors
         if recompute(trajectory(agent)) || time_left(trajectory(agent)) < elapsed_time
             __compute_mountain_car_dynamics(agent, environment)

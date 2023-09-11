@@ -8,9 +8,9 @@ struct ContinuousEntity end
 
 export AbstractEntity,
     add!,
-    act!,
+    send!,
     update!,
-    observe,
+    receive!,
     is_subscribed,
     subscribers,
     subscribed_to,
@@ -28,8 +28,9 @@ entity is terminated.
 """
 abstract type AbstractEntity{T,S,E} end
 
-entity(entity::AbstractEntity) = entity.entity
+decorated(entity::AbstractEntity) = entity.decorated
 markov_blanket(entity::AbstractEntity) = entity.markov_blanket
+properties(entity::AbstractEntity) = entity.properties
 is_terminated(entity::AbstractEntity) = is_terminated(properties(entity).terminated)
 state_space(entity::AbstractEntity) = properties(entity).state_space
 clock(entity::AbstractEntity) = properties(entity).clock
@@ -43,7 +44,7 @@ sensors(entity::AbstractEntity) = sensors(markov_blanket(entity))
 subscribers(entity::AbstractEntity) = collect(keys(actuators(entity)))
 subscribed_to(entity::AbstractEntity) = collect(keys(sensors(entity)))
 
-get_actuator(emitter::AbstractEntity, recipient::AbstractEntity) =
+get_actuator(emitter::AbstractEntity, recipient) =
     get_actuator(markov_blanket(emitter), recipient)
 
 Rocket.subscribe!(first::AbstractEntity, second::AbstractEntity) =
@@ -56,7 +57,7 @@ function Rocket.subscribe!(
     actuator = Actuator()
     insert!(actuators(markov_blanket(emitter)), receiver, actuator)
     add_sensor!(markov_blanket(receiver), emitter, receiver)
-    add_to_state!(entity(emitter), entity(receiver))
+    add_to_state!(decorated(emitter), decorated(receiver))
 end
 
 function Rocket.subscribe!(emitter::AbstractEntity, receiver::Rocket.Actor{T} where {T})
@@ -158,41 +159,74 @@ end
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
 
-Update the state of the entity `e` based on its current state and the time elapsed since the last update. Acts as state transition funciton.
+Update the state of the entity `e` based on its current state and the time elapsed since the last update. Acts as state transition function.
 
 # Arguments
 - `e::AbstractEntity{T,ContinuousEntity,E}`: The entity to update.
 """
 function update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
-    update!(entity(e), elapsed_time(clock(e)))
-    set_last_update!(clock(e), time(clock(e)))
+    c = clock(e)
+    update!(decorated(e), elapsed_time(c))
+    set_last_update!(c, time(c))
 end
 
-update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} = update!(entity(e))
+update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} = update!(decorated(e))
 
-observe(subject::AbstractEntity, environment) = observe(entity(subject), environment)
-observe(subject, emitter) = nothing
+"""
+    send!(recipient::AbstractEntity, emitter::AbstractEntity, action::Any)
 
-function act!(subject::AbstractEntity, actions::ObservationCollection)
-    for observation in actions
-        act!(subject, observation)
+Send an action from `emitter` to `recipient`.
+"""
+function send!(recipient::Union{AbstractEntity, Rocket.Actor}, emitter::AbstractEntity, action::Any)
+    actuator = get_actuator(emitter, recipient)
+    send_action!(actuator, action)
+end
+
+"""
+    send!(recipient::AbstractEntity, emitter::AbstractEntity)
+
+Send an action from `emitter` to `recipient`. Should use the state of `emitter` to determine the action to send.
+
+See also: [`RxEnvironments.receive!`](@ref)
+"""
+function send!(recipient::AbstractEntity, emitter::AbstractEntity)
+    action = send!(decorated(recipient), decorated(emitter))
+    send!(recipient, emitter, action)
+end
+
+function send!(recipient::Rocket.Actor{Any}, emitter::AbstractEntity)
+    action = send!(recipient, decorated(emitter))
+    send!(recipient, emitter, action)
+end
+
+send!(recipient, emitter::AbstractEntity) = send!(recipient, decorated(emitter))
+send!(recipient, emitter) = nothing
+
+
+function receive!(recipient::AbstractEntity, observations::ObservationCollection)
+    for observation in observations
+        receive!(recipient, observation)
     end
 end
 
-act!(subject::AbstractEntity, action::Observation) =
-    act!(subject, emitter(action), data(action))
-act!(recipient::AbstractEntity, sender::AbstractEntity, action::Any) =
-    act!(entity(recipient), entity(sender), action)
-act!(recipient::AbstractEntity, sender::Any, action::Any) =
-    act!(entity(recipient), sender, action)
-act!(subject::AbstractEntity, action::Any) = nothing
-act!(subject, recipient, action) = nothing
+"""
+    receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any)
+
+Receive an observation from `emitter` and update the state of `recipient` accordingly.
+
+See also: [`RxEnvironments.send!`](@ref)
+"""
+receive!(recipient::AbstractEntity, observation::Observation) =
+    receive!(recipient, emitter(observation), data(observation))
+receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any) =
+    receive!(decorated(recipient), decorated(emitter), observation)
+recieve!(recipient::AbstractEntity, emitter::Any, observation::Any) =
+    receive!(decorated(recipient), emitter, observation)
+receive!(recipient::AbstractEntity, observation::Any) = nothing
+receive!(recipient, emitter, observation) = nothing
 
 
-function conduct_action!(emitter::AbstractEntity, receiver::AbstractEntity, action::Any)
-    actuator = get_actuator(emitter, receiver)
-    send_action!(actuator, action)
-end
+
 
 
 set_clock!(entity::AbstractEntity, clock::Clock) = properties(entity).clock = clock

@@ -11,9 +11,9 @@ import RxEnvironments:
     MountainCarState,
     subscribers,
     get_agent,
-    conduct_action!,
+    send!,
     Throttle,
-    entity
+    decorated
 
 @testset "Mountain car environment" begin
     @testset "Create environment" begin
@@ -24,14 +24,14 @@ import RxEnvironments:
     end
 
     @testset "Multiagent" begin
-        import RxEnvironments: entity, throttle
+        import RxEnvironments: decorated, throttle
         let env = MountainCar(2)
             agent_1 = get_agent(env; index = 1)
             agent_2 = get_agent(env; index = 2)
-            conduct_action!(agent_1, env, RxEnvironments.Throttle(1.0))
-            conduct_action!(agent_2, env, RxEnvironments.Throttle(-1.0))
-            @test throttle(entity(agent_1)) == entity(agent_1).engine_power
-            @test throttle(entity(agent_2)) == -entity(agent_2).engine_power
+            send!(env, agent_1, RxEnvironments.Throttle(1.0))
+            send!(env, agent_2, RxEnvironments.Throttle(-1.0))
+            @test throttle(decorated(agent_1)) == decorated(agent_1).engine_power
+            @test throttle(decorated(agent_2)) == -decorated(agent_2).engine_power
         end
     end
 
@@ -61,17 +61,21 @@ import RxEnvironments:
             agent = get_agent(env)
             actor = keep(Any)
             subscribe_to_observations!(agent, actor)
-            conduct_action!(agent, env, Throttle(1.0))
+            send!(agent, env, Throttle(1.0))
             @test length(actor.values) == 1
         end
 
     end
 
-    @testset "observe" begin
+    @testset "send!" begin
         import RxEnvironments: entity
-        let env = MountainCar(1)
+        let env = MountainCar(1; emit_every_ms=10)
             agent = get_agent(env)
-            @test length(RxEnvironments.observe(entity(agent), entity(env))) == 2
+            @test length(RxEnvironments.send!(decorated(agent), decorated(env))) == 2
+            actor = keep(Any)
+            subscribe_to_observations!(agent, actor)
+            sleep(0.1)
+            @test length(actor.values) > 1
         end
     end
 end

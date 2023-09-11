@@ -10,7 +10,6 @@ import RxEnvironments:
     RxEntity,
     markov_blanket,
     subscribe_to_observations!,
-    conduct_action!,
     NotSubscribedException,
     DiscreteEntity,
     ContinuousEntity,
@@ -67,7 +66,7 @@ end
             @test !is_subscribed(agent, env)
             @test is_subscribed(second_agent, env)
             @test length(subscribers(env)) == 1
-            @test_throws NotSubscribedException conduct_action!(env, agent, 10)
+            @test_throws NotSubscribedException send!(env, agent, 10)
 
             unsubscribe!(env, second_agent)
             @test !is_subscribed(agent, env)
@@ -102,14 +101,14 @@ end
         subscribe!(env, agent)
         actor = keep(Any)
         subscribe_to_observations!(agent, actor)
-        conduct_action!(env, agent, 10)
+        send!(agent, env, 10)
         @test RxEnvironments.data.(actor.values) == [10]
 
         second_agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
         subscribe!(env, second_agent)
         second_actor = keep(Any)
         subscribe_to_observations!(second_agent, second_actor)
-        conduct_action!(env, second_agent, 20)
+        send!(second_agent, env, 20)
         @test RxEnvironments.data.(actor.values) == [10]
         @test RxEnvironments.data.(second_actor.values) == [20]
     end

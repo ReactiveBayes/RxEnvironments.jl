@@ -4,17 +4,17 @@ using RxEnvironments, GLMakie
 
 
 
-RxEnvironments.animate_state(subject::AbstractEntity; fps = 60, seconds = 10) =
-    @async(__animate_state(subject, fps, seconds))
+RxEnvironments.animate_state(subject::AbstractEntity; fps = 60) =
+    @async(__animate_state(subject, fps))
 
 
 
-function __animate_state(subject::AbstractEntity, fps, seconds)
+function __animate_state(subject::AbstractEntity, fps)
     @info "Animating state of $(subject)"
     figure = Figure()
     ax = Axis(figure[1, 1])
     display(figure)
-    underlying = RxEnvironments.entity(subject)
+    underlying = RxEnvironments.decorated(subject)
     while !RxEnvironments.is_terminated(subject)
         empty!(ax)
         ax.cycler.counters[Scatter] = 0

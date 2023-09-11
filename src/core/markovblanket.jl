@@ -98,7 +98,7 @@ actuators(markov_blanket::MarkovBlanket) = markov_blanket.actuators
 sensors(markov_blanket::MarkovBlanket) = markov_blanket.sensors
 observations(markov_blanket::MarkovBlanket) = markov_blanket.observations
 
-function get_actuator(markov_blanket::MarkovBlanket, agent::AbstractEntity)
+function get_actuator(markov_blanket::MarkovBlanket, agent)
     if !haskey(actuators(markov_blanket), agent)
         throw(NotSubscribedException(markov_blanket, agent))
     end

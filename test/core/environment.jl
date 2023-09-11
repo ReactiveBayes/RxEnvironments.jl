@@ -3,8 +3,7 @@ module EnvironmentTests
 using ReTest
 using RxEnvironments
 using Rocket
-import RxEnvironments:
-    conduct_action!, Observation, DiscreteEntity, ContinuousEntity, state_space
+import RxEnvironments: Observation, DiscreteEntity, ContinuousEntity, state_space
 
 include("../mockenvironment.jl")
 
@@ -74,7 +73,7 @@ include("../mockenvironment.jl")
             @test length(subscribers(env)) == 1
             # Test that adding an agent propagates an observation to the agent.
             actor = keep(Any)
-            subscribe!(observations(agent), actor)
+            subscribe_to_observations!(agent, actor)
             next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [nothing]
 
@@ -84,7 +83,7 @@ include("../mockenvironment.jl")
             @test length(subscribers(env)) == 2
             # Test that adding a second agent propagates an observation to the agent.
             actor = keep(Any)
-            subscribe!(observations(second_agent), actor)
+            subscribe_to_observations!(second_agent, actor)
             next!(observations(env), Observation(MockAgent(), nothing))
             @test RxEnvironments.data.(actor.values) == [RxEnvironments.EmptyMessage()]
         end
@@ -95,9 +94,9 @@ include("../mockenvironment.jl")
             agent = MockAgent()
             agent = add!(env, agent)
             actor = keep(Any)
-            subscribe!(observations(env), actor)
+            subscribe_to_observations!(env, actor)
             for i = 1:10
-                conduct_action!(agent, env, i)
+                send!(env, agent, i)
                 @test RxEnvironments.data.(actor.values) == collect(1:i)
             end
         end
