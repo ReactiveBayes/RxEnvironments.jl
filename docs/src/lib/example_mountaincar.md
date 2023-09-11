@@ -10,13 +10,20 @@ There are several forces that work on the car, namely:
 - The power exerted by the engine of the car.
 
 The gravitational force can be computed as follows, here $m$ is the mass of the car, $l(x)$ the landscape function as function of horizontal position $x$:
-$$ F_g(x, m, l) = -9.81 \cdot m \cdot \left( \sin \arctan \frac{dl}{dx}(x)\right)$$
+```math
+ F_g(x, m, l) = -9.81 \cdot m \cdot \left( \sin \arctan \frac{dl}{dx}(x)\right)
+ ```
 
 The friction force is linear in the velocity $v$ and the friction coefficient $c_f$ of the car:
-$$ F_f(v, c_f) = - v \cdot c_f$$
+```math
+F_f(v, c_f) = - v \cdot c_f
+```
 
 The engine power is a direct effect of action $a$, and is scaled by constant engine power $c_e$:
-$$ F_e(a, c_e) = a \cdot c_e$$
+
+```math
+F_e(a, c_e) = a \cdot c_e
+```
 
 ## RxEnvironments design pattern
 The environment details explained above describe a set of differential equations governing the location and velocity of the car. In [classical implementations](https://mgoulao.github.io/gym-docs/environments/classic_control/mountain_car_continuous/) of the mountain car environment, the timestep is fixed and the differential equation is solved with the [Euler method](https://en.wikipedia.org/wiki/Euler_method). However, in `RxEnvironments` we have continuous time environments that are realized by varying the timestep between environment state updates. Therefore, using Euler's method to solve the system of differential equations accumulates errors in every timestep, and running the same environment twice might give us different realizations of the environment dynamics because of the way the errors are accumulated with varying timesteps between state updates. 
@@ -213,12 +220,11 @@ end
 All code we have written so far has served as setup for our environment, and we haven't written any core `RxEnvironments.jl` code yet. In this section we will write and elaborate on the necessary code to make our environment fully reactive. 
 
 `RxEnvironments.jl` requires us to implement 3 functions specifically for our environment: `send!`, `receive!` and `update!`:
-```@docs
-send!
-receive!
-update!
-```
+`send!(recipient, emitter)` determines the message `emitter` sends to `recipient`. In our example, this function describes how the environment presents an observation to the agent, as function of the environment state.
+`receive!(recipient, emitter, observation)` determines how `observation` sent from `emitter` to `recipient` influences the internal state of `recipient`. In our example, this describes how a `Throttle` action from the agent changes the environment state.
+`update!(entity, elapsed_time)` describes the state transition of `entity` for `elapsed_time` if there are no incoming observations. In our example, this is how the environment gravity and friction influence the position and velocity of the agent inbetween agent actions.
 A notable detail is that, with our differential equations solution, we also have to check whenever we `update!` the environment if we have to recompute the trajectory for a mountain car, and whenever we `receive!` an action from an agent, that we should always recompute the trajectory.
+
 ```julia 
 # The agent observes a noisy estimate of its actual position and velocity
 RxEnvironments.send!(agent::MountainCarAgent, environment::MountainCarEnvironment) =
