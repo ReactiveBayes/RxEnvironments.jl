@@ -11,8 +11,8 @@ There are several forces that work on the car, namely:
 
 The gravitational force can be computed as follows, here $m$ is the mass of the car, $l(x)$ the landscape function as function of horizontal position $x$:
 ```math
- F_g(x, m, l) = -9.81 \cdot m \cdot \left( \sin \arctan \frac{dl}{dx}(x)\right)
- ```
+F_g(x, m, l) = -9.81 \cdot m \cdot \left( \sin \arctan \frac{dl}{dx}(x)\right)
+```
 
 The friction force is linear in the velocity $v$ and the friction coefficient $c_f$ of the car:
 ```math
@@ -181,7 +181,7 @@ end
 ### Environment dynamics
 When simulating the environment dynamics we need to be able to calculate all forces exerted on the car at any point in time:
 
-```
+```julia
 throttle(action::Throttle) = action.throttle
 friction(car::MountainCarAgent, velocity) = velocity * -friction_coefficient(car)
 gravitation(car::MountainCarAgent, position, landscape) =
@@ -190,7 +190,7 @@ gravitation(car::MountainCarAgent, position, landscape) =
 
 ### Solving the differential equations
 We have set up the infrastructure with which we can save a trajectory of a moving object in its state, and retrieve this trajectory during future state updates. For this, we use the [`DifferentialEquations.jl`](https://docs.sciml.ai/DiffEqDocs/stable/) package, and we refer to the documentation of the `DifferentialEquations.jl` package for a more comprehensive explanation of solving differential equations in Julia. This section merely shows an example of the desired design pattern in `RxEnvironments.jl`. We have to compute the dynamics of the mountain car and save this in the state of the mountain car:
-```
+```julia
 # DifferentialEquations.jl function describing the environment dynamics.
 function __mountain_car_dynamics(du, u, s, t)
     agent, env = s
