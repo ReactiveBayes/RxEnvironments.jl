@@ -22,10 +22,10 @@ RxEnvironmentsPlottingExt = "GLMakie"
 [compat]
 Dictionaries = "0.3"
 DifferentialEquations = "7"
-Distributions = "0"
+Distributions = "0.25"
 Exceptions = "0.1"
-ForwardDiff = "0"
-HypergeometricFunctions = "0"
+ForwardDiff = "0.10"
+HypergeometricFunctions = "0.3"
 Rocket = "1"
 julia = "1"
 
