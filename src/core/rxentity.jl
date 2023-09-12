@@ -19,7 +19,9 @@ function Rocket.on_next!(actor::EntityActor{S,IsEnvironment} where {S}, observat
     update!(subject)
     receive!(subject, observation)
     for listener in subscribers(subject)
-        send!(listener, subject)
+        if emits(subject, listener, observation)
+            send!(listener, subject)
+        end
     end
 end
 

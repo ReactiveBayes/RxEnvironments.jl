@@ -18,3 +18,6 @@ RxEnvironments.send!(agent::SecondMockAgent, environment::MockEnvironment) =
 
 RxEnvironments.send!(agent::Rocket.Actor{Any}, environment::MockEnvironment) =
     environment.state
+
+RxEnvironments.emits(subject::MockEnvironment, listener::MockEnvironment, action::Any) =
+    false

@@ -3,12 +3,12 @@ using Dictionaries
 import Dictionaries: Dictionary
 
 struct Actuator
-    subject::Rocket.RecentSubjectInstance
+    emissions::Rocket.RecentSubjectInstance
 end
 
 Actuator() = Actuator(RecentSubject(Any))
 
-emission_channel(actuator::Actuator) = actuator.subject
+emission_channel(actuator::Actuator) = actuator.emissions
 send_action!(actuator::Actuator, action) = next!(emission_channel(actuator), action)
 
 Rocket.subscribe!(actuator::Actuator, actor::Rocket.Actor{T} where {T}) =

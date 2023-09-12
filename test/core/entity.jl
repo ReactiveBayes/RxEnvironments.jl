@@ -140,6 +140,17 @@ include("../mockenvironment.jl")
         end
     end
 
+    @testset "emits" begin
+        let env_1 = RxEnvironment(MockEnvironment(0.0))
+            let env_2 = RxEnvironment(MockEnvironment(0.0))
+                add!(env_1, env_2)
+                obs = subscribe_to_observations!(env_2, keep(Any))
+                RxEnvironments.send!(env_1, env_2, 1)
+                @test length(obs) == 0
+            end
+        end
+    end
+
 end
 
 end

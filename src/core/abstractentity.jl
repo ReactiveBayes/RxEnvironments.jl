@@ -225,8 +225,18 @@ recieve!(recipient::AbstractEntity, emitter::Any, observation::Any) =
 receive!(recipient::AbstractEntity, observation::Any) = nothing
 receive!(recipient, emitter, observation) = nothing
 
+emits(subject::AbstractEntity, listener::AbstractEntity, observation::TimerMessage) =
+    emits(decorated(subject), decorated(listener), observation)
+emits(subject::AbstractEntity, listener::AbstractEntity, observation::Observation) =
+    emits(decorated(subject), decorated(listener), data(observation))
 
+"""
+    emits(subject, listener, observation)
 
+Determines if an entity of the type of `subject` should emit an observation to an entity of the type of `listener` when presented with an obervation of type `observation`.
+Users should implement this function for their own entity and observation types to handle the logic of when to emit observations to which entities. By default, this function returns `true`.
+"""
+emits(subject, listener, observation::Any) = true
 
 
 set_clock!(entity::AbstractEntity, clock::Clock) = properties(entity).clock = clock

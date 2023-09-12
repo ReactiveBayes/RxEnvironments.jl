@@ -2,7 +2,6 @@ module TestExceptions
 
 using ReTest
 using RxEnvironments
-import RxEnvironments: NotSubscribedException, origin, recipient
 
 include("../mockenvironment.jl")
 
@@ -10,7 +9,7 @@ env = RxEnvironment(MockEnvironment(0.0))
 agent = MockAgent()
 
 @testset "NotSubscribedException" begin
-
+    import RxEnvironments: NotSubscribedException, origin, recipient
     let exception = NotSubscribedException(env, agent)
         @test exception isa NotSubscribedException
         @test origin(exception) === env
@@ -20,4 +19,13 @@ agent = MockAgent()
 
 end
 
+@testset "MixedStateSpaceException" begin
+    import RxEnvironments: MixedStateSpaceException, first_entity, second_entity
+    let exception = MixedStateSpaceException(env, agent)
+        @test exception isa MixedStateSpaceException
+        @test first_entity(exception) === env
+        @test second_entity(exception) === agent
+        @test_throws MixedStateSpaceException throw(exception)
+    end
+end
 end
