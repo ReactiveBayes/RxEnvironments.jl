@@ -8,4 +8,5 @@ is_subscribed
 update!
 send!
 receive!
+RxEnvironments.emits
 ```
