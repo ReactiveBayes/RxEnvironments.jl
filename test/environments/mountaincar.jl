@@ -20,6 +20,7 @@ import RxEnvironments:
         let env = MountainCar(1)
             @test env isa RxEntity{RxEnvironments.MountainCarEnvironment}
             @test length(subscribers(env)) == 1
+            @test decorated(env).landscape(0) == 0
         end
     end
 

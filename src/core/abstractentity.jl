@@ -199,7 +199,6 @@ function send!(recipient::Rocket.Actor{Any}, emitter::AbstractEntity)
     send!(recipient, emitter, action)
 end
 
-send!(recipient, emitter::AbstractEntity) = send!(recipient, decorated(emitter))
 send!(recipient, emitter) = nothing
 
 
@@ -220,8 +219,6 @@ receive!(recipient::AbstractEntity, observation::Observation) =
     receive!(recipient, emitter(observation), data(observation))
 receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any) =
     receive!(decorated(recipient), decorated(emitter), observation)
-recieve!(recipient::AbstractEntity, emitter::Any, observation::Any) =
-    receive!(decorated(recipient), emitter, observation)
 receive!(recipient::AbstractEntity, observation::Any) = nothing
 receive!(recipient, emitter, observation) = nothing
 

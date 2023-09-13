@@ -4,7 +4,7 @@ using ForwardDiff
 using DifferentialEquations
 using LinearAlgebra
 
-export MountainCar, get_agent
+export MountainCar, get_agent, Throttle
 
 function landscape(x)
     if x < 0
