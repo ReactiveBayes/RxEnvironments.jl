@@ -76,7 +76,7 @@ include("../mockenvironment.jl")
             @test RxEnvironments.data.(obs.values) == [nothing]
         end
 
-        let env = RxEnvironment(MockEnvironment(0.0); discrete=true)
+        let env = RxEnvironment(MockEnvironment(0.0); discrete = true)
             actor = add!(env, MockAgent())
             obs = logger()
             sub = subscribe_to_observations!(actor, obs)

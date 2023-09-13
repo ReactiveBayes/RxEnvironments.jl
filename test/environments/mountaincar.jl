@@ -70,7 +70,7 @@ import RxEnvironments:
 
     @testset "send!" begin
         import RxEnvironments: entity
-        let env = MountainCar(1; emit_every_ms=10)
+        let env = MountainCar(1; emit_every_ms = 10)
             agent = get_agent(env)
             @test length(RxEnvironments.send!(decorated(agent), decorated(env))) == 2
             actor = keep(Any)

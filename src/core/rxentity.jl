@@ -57,3 +57,11 @@ end
 function Base.:(==)(a::RxEntity, b::RxEntity)
     return a.decorated == b.decorated
 end
+
+function Base.show(io::IO, entity::RxEntity{T,ContinuousEntity,E} where {T,E})
+    print(io, "Continuous RxEntity{", typeof(decorated(entity)), "}")
+end
+
+function Base.show(io::IO, entity::RxEntity{T,DiscreteEntity,E} where {T,E})
+    print(io, "Discrete RxEntity{", typeof(decorated(entity)), "}")
+end
