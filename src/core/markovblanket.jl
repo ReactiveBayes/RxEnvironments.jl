@@ -82,10 +82,10 @@ function Rocket.next!(observations::Observations{DiscreteEntity}, observation::O
     end
 end
 
-struct MarkovBlanket{T}
+struct MarkovBlanket{S}
     actuators::AbstractDictionary{Any,Actuator}
     sensors::AbstractDictionary{Any,Sensor}
-    observations::Observations{T}
+    observations::Observations{S}
 end
 
 MarkovBlanket(state_space) = MarkovBlanket(
@@ -125,3 +125,6 @@ function add_sensor!(
     sensor = Sensor(emitter, receiver)
     insert!(sensors(markov_blanket), emitter, sensor)
 end
+
+Base.show(io::IO, markov_blanket::MarkovBlanket{S}) where {S} =
+    print(io, "MarkovBlanket{$S}")
