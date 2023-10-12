@@ -177,7 +177,11 @@ update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} = update!(decorated(e
 
 Send an action from `emitter` to `recipient`.
 """
-function send!(recipient::Union{AbstractEntity, Rocket.Actor}, emitter::AbstractEntity, action::Any)
+function send!(
+    recipient::Union{AbstractEntity,Rocket.Actor},
+    emitter::AbstractEntity,
+    action::Any,
+)
     actuator = get_actuator(emitter, recipient)
     send_action!(actuator, action)
 end
@@ -201,7 +205,7 @@ end
 
 send!(recipient, emitter::AbstractEntity) = send!(recipient, decorated(emitter))
 send!(recipient, emitter) = nothing
-
+send!(recipient, emitter, received_data) = send!(recipient, emitter)
 
 function receive!(recipient::AbstractEntity, observations::ObservationCollection)
     for observation in observations
@@ -220,8 +224,6 @@ receive!(recipient::AbstractEntity, observation::Observation) =
     receive!(recipient, emitter(observation), data(observation))
 receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any) =
     receive!(decorated(recipient), decorated(emitter), observation)
-recieve!(recipient::AbstractEntity, emitter::Any, observation::Any) =
-    receive!(decorated(recipient), emitter, observation)
 receive!(recipient::AbstractEntity, observation::Any) = nothing
 receive!(recipient, emitter, observation) = nothing
 

@@ -1,22 +1,17 @@
-module EntityTests
-
-using ReTest
-using Rocket
-using RxEnvironments
-import RxEnvironments:
-    decorated,
-    observations,
-    markov_blanket,
-    Observation,
-    create_entity,
-    ContinuousEntity,
-    DiscreteEntity,
-    IsEnvironment,
-    IsNotEnvironment
-
-include("../mockenvironment.jl")
-
-@testset "entity" begin
+@testitem "entity" begin
+    using Rocket
+    using RxEnvironments
+    import RxEnvironments:
+        decorated,
+        observations,
+        markov_blanket,
+        Observation,
+        create_entity,
+        ContinuousEntity,
+        DiscreteEntity,
+        IsEnvironment,
+        IsNotEnvironment
+    include("../mockenvironment.jl")
     @testset "constructor" begin
         import RxEnvironments: RxEntity, MarkovBlanket, Observations
         let rxentity = create_entity(MockAgent())
@@ -76,7 +71,7 @@ include("../mockenvironment.jl")
             @test RxEnvironments.data.(obs.values) == [nothing]
         end
 
-        let env = RxEnvironment(MockEnvironment(0.0); discrete=true)
+        let env = RxEnvironment(MockEnvironment(0.0); discrete = true)
             actor = add!(env, MockAgent())
             obs = logger()
             sub = subscribe_to_observations!(actor, obs)
@@ -150,7 +145,5 @@ include("../mockenvironment.jl")
             end
         end
     end
-
-end
 
 end

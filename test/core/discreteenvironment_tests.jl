@@ -1,13 +1,11 @@
-module TestDiscreteEnvironment
 
-using RxEnvironments
-using Rocket
-using ReTest
-import RxEnvironments: subscribe_to_observations!, add_timer!
 
-include("../mockenvironment.jl")
+@testitem "discrete environment" begin
+    using RxEnvironments
+    using Rocket
+    import RxEnvironments: subscribe_to_observations!, add_timer!
 
-@testset "discrete environment" begin
+    include("../mockenvironment.jl")
 
     @testset "wait until all actors fire" begin
         let env = RxEnvironment(MockEnvironment(0.0), discrete = true)
@@ -31,7 +29,5 @@ include("../mockenvironment.jl")
             @test_throws MethodError add_timer!(env, 1000)
         end
     end
-
-end
 
 end
