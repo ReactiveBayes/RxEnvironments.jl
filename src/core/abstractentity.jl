@@ -203,6 +203,9 @@ function send!(recipient::Rocket.Actor{Any}, emitter::AbstractEntity)
     send!(recipient, emitter, action)
 end
 
+send!(recipient, emitter::AbstractEntity) = send!(recipient, decorated(emitter))
+send!(recipient, emitter) = nothing
+send!(recipient, emitter, received_data) = send!(recipient, emitter)
 
 function receive!(recipient::AbstractEntity, observations::ObservationCollection)
     for observation in observations

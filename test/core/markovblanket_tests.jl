@@ -1,23 +1,17 @@
-module TestMarkovBlanket
+@testitem "actuator" begin
+    import RxEnvironments:
+        Actuator,
+        Sensor,
+        MarkovBlanket,
+        RxEntity,
+        markov_blanket,
+        subscribe_to_observations!,
+        NotSubscribedException,
+        DiscreteEntity,
+        ContinuousEntity,
+        create_entity
 
-using ReTest
-using Rocket
-using RxEnvironments
-import RxEnvironments:
-    Actuator,
-    Sensor,
-    MarkovBlanket,
-    RxEntity,
-    markov_blanket,
-    subscribe_to_observations!,
-    NotSubscribedException,
-    DiscreteEntity,
-    ContinuousEntity,
-    create_entity
-
-include("../mockenvironment.jl")
-
-@testset "actuator" begin
+    include("../mockenvironment.jl")
     @testset "constructor" begin
         let actuator = Actuator()
             @test actuator isa Actuator
@@ -38,7 +32,21 @@ include("../mockenvironment.jl")
     end
 end
 
-@testset "markov blanket" begin
+@testitem "markov blanket" begin
+
+    include("../mockenvironment.jl")
+    using RxEnvironments
+    import RxEnvironments:
+        Actuator,
+        Sensor,
+        MarkovBlanket,
+        RxEntity,
+        markov_blanket,
+        subscribe_to_observations!,
+        NotSubscribedException,
+        DiscreteEntity,
+        ContinuousEntity,
+        create_entity
     @testset "constructor" begin
         let markov_blanket = MarkovBlanket(DiscreteEntity())
             @test markov_blanket isa MarkovBlanket{DiscreteEntity}
@@ -84,6 +92,7 @@ end
     end
 
     @testset "add subscription" begin
+
         import RxEnvironments: IsNotEnvironment
         let env = RxEnvironment(MockEnvironment(0.0))
             agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
@@ -94,8 +103,22 @@ end
     end
 end
 
-@testset "sensor" begin
-    import RxEnvironments: IsNotEnvironment
+@testitem "sensor" begin
+    import RxEnvironments:
+        Actuator,
+        Sensor,
+        MarkovBlanket,
+        RxEntity,
+        markov_blanket,
+        subscribe_to_observations!,
+        NotSubscribedException,
+        DiscreteEntity,
+        ContinuousEntity,
+        create_entity,
+        IsNotEnvironment
+
+    include("../mockenvironment.jl")
+
     let env = RxEnvironment(MockEnvironment(0.0))
         agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
         subscribe!(env, agent)
@@ -114,4 +137,16 @@ end
     end
 end
 
-end
+# @testitem "send branching" begin
+#     using RxEnvironments
+#     import RxEnvironments: DiscreteEntity, create_entity
+#     include("../mockenvironment.jl")
+#     let env = RxEnvironment(MockEnvironment(0.0); discrete = true)
+#         agent = add!(env, MockAgent())
+#         obs = subscribe_to_observations!(agent, RxEnvironments.keep(Any))
+#         send!(env, agent, 10)
+#         send!(env, agent, 10.0)
+#         @test obs.values[1] == "Integer"
+
+#     end
+# end

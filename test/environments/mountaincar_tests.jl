@@ -1,21 +1,18 @@
-module TestMountainCarEnvironment
 
-using RxEnvironments
-using ReTest
-using Rocket
+@testitem "Mountain car environment" begin
+    using RxEnvironments
+    using Rocket
 
-import RxEnvironments:
-    RxEntity,
-    MountainCarEnvironment,
-    MountainCarAgent,
-    MountainCarState,
-    subscribers,
-    get_agent,
-    send!,
-    Throttle,
-    decorated
-
-@testset "Mountain car environment" begin
+    import RxEnvironments:
+        RxEntity,
+        MountainCarEnvironment,
+        MountainCarAgent,
+        MountainCarState,
+        subscribers,
+        get_agent,
+        send!,
+        Throttle,
+        decorated
     @testset "Create environment" begin
         let env = MountainCar(1)
             @test env isa RxEntity{RxEnvironments.MountainCarEnvironment}
@@ -70,15 +67,13 @@ import RxEnvironments:
 
     @testset "send!" begin
         import RxEnvironments: entity
-        let env = MountainCar(1; emit_every_ms = 10)
+        let env = MountainCar(1; emit_every_ms = 1)
             agent = get_agent(env)
             @test length(RxEnvironments.send!(decorated(agent), decorated(env))) == 2
             actor = keep(Any)
             subscribe_to_observations!(agent, actor)
-            sleep(0.1)
+            sleep(0.5)
             @test length(actor.values) > 1
         end
     end
-end
-
 end

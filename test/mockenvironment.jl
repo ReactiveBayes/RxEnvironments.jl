@@ -21,3 +21,15 @@ RxEnvironments.send!(agent::Rocket.Actor{Any}, environment::MockEnvironment) =
 
 RxEnvironments.emits(subject::MockEnvironment, listener::MockEnvironment, action::Any) =
     false
+
+RxEnvironments.send!(agent::MockAgent, environment::MockEnvironment, action::Int) =
+    "Integer sent"
+RxEnvironments.send!(
+    agent::MockAgent,
+    environment::RxEnvironments.RxEntity{
+        MockEnvironment,
+        RxEnvironments.DiscreteEntity,
+        RxEnvironments.IsEnvironment,
+    },
+    action::Float64,
+) = "Float sent"

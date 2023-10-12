@@ -1,13 +1,11 @@
-module EnvironmentTests
 
-using ReTest
-using RxEnvironments
-using Rocket
-import RxEnvironments: Observation, DiscreteEntity, ContinuousEntity, state_space
 
-include("../mockenvironment.jl")
+@testitem "environment" begin
+    using RxEnvironments
+    using Rocket
+    import RxEnvironments: Observation, DiscreteEntity, ContinuousEntity, state_space
 
-@testset "environment" begin
+    include("../mockenvironment.jl")
     @testset "creation" begin
         import RxEnvironments: observations
         state = 0.0
@@ -123,6 +121,4 @@ include("../mockenvironment.jl")
             end
         end
     end
-end
-
 end
