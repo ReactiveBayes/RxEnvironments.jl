@@ -19,6 +19,8 @@ Base.iterate(collection::ObservationCollection) = iterate(collection.observation
 Base.iterate(collection::ObservationCollection, state) =
     iterate(collection.observations, state)
 
+data(collection::ObservationCollection)  = map(point -> data(point), collection.observations)
+
 
 struct EmptyMessage end
 

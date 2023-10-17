@@ -8,13 +8,13 @@ end
 
 EntityProperties(state_space) = EntityProperties(state_space, Terminated(false), nothing)
 
-struct EntityActor{S,E} <: Rocket.Actor{Any}
-    entity::AbstractEntity{T,S,E} where {T}
+struct EntityActor{T, S,E} <: Rocket.Actor{Any}
+    entity::AbstractEntity{T,S,E}
 end
 
 entity(actor::EntityActor) = actor.entity
 
-function Rocket.on_next!(actor::EntityActor{S,IsEnvironment} where {S}, observation)
+function Rocket.on_next!(actor::EntityActor{T, S,IsEnvironment} where {T, S}, observation)
     subject = entity(actor)
     update!(subject)
     receive!(subject, observation)
@@ -25,7 +25,7 @@ function Rocket.on_next!(actor::EntityActor{S,IsEnvironment} where {S}, observat
     end
 end
 
-function Rocket.on_next!(actor::EntityActor{S,IsNotEnvironment} where {S}, observation)
+function Rocket.on_next!(actor::EntityActor{T, S,IsNotEnvironment} where {T, S}, observation)
     receive!(entity(actor), observation)
 end
 
