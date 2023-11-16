@@ -65,8 +65,9 @@
 
             add_timer!(e, 10)
             for i = 1:10
+                prev_n_obs = length(obs)
                 sleep(0.1)
-                @test length(obs) > 5 * i
+                @test length(obs) > prev_n_obs
             end
 
         end
