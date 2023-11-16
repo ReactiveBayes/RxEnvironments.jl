@@ -35,7 +35,8 @@ function Rocket.on_next!(actor::EntityActor{T,S,IsEnvironment} where {T,S}, obse
     receive!(subject, observation)
     for listener in subscribers(subject)
         if emits(subject, listener, observation)
-            send!(listener, subject)
+            action = what_to_send(listener, subject, observation)
+            send!(listener, subject, action)
         end
     end
 end

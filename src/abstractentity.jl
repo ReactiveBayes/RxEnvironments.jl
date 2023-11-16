@@ -33,7 +33,10 @@ markov_blanket(entity::AbstractEntity) = entity.markov_blanket
 properties(entity::AbstractEntity) = entity.properties
 is_terminated(entity::AbstractEntity) = is_terminated(properties(entity).terminated)
 state_space(entity::AbstractEntity) = properties(entity).state_space
+is_environment(entity::AbstractEntity{T, S, IsEnvironment} where {T, S}) = true
+is_environment(entity::AbstractEntity{T, S, IsNotEnvironment} where {T, S}) = false
 clock(entity::AbstractEntity) = properties(entity).clock
+Base.time(entity::AbstractEntity) = time(clock(entity))
 
 last_update(entity::AbstractEntity{T,ContinuousEntity,E}) where {T,E} =
     last_update(clock(entity))
@@ -161,10 +164,11 @@ function terminate!(entity::AbstractEntity)
     end
 end
 
-update!(any) =
-    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
-update!(any, elapsed_time) =
-    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
+update!(any) = 
+    @warn "`update!` triggered for entity of type $any, but no update function is defined for this type."
+update!(any, elapsed_time) = 
+    @warn "`update!` triggered for entity of type $any, but no update function is defined for this type."
+
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
 
@@ -195,26 +199,10 @@ function send!(
     send_action!(actuator, action)
 end
 
-"""
-    send!(recipient::AbstractEntity, emitter::AbstractEntity)
-
-Send an action from `emitter` to `recipient`. Should use the state of `emitter` to determine the action to send.
-
-See also: [`RxEnvironments.receive!`](@ref)
-"""
-function send!(recipient::AbstractEntity, emitter::AbstractEntity)
-    action = send!(decorated(recipient), decorated(emitter))
-    send!(recipient, emitter, action)
-end
-
-function send!(recipient::Rocket.Actor{Any}, emitter::AbstractEntity)
-    action = send!(recipient, decorated(emitter))
-    send!(recipient, emitter, action)
-end
-
-send!(recipient, emitter::AbstractEntity) = send!(recipient, decorated(emitter))
-send!(recipient, emitter) = nothing
-send!(recipient, emitter, received_data) = send!(recipient, emitter)
+what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation) = what_to_send(decorated(recipient), decorated(emitter), observation)
+what_to_send(recipient, emitter::AbstractEntity, observation)  = what_to_send(recipient, decorated(emitter), observation)
+what_to_send(recipient, emitter, observation) = what_to_send(recipient, emitter)
+what_to_send(recipient, emitter) = nothing
 
 function receive!(recipient::AbstractEntity, observations::ObservationCollection)
     for observation in observations

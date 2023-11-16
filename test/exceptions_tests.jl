@@ -31,3 +31,17 @@ end
         @test_throws MixedStateSpaceException throw(exception)
     end
 end
+
+@testitem "SelfSubscriptionException" begin
+    using RxEnvironments
+
+    include("mockenvironment.jl")
+
+    env = create_entity(MockEnvironment())
+    import RxEnvironments: SelfSubscriptionException, entity
+    let exception = SelfSubscriptionException(env)
+        @test exception isa SelfSubscriptionException
+        @test entity(exception) === env
+        @test_throws SelfSubscriptionException throw(exception)
+    end
+end

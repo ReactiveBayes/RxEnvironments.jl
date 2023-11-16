@@ -8,6 +8,19 @@
         @test e isa RxEnvironments.RxEntity{MockEntity}
     end
 
+    @testset "decorated" begin
+        import RxEnvironments: decorated
+
+        e = create_entity(MockEntity())
+        @test decorated(e) === MockEntity()
+
+        e = create_entity(MockEnvironment())
+        @test decorated(e) === MockEnvironment()
+
+        e = create_entity(MockEntity(); is_environment = true)
+        @test decorated(e) === MockEntity()
+    end
+
     @testset "markov blanket functionality" begin
         let e = create_entity(MockEntity())
             @test e.markov_blanket isa RxEnvironments.MarkovBlanket
@@ -572,6 +585,14 @@ end
                 @test !is_subscribed(second_entity, first_entity)
                 @test is_terminated(first_entity)
             end
+        end
+    end
+
+    @testset "impossible to add timer" begin
+        import RxEnvironments: add_timer!
+
+        let e = create_entity(MockEntity(); discrete = true)
+            @test_throws MethodError add_timer!(e, 1000)
         end
     end
 

@@ -9,5 +9,5 @@ update!
 send!
 receive!
 RxEnvironments.emits
-Rocket.unsubscribe!
+RxEnvironments.Rocket.unsubscribe!
 ```
