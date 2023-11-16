@@ -58,13 +58,12 @@ end
 
     @testset "add and remove subscriber" begin
         import RxEnvironments: IsNotEnvironment
-        let env = RxEnvironment(MockEnvironment(0.0))
-            agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+        let env = create_entity(MockEnvironment(); is_environment = true)
+            agent = create_entity(MockEntity())
             subscribe!(env, agent)
             @test is_subscribed(agent, env)
 
-            second_agent =
-                create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+            second_agent = create_entity(MockEntity())
             subscribe!(env, second_agent)
             @test is_subscribed(second_agent, env)
             @test length(subscribers(env)) == 2
@@ -82,7 +81,7 @@ end
             @test length(subscribers(env)) == 0
         end
 
-        let env = RxEnvironment(MockEnvironment(0.0))
+        let env = RxEnvironment(MockEnvironment())
             actor = keep(Any)
             sub = subscribe!(env, actor)
             @test is_subscribed(actor, env)
@@ -94,8 +93,8 @@ end
     @testset "add subscription" begin
 
         import RxEnvironments: IsNotEnvironment
-        let env = RxEnvironment(MockEnvironment(0.0))
-            agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+        let env = create_entity(MockEnvironment(); is_environment = true)
+            agent = create_entity(MockEntity())
             subscribe!(agent, env)
             @test is_subscribed(env, agent)
             @test subscribed_to(env) == [agent]
@@ -119,15 +118,15 @@ end
 
     include("mockenvironment.jl")
 
-    let env = RxEnvironment(MockEnvironment(0.0))
-        agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+    let env = create_entity(MockEnvironment(); is_environment = true)
+        agent = create_entity(MockEntity())
         subscribe!(env, agent)
         actor = keep(Any)
         subscribe_to_observations!(agent, actor)
         send!(agent, env, 10)
         @test RxEnvironments.data.(actor.values) == [10]
 
-        second_agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())
+        second_agent = create_entity(MockEntity())
         subscribe!(env, second_agent)
         second_actor = keep(Any)
         subscribe_to_observations!(second_agent, second_actor)

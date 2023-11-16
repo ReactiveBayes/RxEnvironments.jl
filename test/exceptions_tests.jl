@@ -4,8 +4,8 @@
 
     include("mockenvironment.jl")
 
-    env = RxEnvironment(MockEnvironment(0.0))
-    agent = MockAgent()
+    env = RxEnvironment(MockEnvironment())
+    agent = MockEntity()
     import RxEnvironments: NotSubscribedException, origin, recipient
     let exception = NotSubscribedException(env, agent)
         @test exception isa NotSubscribedException
@@ -21,8 +21,8 @@ end
 
     include("mockenvironment.jl")
 
-    env = RxEnvironment(MockEnvironment(0.0))
-    agent = MockAgent()
+    env = RxEnvironment(MockEnvironment())
+    agent = MockEntity()
     import RxEnvironments: MixedStateSpaceException, first_entity, second_entity
     let exception = MixedStateSpaceException(env, agent)
         @test exception isa MixedStateSpaceException

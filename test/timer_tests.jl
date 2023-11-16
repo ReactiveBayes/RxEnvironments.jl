@@ -1,14 +1,21 @@
 @testitem "ManualClock" begin
-    import RxEnvironments: ManualClock, elapsed_time, add_elapsed_time!, set_last_update!
+    import RxEnvironments:
+        ManualClock, elapsed_time, add_elapsed_time!, set_last_update!, start_time
 
     clock = ManualClock()
+
     @test time(clock) === 0.0
+    @test start_time(clock) === 0.0
     @test_throws ErrorException elapsed_time(clock)
+
     add_elapsed_time!(clock, 1.0)
+
     @test time(clock) === 1.0
+    @test time(clock) > start_time(clock)
     @test_throws ErrorException add_elapsed_time!(clock, -1)
 
     set_last_update!(clock, 2.0)
+
     @test time(clock) === 2.0
 end
 
@@ -29,7 +36,7 @@ end
     import RxEnvironments: TimerActor, create_entity, entity
     include("mockenvironment.jl")
 
-    rxentity = create_entity(MockAgent())
+    rxentity = create_entity(MockEntity())
     actor = TimerActor(rxentity)
     @test entity(actor) === rxentity
 end
@@ -39,11 +46,11 @@ end
     using Rocket
     include("mockenvironment.jl")
 
-    rxentity = create_entity(MockAgent())
+    rxentity = create_entity(MockEntity())
     log = keep(Any)
     subscribe_to_observations!(rxentity, log)
     timer = Timer(10, rxentity)
-    for _ in 1:10
+    for _ = 1:10
         prev_len = length(log.values)
         sleep(0.1)
         @test length(log.values) > prev_len

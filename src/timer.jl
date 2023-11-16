@@ -14,7 +14,7 @@ end
 
 ManualClock() = ManualClock(TimeStamp(0))
 
-start_time(clock::ManualClock) = 0
+start_time(clock::ManualClock) = 0.0
 last_update(clock::ManualClock) = time(clock.last_update)
 elapsed_time(::ManualClock) = error("elapsed_time not defined for ManualClock")
 set_last_update!(clock::ManualClock, time::Real) = clock.last_update.time = time
@@ -37,7 +37,6 @@ start_time(clock::WallClock) = time(clock.start_time)
 last_update(clock::WallClock) = time(clock.last_update)
 set_last_update!(clock::WallClock, time::Real) = clock.last_update.time = time
 real_time_factor(clock::WallClock) = clock.real_time_factor
-timer(clock::WallClock) = clock.timer
 
 function Base.time(clock::WallClock)
     return (time() - start_time(clock)) / real_time_factor(clock)
@@ -65,7 +64,7 @@ end
 struct Timer
     timer::Rocket.TimerObservable
     actor::TimerActor
-    subscription
+    subscription::Any
 end
 
 function Timer(emit_every_ms::Int, entity)

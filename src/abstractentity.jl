@@ -54,6 +54,9 @@ function Rocket.subscribe!(
     emitter::AbstractEntity{T,S,E} where {T,E},
     receiver::AbstractEntity{O,S,P} where {O,P},
 ) where {S}
+    if emitter === receiver
+        throw(SelfSubscriptionException(emitter))
+    end
     actuator = Actuator()
     insert!(actuators(markov_blanket(emitter)), receiver, actuator)
     add_sensor!(markov_blanket(receiver), emitter, receiver)
@@ -71,7 +74,9 @@ function subscribe_to_observations!(entity::AbstractEntity, actor)
     subscribe!(observations(entity), actor)
     return actor
 end
-
+"""
+Unsubscribes `receiver` from `emitter`. Any data sent from `emitter` to `receiver` will not be received by `receiver` after this function is called.
+"""
 function Rocket.unsubscribe!(emitter::AbstractEntity, receiver::AbstractEntity)
     Rocket.unsubscribe!(sensors(receiver)[emitter])
     delete!(sensors(receiver), emitter)
@@ -156,6 +161,10 @@ function terminate!(entity::AbstractEntity)
     end
 end
 
+update!(any) =
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
+update!(any, elapsed_time) =
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
 
@@ -239,9 +248,6 @@ Determines if an entity of the type of `subject` should emit an observation to a
 Users should implement this function for their own entity and observation types to handle the logic of when to emit observations to which entities. By default, this function returns `true`.
 """
 emits(subject, listener, observation::Any) = true
-
-
-set_clock!(entity::AbstractEntity, clock::Clock) = properties(entity).clock = clock
 
 function add_timer!(
     entity::AbstractEntity{T,ContinuousEntity,E} where {T,E},
