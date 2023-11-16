@@ -9,4 +9,5 @@ update!
 send!
 receive!
 RxEnvironments.emits
+Rocket.unsubscribe!
 ```
