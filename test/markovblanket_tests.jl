@@ -11,7 +11,7 @@
         ContinuousEntity,
         create_entity
 
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
     @testset "constructor" begin
         let actuator = Actuator()
             @test actuator isa Actuator
@@ -34,7 +34,7 @@ end
 
 @testitem "markov blanket" begin
 
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
     using RxEnvironments
     import RxEnvironments:
         Actuator,
@@ -117,7 +117,7 @@ end
         create_entity,
         IsNotEnvironment
 
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
 
     let env = RxEnvironment(MockEnvironment(0.0))
         agent = create_entity(MockAgent(), ContinuousEntity(), IsNotEnvironment())

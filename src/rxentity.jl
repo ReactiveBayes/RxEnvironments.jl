@@ -1,20 +1,23 @@
 using Rocket
 
-mutable struct EntityProperties{S}
+mutable struct EntityProperties{S, E}
     state_space::S
+    is_environment::E
     terminated::Terminated
-    clock::Union{Clock,Nothing}
+    clock::Clock
+    timer::Union{Timer,Nothing}
 end
 
-EntityProperties(state_space) = EntityProperties(state_space, Terminated(false), nothing)
+EntityProperties(state_space::DiscreteEntity, is_environment; real_time_factor=1.0) = EntityProperties(state_space, is_environment, Terminated(false), ManualClock(), nothing)
+EntityProperties(state_space::ContinuousEntity, is_environment; real_time_factor::Real = 1.0) = EntityProperties(state_space, is_environment, Terminated(false), WallClock(real_time_factor), nothing)
 
-struct EntityActor{T, S,E} <: Rocket.Actor{Any}
+struct EntityActor{T,S,E} <: Rocket.Actor{Any}
     entity::AbstractEntity{T,S,E}
 end
 
 entity(actor::EntityActor) = actor.entity
 
-function Rocket.on_next!(actor::EntityActor{T, S,IsEnvironment} where {T, S}, observation)
+function Rocket.on_next!(actor::EntityActor{T,S,IsEnvironment} where {T,S}, observation)
     subject = entity(actor)
     update!(subject)
     receive!(subject, observation)
@@ -25,15 +28,14 @@ function Rocket.on_next!(actor::EntityActor{T, S,IsEnvironment} where {T, S}, ob
     end
 end
 
-function Rocket.on_next!(actor::EntityActor{T, S,IsNotEnvironment} where {T, S}, observation)
+function Rocket.on_next!(actor::EntityActor{T,S,IsNotEnvironment} where {T,S}, observation)
     receive!(entity(actor), observation)
 end
 
 struct RxEntity{T,S,E} <: AbstractEntity{T,S,E}
     decorated::T
     markov_blanket::MarkovBlanket
-    properties::EntityProperties{S}
-    is_environment::E
+    properties::EntityProperties{S, E}
 end
 
 function create_entity(entity; discrete::Bool = false, is_environment::Bool = false)
@@ -42,12 +44,11 @@ function create_entity(entity; discrete::Bool = false, is_environment::Bool = fa
     return create_entity(entity, state_space, is_environment)
 end
 
-function create_entity(entity, state_space, is_environment)
+function create_entity(entity, state_space, is_environment; real_time_factor::Real = 1)
     result = RxEntity(
         entity,
         MarkovBlanket(state_space),
-        EntityProperties(state_space),
-        is_environment,
+        EntityProperties(state_space, is_environment; real_time_factor=real_time_factor),
     )
     entity_actor = EntityActor(result)
     subscribe_to_observations!(result, entity_actor)

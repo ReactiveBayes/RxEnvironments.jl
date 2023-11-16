@@ -5,7 +5,7 @@
     using Rocket
     import RxEnvironments: subscribe_to_observations!, add_timer!
 
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
 
     @testset "wait until all actors fire" begin
         let env = RxEnvironment(MockEnvironment(0.0), discrete = true)

@@ -11,7 +11,7 @@
         DiscreteEntity,
         IsEnvironment,
         IsNotEnvironment
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
     @testset "constructor" begin
         import RxEnvironments: RxEntity, MarkovBlanket, Observations
         let rxentity = create_entity(MockAgent())

@@ -249,14 +249,12 @@ function add_timer!(
     real_time_factor::Real = 1.0,
 )
     @assert real_time_factor > 0.0
-    c = Clock(real_time_factor, emit_every_ms)
+    c = Timer(emit_every_ms, entity)
     add_timer!(entity, c)
 end
 
-function add_timer!(entity::AbstractEntity{T,ContinuousEntity,E} where {T,E}, clock::Clock)
-    actor = TimerActor(entity)
-    subscribe!(clock, actor)
-    set_clock!(entity, clock)
+function add_timer!(entity::AbstractEntity{T,ContinuousEntity,E} where {T,E}, timer::Timer)
+    properties(entity).timer = timer
 end
 
 function animate_state end

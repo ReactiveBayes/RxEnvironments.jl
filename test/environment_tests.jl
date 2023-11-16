@@ -5,7 +5,7 @@
     using Rocket
     import RxEnvironments: Observation, DiscreteEntity, ContinuousEntity, state_space
 
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
     @testset "creation" begin
         import RxEnvironments: observations
         state = 0.0

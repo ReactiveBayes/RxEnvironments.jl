@@ -2,7 +2,7 @@
 @testitem "NotSubscribedException" begin
     using RxEnvironments
 
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
 
     env = RxEnvironment(MockEnvironment(0.0))
     agent = MockAgent()
@@ -19,7 +19,7 @@ end
 @testitem "MixedStateSpaceException" begin
     using RxEnvironments
 
-    include("../mockenvironment.jl")
+    include("mockenvironment.jl")
 
     env = RxEnvironment(MockEnvironment(0.0))
     agent = MockAgent()
