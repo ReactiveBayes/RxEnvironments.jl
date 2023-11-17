@@ -5,12 +5,7 @@ version = "0.1.1"
 
 [deps]
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
-Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Exceptions = "25a0344a-2aab-46d0-b534-6f1410d4c65f"
-ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Rocket = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
 
 [weakdeps]
@@ -20,13 +15,15 @@ GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 RxEnvironmentsPlottingExt = "GLMakie"
 
 [compat]
+Aqua = "0.8"
+Coverage = "1.6"
+CpuId = "0.3"
 Dictionaries = "0.3"
-DifferentialEquations = "7"
-Distributions = "0.25"
 Exceptions = "0.1"
-ForwardDiff = "0.10"
-HypergeometricFunctions = "0.3"
+GLMakie = "0.8"
+ReTestItems = "1.20"
 Rocket = "1"
+Test = "<0.0.1, 1"
 julia = "1"
 
 [extras]
@@ -37,4 +34,4 @@ ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Aqua", "ReTestItems", "Coverage", "CpuId"]
+test = ["Aqua", "Coverage", "CpuId", "ReTestItems", "Test"]

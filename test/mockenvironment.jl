@@ -1,35 +1,35 @@
 using RxEnvironments
 using Rocket
 
-struct MockAgent end
+struct MockEntity end
+struct SelectiveSendingEntity end
 
-struct SecondMockAgent end
+RxEnvironments.update!(subject::SelectiveSendingEntity) = nothing
+RxEnvironments.update!(subject::SelectiveSendingEntity, elapsed_time) = nothing
 
-mutable struct MockEnvironment
-    state::Any
-end
+struct SelectiveReceivingEntity end
 
-RxEnvironments.update!(environment::MockEnvironment) = nothing
-RxEnvironments.update!(environment::MockEnvironment, elapsed_time) = nothing
-RxEnvironments.receive!(environment::MockEnvironment, agent::Any, action::Any) = nothing
-RxEnvironments.send!(agent::MockAgent, environment::MockEnvironment) = nothing
-RxEnvironments.send!(agent::SecondMockAgent, environment::MockEnvironment) =
-    RxEnvironments.EmptyMessage()
+RxEnvironments.emits(subject::SelectiveSendingEntity, listener::MockEntity, action) = true
 
-RxEnvironments.send!(agent::Rocket.Actor{Any}, environment::MockEnvironment) =
-    environment.state
+RxEnvironments.emits(
+    subject::SelectiveSendingEntity,
+    listener::SelectiveReceivingEntity,
+    action::Nothing,
+) = false
 
-RxEnvironments.emits(subject::MockEnvironment, listener::MockEnvironment, action::Any) =
-    false
+RxEnvironments.what_to_send(
+    recipient::SelectiveReceivingEntity,
+    emitter::SelectiveSendingEntity,
+    observation::Float64,
+) = 1.0
 
-RxEnvironments.send!(agent::MockAgent, environment::MockEnvironment, action::Int) =
-    "Integer sent"
-RxEnvironments.send!(
-    agent::MockAgent,
-    environment::RxEnvironments.RxEntity{
-        MockEnvironment,
-        RxEnvironments.DiscreteEntity,
-        RxEnvironments.IsEnvironment,
-    },
-    action::Float64,
-) = "Float sent"
+RxEnvironments.what_to_send(
+    recipient::SelectiveReceivingEntity,
+    emitter::SelectiveSendingEntity,
+    observation::Bool,
+) = true
+
+struct MockEnvironment end
+
+RxEnvironments.update!(subject::MockEnvironment) = nothing
+RxEnvironments.update!(subject::MockEnvironment, elapsed_time) = nothing

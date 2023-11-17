@@ -22,3 +22,11 @@ Base.showerror(io::IO, e::MixedStateSpaceException) = print(
     io,
     "Entities $(first_entity(e)) and $(second_entity(e)) have different state spaces.",
 )
+
+mutable struct SelfSubscriptionException <: Exception
+    entity::Any
+end
+entity(e::SelfSubscriptionException) = e.entity
+
+Base.showerror(io::IO, e::SelfSubscriptionException) =
+    print(io, "Entity cannot subscribe to itself, attempted in  $(entity(e)).")

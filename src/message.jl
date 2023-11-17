@@ -19,10 +19,11 @@ Base.iterate(collection::ObservationCollection) = iterate(collection.observation
 Base.iterate(collection::ObservationCollection, state) =
     iterate(collection.observations, state)
 
-data(collection::ObservationCollection)  = map(point -> data(point), collection.observations)
+data(collection::ObservationCollection) = map(point -> data(point), collection.observations)
+data(collection::ObservationCollection{1}) = data(collection.observations[1])
 
 
-struct EmptyMessage end
+struct EmptyMessage <: AbstractObservation end
 
 mutable struct Terminated
     terminated::Bool

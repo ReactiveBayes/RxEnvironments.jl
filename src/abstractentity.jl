@@ -33,10 +33,10 @@ markov_blanket(entity::AbstractEntity) = entity.markov_blanket
 properties(entity::AbstractEntity) = entity.properties
 is_terminated(entity::AbstractEntity) = is_terminated(properties(entity).terminated)
 state_space(entity::AbstractEntity) = properties(entity).state_space
+is_environment(entity::AbstractEntity{T,S,IsEnvironment} where {T,S}) = true
+is_environment(entity::AbstractEntity{T,S,IsNotEnvironment} where {T,S}) = false
 clock(entity::AbstractEntity) = properties(entity).clock
-
-last_update(entity::AbstractEntity{T,ContinuousEntity,E}) where {T,E} =
-    last_update(clock(entity))
+Base.time(entity::AbstractEntity) = time(clock(entity))
 
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
 actuators(entity::AbstractEntity) = actuators(markov_blanket(entity))
@@ -54,6 +54,9 @@ function Rocket.subscribe!(
     emitter::AbstractEntity{T,S,E} where {T,E},
     receiver::AbstractEntity{O,S,P} where {O,P},
 ) where {S}
+    if emitter === receiver
+        throw(SelfSubscriptionException(emitter))
+    end
     actuator = Actuator()
     insert!(actuators(markov_blanket(emitter)), receiver, actuator)
     add_sensor!(markov_blanket(receiver), emitter, receiver)
@@ -71,7 +74,9 @@ function subscribe_to_observations!(entity::AbstractEntity, actor)
     subscribe!(observations(entity), actor)
     return actor
 end
-
+"""
+Unsubscribes `receiver` from `emitter`. Any data sent from `emitter` to `receiver` will not be received by `receiver` after this function is called.
+"""
 function Rocket.unsubscribe!(emitter::AbstractEntity, receiver::AbstractEntity)
     Rocket.unsubscribe!(sensors(receiver)[emitter])
     delete!(sensors(receiver), emitter)
@@ -156,6 +161,13 @@ function terminate!(entity::AbstractEntity)
     end
 end
 
+time_interval(any) = 1
+
+update!(any) = 
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
+update!(any, elapsed_time) = 
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
+
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
 
@@ -170,7 +182,12 @@ function update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
     set_last_update!(c, time(c))
 end
 
-update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} = update!(decorated(e))
+function update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} 
+    entity = decorated(e)
+    elapsed_time = time_interval(entity)
+    update!(entity, elapsed_time)
+    add_elapsed_time!(clock(e), elapsed_time)
+end
 
 """
     send!(recipient::AbstractEntity, emitter::AbstractEntity, action::Any)
@@ -186,26 +203,12 @@ function send!(
     send_action!(actuator, action)
 end
 
-"""
-    send!(recipient::AbstractEntity, emitter::AbstractEntity)
-
-Send an action from `emitter` to `recipient`. Should use the state of `emitter` to determine the action to send.
-
-See also: [`RxEnvironments.receive!`](@ref)
-"""
-function send!(recipient::AbstractEntity, emitter::AbstractEntity)
-    action = send!(decorated(recipient), decorated(emitter))
-    send!(recipient, emitter, action)
-end
-
-function send!(recipient::Rocket.Actor{Any}, emitter::AbstractEntity)
-    action = send!(recipient, decorated(emitter))
-    send!(recipient, emitter, action)
-end
-
-send!(recipient, emitter::AbstractEntity) = send!(recipient, decorated(emitter))
-send!(recipient, emitter) = nothing
-send!(recipient, emitter, received_data) = send!(recipient, emitter)
+what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation::Observation) =
+    what_to_send(decorated(recipient), decorated(emitter), data(observation))
+what_to_send(recipient, emitter::AbstractEntity, observation) =
+    what_to_send(recipient, decorated(emitter), observation)
+what_to_send(recipient, emitter, observation) = what_to_send(recipient, emitter)
+what_to_send(recipient, emitter) = nothing
 
 function receive!(recipient::AbstractEntity, observations::ObservationCollection)
     for observation in observations
@@ -240,23 +243,18 @@ Users should implement this function for their own entity and observation types 
 """
 emits(subject, listener, observation::Any) = true
 
-
-set_clock!(entity::AbstractEntity, clock::Clock) = properties(entity).clock = clock
-
 function add_timer!(
     entity::AbstractEntity{T,ContinuousEntity,E} where {T,E},
     emit_every_ms::Int;
     real_time_factor::Real = 1.0,
 )
     @assert real_time_factor > 0.0
-    c = Clock(real_time_factor, emit_every_ms)
+    c = Timer(emit_every_ms, entity)
     add_timer!(entity, c)
 end
 
-function add_timer!(entity::AbstractEntity{T,ContinuousEntity,E} where {T,E}, clock::Clock)
-    actor = TimerActor(entity)
-    subscribe!(clock, actor)
-    set_clock!(entity, clock)
+function add_timer!(entity::AbstractEntity{T,ContinuousEntity,E} where {T,E}, timer::Timer)
+    properties(entity).timer = timer
 end
 
 function animate_state end
