@@ -17,6 +17,18 @@ RxEnvironments.emits(
     action::Nothing,
 ) = false
 
+RxEnvironments.what_to_send(
+    recipient::SelectiveReceivingEntity,
+    emitter::SelectiveSendingEntity,
+    observation::Float64,
+) = 1.0
+
+RxEnvironments.what_to_send(
+    recipient::SelectiveReceivingEntity,
+    emitter::SelectiveSendingEntity,
+    observation::Bool,
+) = true
+
 struct MockEnvironment end
 
 RxEnvironments.update!(subject::MockEnvironment) = nothing

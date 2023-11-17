@@ -199,8 +199,8 @@ function send!(
     send_action!(actuator, action)
 end
 
-what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation) =
-    what_to_send(decorated(recipient), decorated(emitter), observation)
+what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation::Observation) =
+    what_to_send(decorated(recipient), decorated(emitter), data(observation))
 what_to_send(recipient, emitter::AbstractEntity, observation) =
     what_to_send(recipient, decorated(emitter), observation)
 what_to_send(recipient, emitter, observation) = what_to_send(recipient, emitter)
