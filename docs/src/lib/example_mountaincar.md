@@ -33,7 +33,7 @@ In order to still get consistent simulations, the following design pattern may b
 Now that we've specified the environment dynamics and the design pattern for getting accurate state updates, it is time to implement the environment in `RxEnvironments`.
 ### Setup
 For this environment we have some specific requirements, please make sure these are installed. Furthermore, we define a generic landscape function to utilize, but the environment will also work with other (differentiable) landscape functions.
-```julia
+```@example mountaincar
 import HypergeometricFunctions: _₂F₁
 using Distributions
 using ForwardDiff
@@ -55,7 +55,7 @@ end
 ```
 ### Defining environment structures
 In order to implement the design pattern described above, we need to create a structure in which we are going to store the precomputed trajectory of the mountain car:
-```julia
+```@example mountaincar
 
 mutable struct MountainCarTrajectory
     recompute::Bool
@@ -81,7 +81,7 @@ reduce_time_left!(trajectory::MountainCarTrajectory, elapsed_time) =
     set_time_left!(trajectory, time_left(trajectory) - elapsed_time)
 ```
 Here, we also implement all helper functions that give us a convenient interface to work with this trajectory. This trajectory is wrapped in the state of a Mountain Car, which contains all variables of the mountain car that are subject to change, such as position and velocity.
-```julia
+```@example mountaincar
 
 mutable struct MountainCarState
     position::Real
@@ -112,7 +112,7 @@ MountainCarState(position::Real, velocity::Real, throttle::Real) = MountainCarSt
 ```
 
 The actual Mountain Car struct will contain the state of the mountain car, as well as constants such as the engine power and friction coefficient:
-```julia
+```@example mountaincar
 
 
 struct MountainCarAgent
@@ -155,7 +155,7 @@ trajectory(car::MountainCarAgent) = trajectory(state(car))
 ```
 
 Now we are in a shape where we can define the actual environment, which will contain a landscape function and a collection of Mountain Cars:
-```julia
+```@example mountaincar
 struct MountainCarEnvironment
     actors::Vector{MountainCarAgent}
     landscape::Any
@@ -166,14 +166,14 @@ MountainCarEnvironment(landscape) = MountainCarEnvironment([], landscape)
 
 In order to encode the actions conducted by mountain car entities on the environment, we introduce a `Throttle` struct that clamps an input action between $-1$ and $1$:
 
-```julia
+```@example mountaincar
 struct Throttle
     throttle::Real
     Throttle(throttle::Real) = new(clamp(throttle, -1, 1))
 end
 ```
 Our environment contains a field `actors`, however, we still have to tell `RxEnvironments` how to add entities to this field:
-```julia
+```@example mountaincar
 function RxEnvironments.add_to_state!(environment::MountainCarEnvironment, agent::MountainCarAgent)
     push!(environment.actors, agent)
 end
@@ -181,7 +181,7 @@ end
 ### Environment dynamics
 When simulating the environment dynamics we need to be able to calculate all forces exerted on the car at any point in time:
 
-```julia
+```@example mountaincar
 throttle(action::Throttle) = action.throttle
 friction(car::MountainCarAgent, velocity) = velocity * -friction_coefficient(car)
 gravitation(car::MountainCarAgent, position, landscape) =
@@ -190,7 +190,7 @@ gravitation(car::MountainCarAgent, position, landscape) =
 
 ### Solving the differential equations
 We have set up the infrastructure with which we can save a trajectory of a moving object in its state, and retrieve this trajectory during future state updates. For this, we use the [`DifferentialEquations.jl`](https://docs.sciml.ai/DiffEqDocs/stable/) package, and we refer to the documentation of the `DifferentialEquations.jl` package for a more comprehensive explanation of solving differential equations in Julia. This section merely shows an example of the desired design pattern in `RxEnvironments.jl`. We have to compute the dynamics of the mountain car and save this in the state of the mountain car:
-```julia
+```@example mountaincar
 # DifferentialEquations.jl function describing the environment dynamics.
 function __mountain_car_dynamics(du, u, s, t)
     agent, env = s
@@ -219,15 +219,15 @@ end
 ### Implementing `RxEnvironments` functions
 All code we have written so far has served as setup for our environment, and we haven't written any core `RxEnvironments.jl` code yet. In this section we will write and elaborate on the necessary code to make our environment fully reactive. 
 
-`RxEnvironments.jl` requires us to implement 3 functions specifically for our environment: `send!`, `receive!` and `update!`:
-`send!(recipient, emitter)` determines the message `emitter` sends to `recipient`. In our example, this function describes how the environment presents an observation to the agent, as function of the environment state.
+`RxEnvironments.jl` requires us to implement 3 functions specifically for our environment: `what_to_send`, `receive!` and `update!`:
+`what_to_send(recipient, emitter)` determines the message `emitter` sends to `recipient`. In our example, this function describes how the environment presents an observation to the agent, as function of the environment state.
 `receive!(recipient, emitter, observation)` determines how `observation` sent from `emitter` to `recipient` influences the internal state of `recipient`. In our example, this describes how a `Throttle` action from the agent changes the environment state.
 `update!(entity, elapsed_time)` describes the state transition of `entity` for `elapsed_time` if there are no incoming observations. In our example, this is how the environment gravity and friction influence the position and velocity of the agent inbetween agent actions.
 A notable detail is that, with our differential equations solution, we also have to check whenever we `update!` the environment if we have to recompute the trajectory for a mountain car, and whenever we `receive!` an action from an agent, that we should always recompute the trajectory.
 
-```julia 
+```@example mountaincar 
 # The agent observes a noisy estimate of its actual position and velocity
-RxEnvironments.send!(agent::MountainCarAgent, environment::MountainCarEnvironment) =
+RxEnvironments.what_to_send(agent::MountainCarAgent, environment::MountainCarEnvironment) =
     return rand(MvNormal(observable_state(agent), I(2)))
 
 function RxEnvironments.receive!(
@@ -258,51 +258,51 @@ end
 
 With these funcitons we have specified the full environment behaviour, and the environment is now fully functional in `RxEnvironments.jl`. 
 We can create the environment with the `RxEnvironment` factory method:
-```julia
-engine_power = 0.6
-friction_coefficient = 0.5
-mass = 2
-target = 1
+```@example mountaincar
+car_engine_power = 0.6
+car_friction_coefficient = 0.5
+car_mass = 2
+car_target = 1
 
 env = RxEnvironment(MountainCarEnvironment(landscape))
 agent = add!(
             env,
             MountainCarAgent(
                 MountainCarState(-0.5, 0.0, 0.0),
-                engine_power,
-                friction_coefficient,
-                mass,
-                target,
+                car_engine_power,
+                car_friction_coefficient,
+                car_mass,
+                car_target,
             ),
         )
 ```
 
 ### Discrete-time Mountain Car
-Classical control theory mainly deals with discrete-time environments, and it is actually very easy to convert the environment dynamics we have written in `RxEnvironments` to also define a discrete environment. In general, the following design pattern is very helpful:
+Classical control theory mainly deals with discrete-time environments, and it is actually very easy to convert the environment dynamics we have written in `RxEnvironments` to also define a discrete environment. In general, we can implement the `time_interval` function:
 ```julia
-update!(env::YourEnvironment) = update!(env, dt)
+time_interval(env::YourEnvironment) = dt
 ```
 for your choice of `dt`. For our mountain car environment, we can set the default timestep to $0.1$ as follows:
 ```julia
-update!(env::MountainCarEnvironment) = update!(env, 0.1)
+time_interval(env::MountainCarEnvironment) = 0.1
 ```
 This will still utilize all environment dynamics we have written for the continuous case, but will create a discrete-time environment. In order to create a discrete-time environment, please make sure to include the `discrete=true` keyword argument for the `RxEnvironment` factory method:
 
-```julia
-engine_power = 0.6
-friction_coefficient = 0.5
-mass = 2
-target = 1
+```@example mountaincar
+car_engine_power = 0.6
+car_friction_coefficient = 0.5
+car_mass = 2
+car_target = 1
 
 env = RxEnvironment(MountainCarEnvironment(landscape); discrete=true)
 agent = add!(
             env,
             MountainCarAgent(
                 MountainCarState(-0.5, 0.0, 0.0),
-                engine_power,
-                friction_coefficient,
-                mass,
-                target,
+                car_engine_power,
+                car_friction_coefficient,
+                car_mass,
+                car_target,
             ),
         )
 ```
