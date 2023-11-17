@@ -15,9 +15,11 @@ struct ObservationCollection{N}
     observations::NTuple{N,Observation}
 end
 
+Base.length(::ObservationCollection{N}) where {N} = N
 Base.iterate(collection::ObservationCollection) = iterate(collection.observations)
 Base.iterate(collection::ObservationCollection, state) =
     iterate(collection.observations, state)
+Base.filter(f, collection::ObservationCollection) = filter(f, collection.observations)
 
 data(collection::ObservationCollection) = map(point -> data(point), collection.observations)
 data(collection::ObservationCollection{1}) = data(collection.observations[1])

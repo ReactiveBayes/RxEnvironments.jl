@@ -203,6 +203,10 @@ function send!(
     send_action!(actuator, action)
 end
 
+function what_to_send(recipient::AbstractEntity, emitting_entity::AbstractEntity, observation::ObservationCollection)
+    corresponding_observation = first(filter(point -> emitter(point) == recipient, observation))
+    return what_to_send(recipient, emitting_entity, corresponding_observation)
+end
 what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation::Observation) =
     what_to_send(decorated(recipient), decorated(emitter), data(observation))
 what_to_send(recipient, emitter::AbstractEntity, observation) =
@@ -234,6 +238,11 @@ emits(subject::AbstractEntity, listener::AbstractEntity, observation::TimerMessa
     emits(decorated(subject), decorated(listener), observation)
 emits(subject::AbstractEntity, listener::AbstractEntity, observation::Observation) =
     emits(decorated(subject), decorated(listener), data(observation))
+
+function emits(subject::AbstractEntity, listener::AbstractEntity, observation::ObservationCollection)
+    corresponding_observation = first(filter(point -> emitter(point) == listener, observation))
+    return emits(subject, listener, corresponding_observation)
+end
 
 """
     emits(subject, listener, observation)
