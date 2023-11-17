@@ -580,7 +580,7 @@ end
 
                 # If we send `nothing` from second_entity to first_entity, second_entity should not receive an additional observation
                 send!(first_entity, second_entity, nothing)
-                @test_broken length(obs) == 1
+                @test length(obs) == 1
             end
         end
     end
@@ -613,9 +613,24 @@ end
         end
     end
 
-    # @testset "selective message sending" begin
-
-    # end
+    @testset "selective message sending" begin
+        import RxEnvironments: send!, data, subscribe_to_observations!
+    
+        # Test that a SelectiveSendingEntity sends a Float to SelectiveReceivingEntity if it receives a Float, and a Bool if it receives a Bool
+        let env = create_entity(SelectiveSendingEntity(); is_environment=true, discrete=true)
+            agent = create_entity(SelectiveReceivingEntity(); discrete=true)
+            add!(env, agent)
+            
+            obs = keep(Any)
+            subscribe_to_observations!(agent, obs)
+    
+            send!(env, agent, 1.0)
+            @test data(last(obs)) === 1.0
+    
+            send!(env, agent, false)
+            @test data(last(obs)) === true
+        end
+    end
 end
 
 @testitem "mixed state space" begin
