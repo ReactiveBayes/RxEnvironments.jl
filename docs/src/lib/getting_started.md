@@ -1,10 +1,11 @@
 
 # [Getting Started](@id lib-started)
+
 When using RxEnvironments, you only have to specify the dynamics of your environment. Let's create the Bayesian Thermostat environment in `RxEnvironments`. For this example, you need `Distributions.jl` installed in your environment as well. 
 
 Let's create the basics of our environment:
 
-```julia
+```@example thermostat
 using RxEnvironments
 using Distributions
 
@@ -33,14 +34,14 @@ function add_temperature!(env::BayesianThermostat, diff::Real)
 end
 ```
 
-By implementing `RxEnvironments.receive!`, `RxEnvironments.send!` and `RxEnvironments.update!` for our environment, we can fully specify the behaviour of our environment, and `RxEnvironments` will take care of the rest. In order to follow along with the sanity checks, please install `Rocket.jl` as well. The `RxEnvironments.receive!` and `RxEnvironments.send!` functions have a specific signature: `RxEnvironments.receive!(receiver, emitter, action)` takes as arguments the recipient of the action (in this example the environment), the emitter of the action (in this example the agent) and the action itself (in this example the change in temperature). The `receive!` function thus specifiec how an action from `emitter` to `recipient` affects the state of `recipient`. Always make sure to dispatch on the types of your environments, agents and actions, as `RxEnvironments` relies on Julia's multiple dispatch system to call the correct functions. Similarly for `send!`, which takes the `recipient` and `emitter` as arguments, that computes the observation from `emitter` presented to `recipient`. In our Bayesian Thermostat example, these functions look as follows:
+By implementing `RxEnvironments.receive!`, `RxEnvironments.what_to_send` and `RxEnvironments.update!` for our environment, we can fully specify the behaviour of our environment, and `RxEnvironments` will take care of the rest. The `RxEnvironments.receive!` and `RxEnvironments.what_to_send` functions have a specific signature: `RxEnvironments.receive!(receiver, emitter, action)` takes as arguments the recipient of the action (in this example the environment), the emitter of the action (in this example the agent) and the action itself (in this example the change in temperature). The `receive!` function thus specifiec how an action from `emitter` to `recipient` affects the state of `recipient`. Always make sure to dispatch on the types of your environments, agents and actions, as `RxEnvironments` relies on Julia's multiple dispatch system to call the correct functions. Similarly for `what_to_send`, which takes the `recipient` and `emitter` (and potentially `observation`) as arguments, that computes the observation from `emitter` presented to `recipient` (when emitter has received `observation`). In our Bayesian Thermostat example, these functions look as follows:
 
-```julia
+```@example thermostat
 # When the environment receives an action from the agent, we add the value of the action to the environment temperature.
-RxEnvironments.receive!(recipient::BayesianThermostat, emitter::ThermostatAgent, action::Float64) = add_temperature!(recipient, action)
+RxEnvironments.receive!(recipient::BayesianThermostat, emitter::ThermostatAgent, action::Real) = add_temperature!(recipient, action)
 
 # The environment sends a noisy observation of the temperature to the agent.
-RxEnvironments.send!(recipient::ThermostatAgent, emitter::BayesianThermostat) = temperature(emitter) + rand(noise(emitter))
+RxEnvironments.what_to_send(recipient::ThermostatAgent, emitter::BayesianThermostat) = temperature(emitter) + rand(noise(emitter))
 
 # The environment cools down over time.
 RxEnvironments.update!(env::BayesianThermostat, elapsed_time)= add_temperature!(env, -0.1 * elapsed_time)
@@ -48,24 +49,22 @@ RxEnvironments.update!(env::BayesianThermostat, elapsed_time)= add_temperature!(
 
 Now we've fully specified our environment, and we can interact with it. In order to create the environment, we use the `RxEnvironment` struct, and we add an agent to this environment using `add!`:
 
-```julia
-environment = RxEnvironment(BayesianThermostat(0.0, -10, 10))
+```@example thermostat
+environment = RxEnvironment(BayesianThermostat(0.0, -10, 10); emit_every_ms = 900)
 agent = add!(environment, ThermostatAgent())
 ```
 
 Now we can have the agent conduct actions in our environment. Let's have the agent conduct some actions, and inspect the observations that are being returned by the environment:
 
-```julia
-using Rocket
-
+```@example thermostat
 # Subscribe a logger actor to the observations of the agent
-RxEnvironments.subscribe_to_observations!(agent, logger())
+RxEnvironments.subscribe_to_observations!(agent, RxEnvironments.logger())
 
 # Conduct 10 actions:
 for i in 1:10
     action = rand()
-    RxEnvironments.conduct_action!(agent, environment, action)
-    sleep(1/5)
+    RxEnvironments.send!(environment, agent, action)
+    sleep(1)
 end
 ```
 
