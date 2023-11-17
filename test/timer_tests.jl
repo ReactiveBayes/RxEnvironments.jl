@@ -55,5 +55,4 @@ end
         sleep(0.1)
         @test length(log.values) > prev_len
     end
-
 end

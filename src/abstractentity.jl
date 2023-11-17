@@ -33,8 +33,8 @@ markov_blanket(entity::AbstractEntity) = entity.markov_blanket
 properties(entity::AbstractEntity) = entity.properties
 is_terminated(entity::AbstractEntity) = is_terminated(properties(entity).terminated)
 state_space(entity::AbstractEntity) = properties(entity).state_space
-is_environment(entity::AbstractEntity{T, S, IsEnvironment} where {T, S}) = true
-is_environment(entity::AbstractEntity{T, S, IsNotEnvironment} where {T, S}) = false
+is_environment(entity::AbstractEntity{T,S,IsEnvironment} where {T,S}) = true
+is_environment(entity::AbstractEntity{T,S,IsNotEnvironment} where {T,S}) = false
 clock(entity::AbstractEntity) = properties(entity).clock
 Base.time(entity::AbstractEntity) = time(clock(entity))
 
@@ -164,10 +164,10 @@ function terminate!(entity::AbstractEntity)
     end
 end
 
-update!(any) = 
-    @warn "`update!` triggered for entity of type $any, but no update function is defined for this type."
-update!(any, elapsed_time) = 
-    @warn "`update!` triggered for entity of type $any, but no update function is defined for this type."
+update!(any) =
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
+update!(any, elapsed_time) =
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
 
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
@@ -199,8 +199,10 @@ function send!(
     send_action!(actuator, action)
 end
 
-what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation) = what_to_send(decorated(recipient), decorated(emitter), observation)
-what_to_send(recipient, emitter::AbstractEntity, observation)  = what_to_send(recipient, decorated(emitter), observation)
+what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation) =
+    what_to_send(decorated(recipient), decorated(emitter), observation)
+what_to_send(recipient, emitter::AbstractEntity, observation) =
+    what_to_send(recipient, decorated(emitter), observation)
 what_to_send(recipient, emitter, observation) = what_to_send(recipient, emitter)
 what_to_send(recipient, emitter) = nothing
 

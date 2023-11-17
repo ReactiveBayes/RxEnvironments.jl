@@ -11,7 +11,7 @@
 
         import RxEnvironments: clock, start_time
 
-        let env = RxEnvironment(MockEnvironment; emit_every_ms=10)
+        let env = RxEnvironment(MockEnvironment(); emit_every_ms = 10)
             @test is_environment(env)
             t = time(env)
             sleep(0.1)
@@ -56,7 +56,7 @@ end
     include("mockenvironment.jl")
 
     @testset "creation" begin
-        let env = RxEnvironment(MockEnvironment(); discrete=true)
+        let env = RxEnvironment(MockEnvironment(); discrete = true)
             @test is_environment(env)
             @test state_space(env) == RxEnvironments.DiscreteEntity()
         end
@@ -65,7 +65,7 @@ end
     @testset "environment emits when agent emits" begin
         import RxEnvironments: data
 
-        let env = RxEnvironment(MockEnvironment(); discrete=true)
+        let env = RxEnvironment(MockEnvironment(); discrete = true)
             agent = MockEntity()
             agent = add!(env, agent)
             actor = keep(Any)
