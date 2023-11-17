@@ -159,12 +159,11 @@ function terminate!(entity::AbstractEntity)
     for subscribed_to in subscribed_to(entity)
         unsubscribe!(subscribed_to, entity)
     end
+    terminate!(properties(entity))
 end
 
 time_interval(any) = 1
 
-update!(any) = 
-    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
 update!(any, elapsed_time) = 
     @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
 

@@ -73,3 +73,10 @@ function Timer(emit_every_ms::Int, entity)
     subscription = subscribe!(timer, actor)
     return Timer(timer, actor, subscription)
 end
+
+function terminate!(timer::Timer)
+    unsubscribe!(timer.subscription)
+    # TODO terminate TimerObservable
+end
+
+terminate!(::Nothing) = nothing

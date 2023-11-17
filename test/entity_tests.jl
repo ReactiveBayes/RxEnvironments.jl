@@ -1,10 +1,11 @@
 @testitem "continuous entity" begin
-    import RxEnvironments: create_entity, subscribe_to_observations!
+    import RxEnvironments: create_entity, subscribe_to_observations!, is_environment
     using Rocket
 
     include("mockenvironment.jl")
     @testset "constructor" begin
         e = create_entity(MockEntity())
+        @test !is_environment(e)
         @test e isa RxEnvironments.RxEntity{MockEntity}
     end
 
