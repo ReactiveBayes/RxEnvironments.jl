@@ -38,9 +38,6 @@ is_environment(entity::AbstractEntity{T,S,IsNotEnvironment} where {T,S}) = false
 clock(entity::AbstractEntity) = properties(entity).clock
 Base.time(entity::AbstractEntity) = time(clock(entity))
 
-last_update(entity::AbstractEntity{T,ContinuousEntity,E}) where {T,E} =
-    last_update(clock(entity))
-
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
 actuators(entity::AbstractEntity) = actuators(markov_blanket(entity))
 sensors(entity::AbstractEntity) = sensors(markov_blanket(entity))
@@ -164,9 +161,11 @@ function terminate!(entity::AbstractEntity)
     end
 end
 
-update!(any) =
+time_interval(any) = 1
+
+update!(any) = 
     @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
-update!(any, elapsed_time) =
+update!(any, elapsed_time) = 
     @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
 
 """
@@ -183,7 +182,12 @@ function update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
     set_last_update!(c, time(c))
 end
 
-update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} = update!(decorated(e))
+function update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} 
+    entity = decorated(e)
+    elapsed_time = time_interval(entity)
+    update!(entity, elapsed_time)
+    add_elapsed_time!(clock(e), elapsed_time)
+end
 
 """
     send!(recipient::AbstractEntity, emitter::AbstractEntity, action::Any)
