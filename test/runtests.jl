@@ -1,4 +1,4 @@
 using ReTestItems, Aqua, RxEnvironments
 
-Aqua.test_all(RxEnvironments; ambiguities = false)
+Aqua.test_all(RxEnvironments)
 runtests(RxEnvironments)

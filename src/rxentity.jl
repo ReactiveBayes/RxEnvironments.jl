@@ -3,7 +3,7 @@ export create_entity
 
 mutable struct EntityActor{T,S,E} <: Rocket.Actor{Any}
     entity::AbstractEntity{T,S,E}
-    subscription::Union{Nothing, Rocket.Teardown}
+    subscription::Union{Nothing,Rocket.Teardown}
 end
 
 entity(actor::EntityActor) = actor.entity
@@ -39,7 +39,14 @@ mutable struct EntityProperties{S,E}
 end
 
 EntityProperties(state_space::DiscreteEntity, is_environment; real_time_factor = 1.0) =
-    EntityProperties(state_space, is_environment, Terminated(false), ManualClock(), nothing, nothing)
+    EntityProperties(
+        state_space,
+        is_environment,
+        Terminated(false),
+        ManualClock(),
+        nothing,
+        nothing,
+    )
 EntityProperties(
     state_space::ContinuousEntity,
     is_environment;
@@ -50,7 +57,7 @@ EntityProperties(
     Terminated(false),
     WallClock(real_time_factor),
     nothing,
-    nothing
+    nothing,
 )
 
 function terminate!(properties::EntityProperties)
