@@ -316,8 +316,8 @@ function RxEnvironments.plot_state(ax, environment::MountainCarEnvironment)
     y = environment.landscape.(x)
     lines!(ax, x, y)
     for agent in environment.actors
-        position = position(agent)
-        scatter!(ax, position, environment.landscape(position))
+        pos = position(agent)
+        scatter!(ax, pos, environment.landscape(pos))
     end
 end
 ```
