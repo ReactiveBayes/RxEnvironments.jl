@@ -299,18 +299,18 @@
 
     @testset "selective message sending" begin
         import RxEnvironments: send!, data, subscribe_to_observations!
-    
+
         # Test that a SelectiveSendingEntity sends a Float to SelectiveReceivingEntity if it receives a Float, and a Bool if it receives a Bool
-        let env = create_entity(SelectiveSendingEntity(); is_environment=true)
+        let env = create_entity(SelectiveSendingEntity(); is_environment = true)
             agent = create_entity(SelectiveReceivingEntity())
             add!(env, agent)
-            
+
             obs = keep(Any)
             subscribe_to_observations!(agent, obs)
-    
+
             send!(env, agent, 1.0)
             @test data(last(obs)) === 1.0
-    
+
             send!(env, agent, false)
             @test data(last(obs)) === true
         end
@@ -616,18 +616,22 @@ end
 
     @testset "selective message sending" begin
         import RxEnvironments: send!, data, subscribe_to_observations!
-    
+
         # Test that a SelectiveSendingEntity sends a Float to SelectiveReceivingEntity if it receives a Float, and a Bool if it receives a Bool
-        let env = create_entity(SelectiveSendingEntity(); is_environment=true, discrete=true)
-            agent = create_entity(SelectiveReceivingEntity(); discrete=true)
+        let env = create_entity(
+                SelectiveSendingEntity();
+                is_environment = true,
+                discrete = true,
+            )
+            agent = create_entity(SelectiveReceivingEntity(); discrete = true)
             add!(env, agent)
-            
+
             obs = keep(Any)
             subscribe_to_observations!(agent, obs)
-    
+
             send!(env, agent, 1.0)
             @test data(last(obs)) === 1.0
-    
+
             send!(env, agent, false)
             @test data(last(obs)) === true
         end

@@ -164,7 +164,7 @@ end
 
 time_interval(any) = 1
 
-update!(any, elapsed_time) = 
+update!(any, elapsed_time) =
     @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
 
 """
@@ -181,7 +181,7 @@ function update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
     set_last_update!(c, time(c))
 end
 
-function update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E} 
+function update!(e::AbstractEntity{T,DiscreteEntity,E}) where {T,E}
     entity = decorated(e)
     elapsed_time = time_interval(entity)
     update!(entity, elapsed_time)
@@ -202,15 +202,21 @@ function send!(
     send_action!(actuator, action)
 end
 
-function what_to_send(recipient::AbstractEntity, emitting_entity::AbstractEntity, observation::ObservationCollection)
-    corresponding_observation = first(filter(point -> emitter(point) == recipient, observation))
+function what_to_send(
+    recipient::AbstractEntity,
+    emitting_entity::AbstractEntity,
+    observation::ObservationCollection,
+)
+    corresponding_observation =
+        first(filter(point -> emitter(point) == recipient, observation))
     return what_to_send(recipient, emitting_entity, corresponding_observation)
 end
 what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation::Observation) =
     what_to_send(decorated(recipient), decorated(emitter), data(observation))
 what_to_send(recipient, emitter::AbstractEntity, observation) =
     what_to_send(recipient, decorated(emitter), observation)
-what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation) = what_to_send(decorated(recipient), decorated(emitter), observation)
+what_to_send(recipient::AbstractEntity, emitter::AbstractEntity, observation) =
+    what_to_send(decorated(recipient), decorated(emitter), observation)
 what_to_send(recipient, emitter, observation) = what_to_send(recipient, emitter)
 what_to_send(recipient, emitter) = nothing
 
@@ -239,8 +245,13 @@ emits(subject::AbstractEntity, listener::AbstractEntity, observation::TimerMessa
 emits(subject::AbstractEntity, listener::AbstractEntity, observation::Observation) =
     emits(decorated(subject), decorated(listener), data(observation))
 
-function emits(subject::AbstractEntity, listener::AbstractEntity, observation::ObservationCollection)
-    corresponding_observation = first(filter(point -> emitter(point) == listener, observation))
+function emits(
+    subject::AbstractEntity,
+    listener::AbstractEntity,
+    observation::ObservationCollection,
+)
+    corresponding_observation =
+        first(filter(point -> emitter(point) == listener, observation))
     return emits(subject, listener, corresponding_observation)
 end
 

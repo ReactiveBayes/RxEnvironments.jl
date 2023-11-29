@@ -56,7 +56,7 @@
             Test.@test_logs (
                 :warn,
                 "`update!` triggered for entity of type $(typeof(decorated(env))), but no update function is defined for this type.",
-            ) 
+            )
             terminate!(env)
         end
     end
@@ -105,7 +105,7 @@ end
             @test length(values.values) == 2
         end
     end
-    
+
     @testset "environment without update! defined throws warning" begin
         import RxEnvironments: update!, decorated
         let env = RxEnvironment(MockEntity(), discrete = true)
@@ -113,7 +113,7 @@ end
             Test.@test_logs (
                 :warn,
                 "`update!` triggered for entity of type $(typeof(decorated(env))), but no update function is defined for this type.",
-            ) 
+            )
         end
     end
 end
