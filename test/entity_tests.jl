@@ -1,11 +1,11 @@
 @testitem "continuous entity" begin
-    import RxEnvironments: create_entity, subscribe_to_observations!, is_environment
+    import RxEnvironments: create_entity, subscribe_to_observations!, is_active
     using Rocket
 
     include("mockenvironment.jl")
     @testset "constructor" begin
         e = create_entity(MockEntity())
-        @test !is_environment(e)
+        @test !is_active(e)
         @test e isa RxEnvironments.RxEntity{MockEntity}
     end
 
@@ -18,7 +18,7 @@
         e = create_entity(MockEnvironment())
         @test decorated(e) === MockEnvironment()
 
-        e = create_entity(MockEntity(); is_environment = true)
+        e = create_entity(MockEntity(); is_active = true)
         @test decorated(e) === MockEntity()
     end
 
@@ -254,7 +254,7 @@
         end
 
         # Test that we can trigger emission behaviour
-        let first_entity = create_entity(SelectiveSendingEntity(); is_environment = true)
+        let first_entity = create_entity(SelectiveSendingEntity(); is_active = true)
             let second_entity = create_entity(SelectiveReceivingEntity())
                 # Assert that we only block emission if the incoming message is `Nothing`
                 @test emits(decorated(first_entity), decorated(second_entity), nothing) ==
@@ -301,7 +301,7 @@
         import RxEnvironments: send!, data, subscribe_to_observations!
 
         # Test that a SelectiveSendingEntity sends a Float to SelectiveReceivingEntity if it receives a Float, and a Bool if it receives a Bool
-        let env = create_entity(SelectiveSendingEntity(); is_environment = true)
+        let env = create_entity(SelectiveSendingEntity(); is_active = true)
             agent = create_entity(SelectiveReceivingEntity())
             add!(env, agent)
 
@@ -561,7 +561,7 @@ end
         # Test that we can trigger emission behaviour
         let first_entity = create_entity(
                 SelectiveSendingEntity();
-                is_environment = true,
+                is_active = true,
                 discrete = true,
             )
             let second_entity = create_entity(SelectiveReceivingEntity(); discrete = true)
@@ -620,7 +620,7 @@ end
         # Test that a SelectiveSendingEntity sends a Float to SelectiveReceivingEntity if it receives a Float, and a Bool if it receives a Bool
         let env = create_entity(
                 SelectiveSendingEntity();
-                is_environment = true,
+                is_active = true,
                 discrete = true,
             )
             agent = create_entity(SelectiveReceivingEntity(); discrete = true)

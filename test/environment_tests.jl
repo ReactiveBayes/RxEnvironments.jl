@@ -1,18 +1,18 @@
 @testitem "continuous environment" begin
     using RxEnvironments
-    import RxEnvironments: state_space, last_update, is_environment
+    import RxEnvironments: state_space, last_update, is_active
     include("mockenvironment.jl")
 
     @testset "creation" begin
         let env = RxEnvironment(MockEnvironment())
-            @test is_environment(env)
+            @test is_active(env)
             @test state_space(env) == RxEnvironments.ContinuousEntity()
         end
 
         import RxEnvironments: clock, start_time
 
         let env = RxEnvironment(MockEnvironment(); emit_every_ms = 10)
-            @test is_environment(env)
+            @test is_active(env)
             t = time(env)
             sleep(0.1)
             @test last_update(clock(env)) > t
@@ -64,12 +64,12 @@ end
 
 @testitem "discrete environment" begin
     using RxEnvironments
-    import RxEnvironments: state_space, last_update, is_environment
+    import RxEnvironments: state_space, last_update, is_active
     include("mockenvironment.jl")
 
     @testset "creation" begin
         let env = RxEnvironment(MockEnvironment(); discrete = true)
-            @test is_environment(env)
+            @test is_active(env)
             @test state_space(env) == RxEnvironments.DiscreteEntity()
         end
     end

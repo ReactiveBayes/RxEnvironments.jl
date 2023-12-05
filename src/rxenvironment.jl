@@ -9,7 +9,7 @@ function RxEnvironment(
     real_time_factor::Real = 1.0,
 )
     state_space = discrete ? DiscreteEntity() : ContinuousEntity()
-    entity = create_entity(environment, state_space, IsEnvironment())
+    entity = create_entity(environment, state_space, ActiveEntity())
     if !discrete
         add_timer!(entity, emit_every_ms; real_time_factor = real_time_factor)
     end

@@ -1,7 +1,7 @@
 using Rocket
 
-struct IsEnvironment end
-struct IsNotEnvironment end
+struct ActiveEntity end
+struct PassiveEntity end
 
 struct DiscreteEntity end
 struct ContinuousEntity end
@@ -33,8 +33,8 @@ markov_blanket(entity::AbstractEntity) = entity.markov_blanket
 properties(entity::AbstractEntity) = entity.properties
 is_terminated(entity::AbstractEntity) = is_terminated(properties(entity).terminated)
 state_space(entity::AbstractEntity) = properties(entity).state_space
-is_environment(entity::AbstractEntity{T,S,IsEnvironment} where {T,S}) = true
-is_environment(entity::AbstractEntity{T,S,IsNotEnvironment} where {T,S}) = false
+is_active(entity::AbstractEntity{T,S,ActiveEntity} where {T,S}) = true
+is_active(entity::AbstractEntity{T,S,PassiveEntity} where {T,S}) = false
 clock(entity::AbstractEntity) = properties(entity).clock
 Base.time(entity::AbstractEntity) = time(clock(entity))
 
@@ -101,11 +101,11 @@ The Markov Blankets for both entities will be subscribed to each other.
 # Arguments
 - `first::AbstractEntity{T,S,E}`: The entity to which `second` will be added.
 - `second`: The entity to be added to `first`.
-- `environment=false`: A boolean indicating whether `second` should be instantiated as an environment.
+- `passive=false`: A boolean indicating whether `second` should be instantiated as an active entity.
 """
-function add!(first::AbstractEntity{T,S,E}, second; environment = false) where {T,S,E}
-    environment = environment ? IsEnvironment() : IsNotEnvironment()
-    entity = create_entity(second, state_space(first), environment)
+function add!(first::AbstractEntity{T,S,E}, second; active = false) where {T,S,E}
+    active_or_passive = active ? ActiveEntity() : PassiveEntity()
+    entity = create_entity(second, state_space(first), active_or_passive)
     add!(first, entity)
     return entity
 end

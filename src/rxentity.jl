@@ -8,7 +8,7 @@ end
 
 entity(actor::EntityActor) = actor.entity
 
-function Rocket.on_next!(actor::EntityActor{T,S,IsEnvironment} where {T,S}, observation)
+function Rocket.on_next!(actor::EntityActor{T,S,ActiveEntity} where {T,S}, observation)
     subject = entity(actor)
     update!(subject)
     receive!(subject, observation)
@@ -20,7 +20,7 @@ function Rocket.on_next!(actor::EntityActor{T,S,IsEnvironment} where {T,S}, obse
     end
 end
 
-function Rocket.on_next!(actor::EntityActor{T,S,IsNotEnvironment} where {T,S}, observation)
+function Rocket.on_next!(actor::EntityActor{T,S,PassiveEntity} where {T,S}, observation)
     receive!(entity(actor), observation)
 end
 
@@ -74,19 +74,19 @@ end
 function create_entity(
     entity;
     discrete::Bool = false,
-    is_environment::Bool = false,
+    is_active::Bool = false,
     real_time_factor = 1,
 )
     state_space = discrete ? DiscreteEntity() : ContinuousEntity()
-    is_environment = is_environment ? IsEnvironment() : IsNotEnvironment()
-    return create_entity(entity, state_space, is_environment, real_time_factor)
+    active_or_passive = is_active ? ActiveEntity() : PassiveEntity()
+    return create_entity(entity, state_space, active_or_passive, real_time_factor)
 end
 
-function create_entity(entity, state_space, is_environment, real_time_factor::Real = 1)
+function create_entity(entity, state_space, active_or_passive, real_time_factor::Real = 1)
     result = RxEntity(
         entity,
         MarkovBlanket(state_space),
-        EntityProperties(state_space, is_environment; real_time_factor = real_time_factor),
+        EntityProperties(state_space, active_or_passive; real_time_factor = real_time_factor),
     )
     entity_actor = EntityActor(result, nothing)
     entity_actor.subscription = subscribe!(observations(result), entity_actor)
