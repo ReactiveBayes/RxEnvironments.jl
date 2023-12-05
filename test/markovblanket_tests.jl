@@ -58,7 +58,7 @@ end
 
     @testset "add and remove subscriber" begin
         import RxEnvironments: IsNotEnvironment
-        let env = create_entity(MockEnvironment(); is_environment = true)
+        let env = create_entity(MockEnvironment(); is_active = true)
             agent = create_entity(MockEntity())
             subscribe!(env, agent)
             @test is_subscribed(agent, env)
@@ -93,7 +93,7 @@ end
     @testset "add subscription" begin
 
         import RxEnvironments: IsNotEnvironment
-        let env = create_entity(MockEnvironment(); is_environment = true)
+        let env = create_entity(MockEnvironment(); is_active = true)
             agent = create_entity(MockEntity())
             subscribe!(agent, env)
             @test is_subscribed(env, agent)
@@ -118,7 +118,7 @@ end
 
     include("mockenvironment.jl")
 
-    let env = create_entity(MockEnvironment(); is_environment = true)
+    let env = create_entity(MockEnvironment(); is_active = true)
         agent = create_entity(MockEntity())
         subscribe!(env, agent)
         actor = keep(Any)
