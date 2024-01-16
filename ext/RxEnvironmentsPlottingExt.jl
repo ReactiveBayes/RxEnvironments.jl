@@ -1,25 +1,35 @@
 module RxEnvironmentsPlottingExt
 
-using RxEnvironments, GLMakie
+using RxEnvironments, GLMakie, Rocket
 
-RxEnvironments.animate_state(subject::AbstractEntity; fps = 60) =
-    @async(__animate_state(subject, fps))
-
-
-
-function __animate_state(subject::AbstractEntity, fps)
+function RxEnvironments.animate_state(subject::AbstractEntity)
     @info "Animating state of $(subject)"
-    figure = Figure()
-    ax = Axis(figure[1, 1])
-    display(figure)
-    underlying = RxEnvironments.decorated(subject)
-    while !RxEnvironments.is_terminated(subject)
-        empty!(ax)
-        ax.cycler.counters[Scatter] = 0
-        ax.cycler.counters[Lines] = 0
-        RxEnvironments.plot_state(ax, underlying) 
-        sleep(1 / fps)
-    end
+    fig  = Figure()
+    screen = display(fig)
+    actor = PlottingActor(subject, fig, screen)
+    subscription = subscribe!(subject, actor)
+end
+
+
+struct PlottingActor <: Rocket.Actor{Any}
+    entity::AbstractEntity
+    fig::Figure
+    screen::GLMakie.Screen
+end
+
+function Rocket.on_next!(actor::PlottingActor, observation) 
+    empty!(actor.fig)
+    subject = RxEnvironments.decorated(actor.entity)
+    ax = Axis(actor.fig[1, 1])
+    RxEnvironments.plot_state(ax, subject)
+end 
+
+function Rocket.on_complete!(actor::PlottingActor)
+    GLMakie.destroy!(actor.screen)
+end
+
+function Rocket.unsubscribe!(x, self::PlottingActor)
+    Rocket.complete!(self)
 end
 
 end
