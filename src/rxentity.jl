@@ -8,6 +8,16 @@ end
 
 entity(actor::EntityActor) = actor.entity
 
+"""
+    Rocket.on_next!(actor::EntityActor{ActiveEntity}, observation)})
+
+Handles the logic for an incoming observation for an active entity. This means that the entity will update its state, incorporate the observation
+into its state, and then send an action to all of its subscribers. The action is determined by the `what_to_send` function. Emissions can be filtered
+by implementing the `emits` function.
+
+This function is automatically called whenever the entity receives an observation on it's sensor. The `observation` will contain the data sent by the
+emitter as well as a reference to the emitter itself. 
+"""
 function Rocket.on_next!(actor::EntityActor{T,S,ActiveEntity} where {T,S}, observation)
     subject = entity(actor)
     update!(subject)
@@ -20,6 +30,11 @@ function Rocket.on_next!(actor::EntityActor{T,S,ActiveEntity} where {T,S}, obser
     end
 end
 
+"""
+    Rocket.on_next!(actor::EntityActor{PassiveEntity}, observation)
+
+Handles the logic for an incoming observation for a passive entity. This means that we will only incorporate the observation into the entity's state.
+"""
 function Rocket.on_next!(actor::EntityActor{T,S,PassiveEntity} where {T,S}, observation)
     receive!(entity(actor), observation)
 end
@@ -65,21 +80,37 @@ function terminate!(properties::EntityProperties)
     terminate!(properties.entity_actor)
 end
 
+"""
+    RxEntity
+
+The RxEntity is the vanilla implementation of an `AbstractEntity` that is used in most cases. It is a wrapper around an entity that adds the following functionality:
+
+- A `MarkovBlanket` that contains the actuators and sensors of the entity
+- A `EntityProperties` that contains the state space, whether or not the entity is active, and the real time factor
+- A `EntityActor` that handles the logic for receiving observations and sending actions
+"""
 struct RxEntity{T,S,E} <: AbstractEntity{T,S,E}
     decorated::T
     markov_blanket::MarkovBlanket
     properties::EntityProperties{S,E}
 end
 
+"""
+    create_entity(entity; is_discrete = false, is_active = false, real_time_factor = 1)
+
+Creates an `RxEntity` that decorates a given entity. The `is_discrete` and `is_active` parameters determine whether or not the entity lives in a discrete or continuous state-space,
+and whether or not the entity is active or passive. The `real_time_factor` parameter determines how fast the entity's clock ticks. This function can be used as a lower-level API
+in order to create a more complex network of entities.
+"""
 function create_entity(
     entity;
-    discrete::Bool = false,
+    is_discrete::Bool = false,
     is_active::Bool = false,
     real_time_factor = 1,
 )
-    state_space = discrete ? DiscreteEntity() : ContinuousEntity()
-    active_or_passive = is_active ? ActiveEntity() : PassiveEntity()
-    return create_entity(entity, state_space, active_or_passive, real_time_factor)
+    state_space = is_discrete ? DiscreteEntity() : ContinuousEntity()
+    operation_type = is_active ? ActiveEntity() : PassiveEntity()
+    return create_entity(entity, state_space, operation_type, real_time_factor)
 end
 
 function create_entity(entity, state_space, active_or_passive, real_time_factor::Real = 1)

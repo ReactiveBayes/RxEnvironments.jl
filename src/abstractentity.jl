@@ -74,6 +74,7 @@ function subscribe_to_observations!(entity::AbstractEntity, actor)
     subscribe!(observations(entity), actor)
     return actor
 end
+
 """
 Unsubscribes `receiver` from `emitter`. Any data sent from `emitter` to `receiver` will not be received by `receiver` after this function is called.
 """
@@ -101,11 +102,11 @@ The Markov Blankets for both entities will be subscribed to each other.
 # Arguments
 - `first::AbstractEntity{T,S,E}`: The entity to which `second` will be added.
 - `second`: The entity to be added to `first`.
-- `passive=false`: A boolean indicating whether `second` should be instantiated as an active entity.
+- `is_active=false`: A boolean indicating whether `second` should be instantiated as an active entity.
 """
-function add!(first::AbstractEntity{T,S,E}, second; active = false) where {T,S,E}
-    active_or_passive = active ? ActiveEntity() : PassiveEntity()
-    entity = create_entity(second, state_space(first), active_or_passive)
+function add!(first::AbstractEntity{T,S,E}, second; is_active = false) where {T,S,E}
+    operation_type = is_active ? ActiveEntity() : PassiveEntity()
+    entity = create_entity(second, state_space(first), operation_type)
     add!(first, entity)
     return entity
 end
@@ -162,6 +163,13 @@ function terminate!(entity::AbstractEntity)
     terminate!(properties(entity))
 end
 
+"""
+    time_interval(::T)
+
+Returns the default time interval for an entity of type `T`. By default, this function returns `1`. This is used 
+in discrete active entities to determine the elapsed time between state updates. Through dispatching, we can 
+define different time intervals for different entity types.
+"""
 time_interval(any) = 1
 
 update!(any, elapsed_time) =
