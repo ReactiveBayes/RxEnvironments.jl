@@ -5,3 +5,6 @@ Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 RxEnvironments = "5ea003d0-0c30-4e5c-84d5-cc22d8d83890"
+
+[compat]
+DifferentialEquations = "~7.11"
