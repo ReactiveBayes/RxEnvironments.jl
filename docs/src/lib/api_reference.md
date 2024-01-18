@@ -1,13 +1,6 @@
 # [API Reference](@id lib-api-reference)
 
-```@docs
-add!
-AbstractEntity
-terminate!
-is_subscribed
-update!
-send!
-receive!
-RxEnvironments.emits
-RxEnvironments.Rocket.unsubscribe!
+```@autodocs
+Modules = [RxEnvironments]
+Order   = [:type, :function]
 ```
