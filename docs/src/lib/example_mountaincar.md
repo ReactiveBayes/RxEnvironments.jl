@@ -294,7 +294,7 @@ car_friction_coefficient = 0.5
 car_mass = 2
 car_target = 1
 
-env = RxEnvironment(MountainCarEnvironment(landscape); discrete=true)
+env = RxEnvironment(MountainCarEnvironment(landscape); is_discrete=true)
 agent = add!(
             env,
             MountainCarAgent(
