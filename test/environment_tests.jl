@@ -68,7 +68,7 @@ end
     include("mockenvironment.jl")
 
     @testset "creation" begin
-        let env = RxEnvironment(MockEnvironment(); discrete = true)
+        let env = RxEnvironment(MockEnvironment(); is_discrete = true)
             @test is_active(env)
             @test state_space(env) == RxEnvironments.DiscreteEntity()
         end
@@ -77,7 +77,7 @@ end
     @testset "environment emits when agent emits" begin
         import RxEnvironments: data
 
-        let env = RxEnvironment(MockEnvironment(); discrete = true)
+        let env = RxEnvironment(MockEnvironment(); is_discrete = true)
             agent = MockEntity()
             agent = add!(env, agent)
             actor = keep(Any)
@@ -90,7 +90,7 @@ end
     end
 
     @testset "environment waits until all agents have emitted" begin
-        let env = RxEnvironment(MockEnvironment(), discrete = true)
+        let env = RxEnvironment(MockEnvironment(), is_discrete = true)
             first_agent = add!(env, MockEntity())
             second_agent = add!(env, MockEntity())
             values = subscribe_to_observations!(second_agent, keep(Any))
@@ -108,7 +108,7 @@ end
 
     @testset "environment without update! defined throws warning" begin
         import RxEnvironments: update!, decorated
-        let env = RxEnvironment(MockEntity(), discrete = true)
+        let env = RxEnvironment(MockEntity(), is_discrete = true)
             update!(env)
             Test.@test_logs (
                 :warn,
