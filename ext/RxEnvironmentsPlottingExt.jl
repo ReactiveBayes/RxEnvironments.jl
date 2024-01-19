@@ -8,6 +8,7 @@ function RxEnvironments.animate_state(subject::AbstractEntity)
     screen = display(fig)
     actor = PlottingActor(subject, fig, screen)
     subscription = subscribe!(subject, actor)
+    RxEnvironments.send!(actor, subject, nothing)
 end
 
 
