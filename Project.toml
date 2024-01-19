@@ -1,7 +1,7 @@
 name = "RxEnvironments"
 uuid = "5ea003d0-0c30-4e5c-84d5-cc22d8d83890"
 authors = ["Wouter Nuijten"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
