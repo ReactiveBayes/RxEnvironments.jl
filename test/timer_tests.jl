@@ -65,11 +65,11 @@ end
 
     pause = PausedInformation()
     @test !is_paused(pause)
-    @test total_time_paused(pause) === 0.0
+    @test total_time_paused(pause, time()) === 0.0
 
     pause = PausedInformation(IsPaused(), TimeStamp(time()), 0.0)
     @test is_paused(pause)
     @test time_paused(pause) === time(pause.time_paused)
     sleep(0.1)
-    @test total_time_paused(pause) > 0.1
+    @test total_time_paused(pause, time()) > 0.1
 end
