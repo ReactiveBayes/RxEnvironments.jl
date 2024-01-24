@@ -40,7 +40,7 @@ clock(entity::AbstractEntity) = properties(entity).clock
 Base.time(entity::AbstractEntity) = time(clock(entity))
 timer(entity::AbstractEntity) = properties(entity).timer
 
-function pause!(entity::AbstractEntity) 
+function pause!(entity::AbstractEntity)
     pause!(clock(entity))
     pause!(timer(entity))
 end
@@ -91,7 +91,8 @@ function subscribe_to_observations!(entity::AbstractEntity, actor)
     return actor
 end
 
-apply_to_observations(entity::AbstractEntity, T::Type, lambda::Function) = subject(observations(entity)) |> map(T, lambda)
+apply_to_observations(entity::AbstractEntity, T::Type, lambda::Function) =
+    subject(observations(entity)) |> map(T, lambda)
 
 
 """

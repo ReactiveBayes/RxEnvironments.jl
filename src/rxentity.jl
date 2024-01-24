@@ -117,7 +117,11 @@ function create_entity(entity, state_space, active_or_passive, real_time_factor:
     result = RxEntity(
         entity,
         MarkovBlanket(state_space),
-        EntityProperties(state_space, active_or_passive; real_time_factor = real_time_factor),
+        EntityProperties(
+            state_space,
+            active_or_passive;
+            real_time_factor = real_time_factor,
+        ),
     )
     entity_actor = EntityActor(result, nothing)
     entity_actor.subscription = subscribe!(observations(result), entity_actor)

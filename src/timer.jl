@@ -29,7 +29,7 @@ pause!(::ManualClock) = @warn "Clock with manual control cannot be paused"
 struct IsPaused end
 struct IsNotPaused end
 
-mutable struct PausedInformation{T} 
+mutable struct PausedInformation{T}
     paused::T
     time_paused::TimeStamp
     total_time_paused::Real
@@ -41,11 +41,11 @@ is_paused(pause::PausedInformation{IsNotPaused}) = false
 time_paused(pause::PausedInformation{IsPaused}) = time(pause.time_paused)
 time_paused(pause::PausedInformation{IsNotPaused}) = error("Currently not paused")
 
-function total_time_paused(pause::PausedInformation{IsPaused}, current_time::Real) 
+function total_time_paused(pause::PausedInformation{IsPaused}, current_time::Real)
     return pause.total_time_paused + (current_time - time_paused(pause))
 end
 
-function total_time_paused(pause::PausedInformation{IsNotPaused}, ::Real) 
+function total_time_paused(pause::PausedInformation{IsNotPaused}, ::Real)
     return pause.total_time_paused
 end
 
@@ -65,21 +65,31 @@ start_time(clock::WallClock) = time(clock.start_time)
 last_update(clock::WallClock) = time(clock.last_update)
 set_last_update!(clock::WallClock, time::Real) = clock.last_update.time = time
 real_time_factor(clock::WallClock) = clock.real_time_factor
-total_time_paused(clock::WallClock, current_time::Real) = total_time_paused(clock.paused, current_time)
+total_time_paused(clock::WallClock, current_time::Real) =
+    total_time_paused(clock.paused, current_time)
 
 function pause!(clock::WallClock)
     current_time = time()
-    clock.paused = PausedInformation(IsPaused(), TimeStamp(current_time), total_time_paused(clock, current_time))
+    clock.paused = PausedInformation(
+        IsPaused(),
+        TimeStamp(current_time),
+        total_time_paused(clock, current_time),
+    )
 end
 
 function resume!(clock::WallClock)
     current_time = time()
-    clock.paused = PausedInformation(IsNotPaused(), TimeStamp(current_time), total_time_paused(clock, current_time))
+    clock.paused = PausedInformation(
+        IsNotPaused(),
+        TimeStamp(current_time),
+        total_time_paused(clock, current_time),
+    )
 end
 
 function Base.time(clock::WallClock)
     current_time = time()
-    return (current_time - start_time(clock) - total_time_paused(clock, current_time)) / real_time_factor(clock)
+    return (current_time - start_time(clock) - total_time_paused(clock, current_time)) /
+           real_time_factor(clock)
 end
 
 function elapsed_time(clock::WallClock)

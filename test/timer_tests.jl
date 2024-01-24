@@ -60,7 +60,8 @@ end
 @testitem "Pause" begin
     using RxEnvironments
 
-    import RxEnvironments: PausedInformation, is_paused, time_paused, total_time_paused, IsPaused, TimeStamp
+    import RxEnvironments:
+        PausedInformation, is_paused, time_paused, total_time_paused, IsPaused, TimeStamp
 
     pause = PausedInformation()
     @test !is_paused(pause)
