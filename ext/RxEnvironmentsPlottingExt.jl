@@ -1,6 +1,6 @@
 module RxEnvironmentsPlottingExt
 
-using RxEnvironments, GLMakie, Rocket
+using RxEnvironments, Makie, Rocket
 
 function RxEnvironments.animate_state(subject::AbstractEntity)
     @info "Animating state of $(subject)"
@@ -15,7 +15,7 @@ end
 struct PlottingActor <: Rocket.Actor{Any}
     entity::AbstractEntity
     fig::Figure
-    screen::GLMakie.Screen
+    screen
 end
 
 function Rocket.on_next!(actor::PlottingActor, observation) 
