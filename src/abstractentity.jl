@@ -38,6 +38,17 @@ is_active(entity::AbstractEntity{T,S,ActiveEntity} where {T,S}) = true
 is_active(entity::AbstractEntity{T,S,PassiveEntity} where {T,S}) = false
 clock(entity::AbstractEntity) = properties(entity).clock
 Base.time(entity::AbstractEntity) = time(clock(entity))
+timer(entity::AbstractEntity) = properties(entity).timer
+
+function pause!(entity::AbstractEntity) 
+    pause!(clock(entity))
+    pause!(timer(entity))
+end
+
+function resume!(entity::AbstractEntity)
+    resume!(clock(entity))
+    resume!(timer(entity))
+end
 
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
 actuators(entity::AbstractEntity) = actuators(markov_blanket(entity))

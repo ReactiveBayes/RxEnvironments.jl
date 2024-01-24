@@ -56,3 +56,19 @@ end
         @test length(log.values) > prev_len
     end
 end
+
+@testitem "Pause" begin
+    using RxEnvironments
+
+    import RxEnvironments: PausedInformation, is_paused, time_paused, total_time_paused, IsPaused, TimeStamp
+
+    pause = PausedInformation()
+    @test !is_paused(pause)
+    @test total_time_paused(pause) === 0.0
+
+    pause = PausedInformation(IsPaused(), TimeStamp(time()), 0.0)
+    @test is_paused(pause)
+    @test time_paused(pause) === time(pause.time_paused)
+    sleep(0.1)
+    @test total_time_paused(pause) > 0.1
+end

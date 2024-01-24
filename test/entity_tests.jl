@@ -87,6 +87,26 @@
         end
     end
 
+    @testset "pause and resume" begin
+        import RxEnvironments: add_timer!, elapsed_time, total_time_paused
+
+        let e = create_entity(MockEntity())
+            @test isapprox(time(clock(e)), 0.0; atol=1e-4) 
+            add_timer!(e, 10)
+
+            pause!(e)
+            old_time = time(e)
+            sleep(0.1)
+            @test time(e) ≈ old_time
+            
+
+            resume!(e)
+            old_time = time(e)
+            sleep(0.1)
+            @test time(e) > old_time + 0.1
+        end
+    end
+
     @testset "add subscriber" begin
         # Test default case of two interacting entities
 
