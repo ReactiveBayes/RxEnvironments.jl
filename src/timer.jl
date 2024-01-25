@@ -1,5 +1,7 @@
 using Rocket
 
+export pause!, resume!
+
 abstract type Clock end
 
 mutable struct TimeStamp
@@ -22,24 +24,72 @@ add_elapsed_time!(clock::ManualClock, elapsed_time::Real) =
     elapsed_time >= 0 ? clock.last_update.time += elapsed_time :
     error("Cannot go back in time")
 Base.time(clock::ManualClock) = last_update(clock)
+pause!(::ManualClock) = @warn "Clock with manual control cannot be paused"
 
-struct WallClock <: Clock
+struct IsPaused end
+struct IsNotPaused end
+
+mutable struct PausedInformation{T}
+    paused::T
+    time_paused::TimeStamp
+    total_time_paused::Real
+end
+PausedInformation() = PausedInformation(IsNotPaused(), TimeStamp(0), 0.0)
+
+is_paused(pause::PausedInformation{IsPaused}) = true
+is_paused(pause::PausedInformation{IsNotPaused}) = false
+time_paused(pause::PausedInformation{IsPaused}) = time(pause.time_paused)
+time_paused(pause::PausedInformation{IsNotPaused}) = throw(NotPausedException())
+
+function total_time_paused(pause::PausedInformation{IsPaused}, current_time::Real)
+    return pause.total_time_paused + (current_time - time_paused(pause))
+end
+
+function total_time_paused(pause::PausedInformation{IsNotPaused}, ::Real)
+    return pause.total_time_paused
+end
+
+
+mutable struct WallClock <: Clock
     start_time::TimeStamp
     last_update::TimeStamp
     real_time_factor::Real
+    paused::PausedInformation
 end
 
 function WallClock(real_time_factor::Real)
-    return WallClock(TimeStamp(time()), TimeStamp(0), real_time_factor)
+    return WallClock(TimeStamp(time()), TimeStamp(0), real_time_factor, PausedInformation())
 end
 
 start_time(clock::WallClock) = time(clock.start_time)
 last_update(clock::WallClock) = time(clock.last_update)
 set_last_update!(clock::WallClock, time::Real) = clock.last_update.time = time
 real_time_factor(clock::WallClock) = clock.real_time_factor
+total_time_paused(clock::WallClock, current_time::Real) =
+    total_time_paused(clock.paused, current_time)
+
+function pause!(clock::WallClock)
+    current_time = time()
+    clock.paused = PausedInformation(
+        IsPaused(),
+        TimeStamp(current_time),
+        total_time_paused(clock, current_time),
+    )
+end
+
+function resume!(clock::WallClock)
+    current_time = time()
+    clock.paused = PausedInformation(
+        IsNotPaused(),
+        TimeStamp(current_time),
+        total_time_paused(clock, current_time),
+    )
+end
 
 function Base.time(clock::WallClock)
-    return (time() - start_time(clock)) / real_time_factor(clock)
+    current_time = time()
+    return (current_time - start_time(clock) - total_time_paused(clock, current_time)) /
+           real_time_factor(clock)
 end
 
 function elapsed_time(clock::WallClock)
@@ -61,7 +111,7 @@ function Rocket.on_error!(actor::TimerActor, error)
     @error "Error in TimerActor" exception = (error, catch_backtrace())
 end
 
-struct Timer
+mutable struct Timer
     timer::Rocket.TimerObservable
     actor::TimerActor
     subscription::Any
@@ -80,3 +130,13 @@ function terminate!(timer::Timer)
 end
 
 terminate!(::Nothing) = nothing
+pause!(x) = nothing
+resume!(x) = nothing
+
+function pause!(timer::Timer)
+    unsubscribe!(timer.subscription)
+end
+
+function resume!(timer::Timer)
+    timer.subscription = subscribe!(timer.timer, timer.actor)
+end

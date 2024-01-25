@@ -17,7 +17,8 @@ export AbstractEntity,
     terminate!,
     is_terminated,
     animate_state,
-    subscribe_to_observations!
+    subscribe_to_observations!,
+    apply_to_observations
 
 """
     AbstractEntity{T}
@@ -37,6 +38,17 @@ is_active(entity::AbstractEntity{T,S,ActiveEntity} where {T,S}) = true
 is_active(entity::AbstractEntity{T,S,PassiveEntity} where {T,S}) = false
 clock(entity::AbstractEntity) = properties(entity).clock
 Base.time(entity::AbstractEntity) = time(clock(entity))
+timer(entity::AbstractEntity) = properties(entity).timer
+
+function pause!(entity::AbstractEntity)
+    pause!(clock(entity))
+    pause!(timer(entity))
+end
+
+function resume!(entity::AbstractEntity)
+    resume!(clock(entity))
+    resume!(timer(entity))
+end
 
 observations(entity::AbstractEntity) = observations(markov_blanket(entity))
 actuators(entity::AbstractEntity) = actuators(markov_blanket(entity))
@@ -69,11 +81,19 @@ function Rocket.subscribe!(emitter::AbstractEntity, receiver::Rocket.Actor{T} wh
     return subscribe!(actuator, receiver)
 end
 
+"""
+    subscribe_to_observations!(entity::AbstractEntity, actor)
 
+Subscribe `actor` to the observations of `entity`. Any data sent to `entity` will be received by `actor` after this function is called.
+"""
 function subscribe_to_observations!(entity::AbstractEntity, actor)
     subscribe!(observations(entity), actor)
     return actor
 end
+
+apply_to_observations(entity::AbstractEntity, T::Type, lambda::Function) =
+    subject(observations(entity)) |> map(T, lambda)
+
 
 """
 Unsubscribes `receiver` from `emitter`. Any data sent from `emitter` to `receiver` will not be received by `receiver` after this function is called.

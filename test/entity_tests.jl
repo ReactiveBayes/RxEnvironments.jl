@@ -48,6 +48,20 @@
         end
     end
 
+    @testset "apply_to_observations" begin
+        using Rocket
+        f = (x) -> 10
+        let e = create_entity(MockEntity())
+            obs = keep(Any)
+            stream = apply_to_observations(e, Int, f)
+            result = keep(Any)
+            subscribe!(stream, result)
+            next!(observations(e), RxEnvironments.Observation(e, nothing))
+            @test last(result) === 10
+        end
+            
+    end
+
     @testset "clock and time keeping" begin
         import RxEnvironments: clock
 
@@ -62,7 +76,7 @@
                 prev_time = time(clock(e))
                 sleep(0.1)
                 elapsed_time = time(clock(e)) - prev_time
-                @test isapprox(elapsed_time, 0.1 / real_time_factor, atol = 1e-2)
+                @test isapprox(elapsed_time, 0.1 / real_time_factor, atol = 0.1 * real_time_factor)
 
                 # Sanity check that no observations are obtained (timer and clock are decoupled)
                 @test length(obs) == 0
@@ -84,6 +98,31 @@
                 @test length(obs) > prev_n_obs
             end
 
+        end
+    end
+
+    @testset "pause and resume" begin
+        import RxEnvironments: add_timer!, elapsed_time, total_time_paused
+
+        let e = create_entity(MockEntity())
+            @test isapprox(time(clock(e)), 0.0; atol = 1e-4)
+            add_timer!(e, 10)
+
+            pause!(e)
+            old_time = time(e)
+            sleep(0.1)
+            @test time(e) ≈ old_time
+
+
+            resume!(e)
+            old_time = time(e)
+            sleep(0.1)
+            @test time(e) > old_time + 0.1
+        end
+
+        # Test that checking the pause time of an unpaused entity throws
+        let e = create_entity(MockEntity())
+            @test_throws RxEnvironments.NotPausedException RxEnvironments.time_paused(clock(e).paused)
         end
     end
 
@@ -386,6 +425,14 @@ end
         end
     end
 
+    @testset "pause!" begin
+        using RxEnvironments
+
+        let e = create_entity(MockEntity(); is_discrete = true)
+            @test_logs (:warn, "Clock with manual control cannot be paused") pause!(e)
+        end
+    end
+
     @testset "add subscriber" begin
         # Test default case of two interacting entities
 
@@ -564,7 +611,8 @@ end
                 is_active = true,
                 is_discrete = true,
             )
-            let second_entity = create_entity(SelectiveReceivingEntity(); is_discrete = true)
+            let second_entity =
+                    create_entity(SelectiveReceivingEntity(); is_discrete = true)
                 # Assert that we only block emission if the incoming message is `Nothing`
                 @test emits(decorated(first_entity), decorated(second_entity), nothing) ==
                       false

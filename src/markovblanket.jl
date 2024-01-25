@@ -47,6 +47,8 @@ struct Observations{T}
     target::Rocket.RecentSubjectInstance
 end
 
+subject(observations::Observations) = observations.target
+
 Observations(state_space::DiscreteEntity) = Observations(
     state_space,
     Dictionary{Any,Union{Observation,Nothing}}(),
