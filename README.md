@@ -13,7 +13,7 @@
 [ci-url]: https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml?query=branch%3Amain
 
 [codecov-img]: https://codecov.io/gh/biaslab/RxEnvironments.jl/graph/badge.svg?token=CxR2jysX7Z
-[codecov-url]: https://codecov.io/gh/biaslab/RxEnvironments.jl?branch=master
+[codecov-url]: https://codecov.io/gh/biaslab/RxEnvironments.jl?branch=main
 
 # RxEnvironments
 
