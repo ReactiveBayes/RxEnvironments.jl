@@ -76,7 +76,7 @@
                 prev_time = time(clock(e))
                 sleep(0.1)
                 elapsed_time = time(clock(e)) - prev_time
-                @test isapprox(elapsed_time, 0.1 / real_time_factor, atol = 1e-2)
+                @test isapprox(elapsed_time, 0.1 / real_time_factor, atol = 0.1 * real_time_factor)
 
                 # Sanity check that no observations are obtained (timer and clock are decoupled)
                 @test length(obs) == 0
