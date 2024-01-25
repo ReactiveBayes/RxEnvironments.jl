@@ -30,3 +30,9 @@ entity(e::SelfSubscriptionException) = e.entity
 
 Base.showerror(io::IO, e::SelfSubscriptionException) =
     print(io, "Entity cannot subscribe to itself, attempted in  $(entity(e)).")
+
+mutable struct NotPausedException <: Exception end
+
+
+Base.showerror(io::IO, e::NotPausedException) =
+    print(io, "Trying to access paused time for unpaused entity")

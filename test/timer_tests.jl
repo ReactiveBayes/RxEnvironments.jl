@@ -72,4 +72,7 @@ end
     @test time_paused(pause) === time(pause.time_paused)
     sleep(0.1)
     @test total_time_paused(pause, time()) > 0.1
+
+    @test pause!(nothing) === nothing
+    @test resume!(nothing) === nothing
 end

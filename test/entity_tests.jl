@@ -48,6 +48,20 @@
         end
     end
 
+    @testset "apply_to_observations" begin
+        using Rocket
+        f = (x) -> 10
+        let e = create_entity(MockEntity())
+            obs = keep(Any)
+            stream = apply_to_observations(e, Int, f)
+            result = keep(Any)
+            subscribe!(stream, result)
+            next!(observations(e), RxEnvironments.Observation(e, nothing))
+            @test last(result) === 10
+        end
+            
+    end
+
     @testset "clock and time keeping" begin
         import RxEnvironments: clock
 
@@ -104,6 +118,11 @@
             old_time = time(e)
             sleep(0.1)
             @test time(e) > old_time + 0.1
+        end
+
+        # Test that checking the pause time of an unpaused entity throws
+        let e = create_entity(MockEntity())
+            @test_throws RxEnvironments.NotPausedException RxEnvironments.time_paused(clock(e).paused)
         end
     end
 
@@ -403,6 +422,14 @@ end
             @test_throws ErrorException add_elapsed_time!(clock(e), -0.5)
             # Sanity check that no observations are obtained (timer and clock are decoupled)
             @test length(obs) == 0
+        end
+    end
+
+    @testset "pause!" begin
+        using RxEnvironments
+
+        let e = create_entity(MockEntity(); is_discrete = true)
+            @test_logs (:warn, "Clock with manual control cannot be paused") pause!(e)
         end
     end
 

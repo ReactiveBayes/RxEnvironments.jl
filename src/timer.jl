@@ -39,7 +39,7 @@ PausedInformation() = PausedInformation(IsNotPaused(), TimeStamp(0), 0.0)
 is_paused(pause::PausedInformation{IsPaused}) = true
 is_paused(pause::PausedInformation{IsNotPaused}) = false
 time_paused(pause::PausedInformation{IsPaused}) = time(pause.time_paused)
-time_paused(pause::PausedInformation{IsNotPaused}) = error("Currently not paused")
+time_paused(pause::PausedInformation{IsNotPaused}) = throw(NotPausedException())
 
 function total_time_paused(pause::PausedInformation{IsPaused}, current_time::Real)
     return pause.total_time_paused + (current_time - time_paused(pause))
