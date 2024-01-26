@@ -240,7 +240,7 @@ function RxEnvironments.receive!(
     set_throttle!(agent, throttle(action) * engine_power(agent))
 end
 
-function update!(environment::MountainCarEnvironment, elapsed_time::Real)
+function RxEnvironments.update!(environment::MountainCarEnvironment, elapsed_time::Real)
     # Update all actors in the environment
     for agent in environment.actors
         # If we have conducted an action or the current trajecory is valid for less than `elapsed_time` seconds, recompute
