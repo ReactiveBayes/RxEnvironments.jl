@@ -265,8 +265,11 @@ receive!(recipient::AbstractEntity, observation::Observation) =
     receive!(recipient, emitter(observation), data(observation))
 receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any) =
     receive!(decorated(recipient), decorated(emitter), observation)
+receive!(recipient::AbstractEntity, obs::TimerMessage) =
+    receive!(decorated(recipient), obs)
 receive!(recipient::AbstractEntity, observation::Any) = nothing
 receive!(recipient, emitter, observation) = nothing
+receive!(recipient, observation) = nothing
 
 emits(subject::AbstractEntity, listener::AbstractEntity, observation::TimerMessage) =
     emits(decorated(subject), decorated(listener), observation)
