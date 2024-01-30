@@ -1,6 +1,6 @@
 module RxEnvironmentsPlottingExt
 
-using RxEnvironments, Makie, Rocket
+using RxEnvironments, GLMakie, Rocket
 
 function RxEnvironments.animate_state(subject::AbstractEntity)
     @info "Animating state of $(subject)"

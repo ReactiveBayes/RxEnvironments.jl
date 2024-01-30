@@ -9,10 +9,10 @@ Exceptions = "25a0344a-2aab-46d0-b534-6f1410d4c65f"
 Rocket = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
 
 [weakdeps]
-Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 
 [extensions]
-RxEnvironmentsPlottingExt = "Makie"
+RxEnvironmentsPlottingExt = "GLMakie"
 
 [compat]
 Aqua = "0.8"
@@ -20,7 +20,7 @@ Coverage = "1.6"
 CpuId = "0.3"
 Dictionaries = "0.3"
 Exceptions = "0.1"
-Makie = "0.20"
+GLMakie = "0.9"
 ReTestItems = "1.20"
 Rocket = "1"
 Test = "<0.0.1, 1"
