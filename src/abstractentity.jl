@@ -193,7 +193,7 @@ define different time intervals for different entity types.
 time_interval(any) = 1
 
 update!(any, elapsed_time) =
-    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type."
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type." maxlog=1
 
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
