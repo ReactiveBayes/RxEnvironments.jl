@@ -1,7 +1,6 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Coverage = "a2441757-f6aa-5fb2-8edb-039e3f45d037"
-CpuId = "adafc99b-e345-5852-983c-f28acb93d879"
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
 ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
 Rocket = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
