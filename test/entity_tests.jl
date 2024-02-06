@@ -59,7 +59,7 @@
             next!(observations(e), RxEnvironments.Observation(e, nothing))
             @test last(result) === 10
         end
-            
+
     end
 
     @testset "clock and time keeping" begin
@@ -76,7 +76,11 @@
                 prev_time = time(clock(e))
                 sleep(0.1)
                 elapsed_time = time(clock(e)) - prev_time
-                @test isapprox(elapsed_time, 0.1 / real_time_factor, atol = 0.1 * real_time_factor)
+                @test isapprox(
+                    elapsed_time,
+                    0.1 / real_time_factor,
+                    atol = 0.1 * real_time_factor,
+                )
 
                 # Sanity check that no observations are obtained (timer and clock are decoupled)
                 @test length(obs) == 0
@@ -122,7 +126,9 @@
 
         # Test that checking the pause time of an unpaused entity throws
         let e = create_entity(MockEntity())
-            @test_throws RxEnvironments.NotPausedException RxEnvironments.time_paused(clock(e).paused)
+            @test_throws RxEnvironments.NotPausedException RxEnvironments.time_paused(
+                clock(e).paused,
+            )
         end
     end
 

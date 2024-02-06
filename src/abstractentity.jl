@@ -193,7 +193,7 @@ define different time intervals for different entity types.
 time_interval(any) = 1
 
 update!(any, elapsed_time) =
-    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type." maxlog=1
+    @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type." maxlog = 1
 
 """
     update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
@@ -265,8 +265,7 @@ receive!(recipient::AbstractEntity, observation::Observation) =
     receive!(recipient, emitter(observation), data(observation))
 receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any) =
     receive!(decorated(recipient), decorated(emitter), observation)
-receive!(recipient::AbstractEntity, obs::TimerMessage) =
-    receive!(decorated(recipient), obs)
+receive!(recipient::AbstractEntity, obs::TimerMessage) = receive!(decorated(recipient), obs)
 receive!(recipient::AbstractEntity, observation::Any) = nothing
 receive!(recipient, emitter, observation) = nothing
 receive!(recipient, observation) = nothing
