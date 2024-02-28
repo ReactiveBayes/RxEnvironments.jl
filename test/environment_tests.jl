@@ -116,4 +116,23 @@ end
             )
         end
     end
+
+    @testset "environment with active subscribers waits until all subscribers have emitted" begin
+        let env = RxEnvironment(DiscreteMockEnvironment(), is_discrete = true)
+            agent_1 = DiscreteMockEntity()
+            agent_1 = add!(env, agent_1; is_active = true)
+            agent_2 = DiscreteMockEntity()
+            agent_2 = add!(env, agent_2; is_active = true)
+            values = subscribe_to_observations!(agent_1, keep(Any))
+            send!(env, agent_1, 0.0)
+            @test length(values.values) == 0
+            send!(env, agent_2, 0.0)
+            @test length(values.values) == 2
+            send!(env, agent_1, 0.0)
+            @test length(values.values) == 2
+            send!(env, agent_2, 0.0)
+            @test length(values.values) == 4
+        end
+    end
+
 end

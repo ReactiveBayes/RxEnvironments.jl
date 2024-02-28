@@ -78,9 +78,10 @@ Rocket.next!(
 
 function Rocket.next!(observations::Observations{DiscreteEntity}, observation::Observation)
     observations.buffer[emitter(observation)] = observation
-    if sum(values(observations.buffer) .== nothing) == 0
-        next!(target(observations), ObservationCollection(Tuple(observations.buffer)))
+    if all(values(observations.buffer) .!= nothing)
+        obs = copy(observations.buffer)
         clear_buffer!(observations)
+        next!(target(observations), ObservationCollection(Tuple(obs)))
     end
 end
 
