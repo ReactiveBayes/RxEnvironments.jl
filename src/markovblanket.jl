@@ -3,7 +3,7 @@ using Dictionaries
 import Dictionaries: Dictionary
 
 struct Actuator{T}
-    emissions::Rocket.RecentSubjectInstance{T, Subject{T, AsapScheduler, AsapScheduler}}
+    emissions::Rocket.RecentSubjectInstance{T,Subject{T,AsapScheduler,AsapScheduler}}
 end
 
 Actuator() = Actuator(RecentSubject(Any))
@@ -15,7 +15,7 @@ send_action!(actuator::Actuator, action) = next!(emission_channel(actuator), act
 Rocket.subscribe!(actuator::Actuator, actor::Rocket.Actor{T} where {T}) =
     subscribe!(emission_channel(actuator), actor)
 
-struct SensorActor{E, R} <: Rocket.Actor{Any} where {E <: AbstractEntity, R <: AbstractEntity} 
+struct SensorActor{E,R} <: Rocket.Actor{Any} where {E<:AbstractEntity,R<:AbstractEntity}
     emitter::E
     receiver::R
 end
@@ -31,8 +31,8 @@ Rocket.on_error!(actor::SensorActor, error) = @error(
 )
 Rocket.on_complete!(actor::SensorActor) = println("SensorActor completed")
 
-struct Sensor{E, R}
-    actor::SensorActor{E, R}
+struct Sensor{E,R}
+    actor::SensorActor{E,R}
     subscription::Teardown
 end
 
@@ -42,10 +42,10 @@ Sensor(actor::SensorActor) =
     Sensor(actor, subscribe!(get_actuator(emitter(actor), receiver(actor)), actor))
 Rocket.unsubscribe!(sensor::Sensor) = Rocket.unsubscribe!(sensor.subscription)
 
-struct Observations{S, T}
+struct Observations{S,T}
     state_space::S
     buffer::Dictionary{Any,Union{Observation,Nothing}}
-    target::Rocket.RecentSubjectInstance{T, Subject{T, AsapScheduler, AsapScheduler}}
+    target::Rocket.RecentSubjectInstance{T,Subject{T,AsapScheduler,AsapScheduler}}
 end
 
 subject(observations::Observations) = observations.target
@@ -73,7 +73,7 @@ Rocket.subscribe!(observations::Observations, actor::F where {F<:AbstractActorFa
     subscribe!(target(observations) |> map(Any, (x) -> data(x)), actor)
 
 Rocket.next!(
-    observations::Observations{ContinuousEntity, <:T},
+    observations::Observations{ContinuousEntity,<:T},
     observation::T,
 ) where {T<:AbstractObservation} = next!(target(observations), observation)
 
@@ -100,8 +100,10 @@ MarkovBlanket(state_space) = MarkovBlanket(
 
 actuators(markov_blanket::MarkovBlanket) = markov_blanket.actuators
 sensors(markov_blanket::MarkovBlanket) = markov_blanket.sensors
-observations(markov_blanket::MarkovBlanket{DiscreteEntity}) = markov_blanket.observations::Observations{DiscreteEntity, ObservationCollection}
-observations(markov_blanket::MarkovBlanket{ContinuousEntity}) = markov_blanket.observations::Observations{ContinuousEntity, AbstractObservation}
+observations(markov_blanket::MarkovBlanket{DiscreteEntity}) =
+    markov_blanket.observations::Observations{DiscreteEntity,ObservationCollection}
+observations(markov_blanket::MarkovBlanket{ContinuousEntity}) =
+    markov_blanket.observations::Observations{ContinuousEntity,AbstractObservation}
 
 function get_actuator(markov_blanket::MarkovBlanket, agent)
     actuator_dictionary = actuators(markov_blanket)

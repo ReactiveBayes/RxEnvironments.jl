@@ -45,7 +45,7 @@ function total_time_paused(pause::PausedInformation{IsPaused}, current_time::Flo
     return pause.total_time_paused + (current_time - time_paused(pause))
 end
 
-function total_time_paused(pause::PausedInformation{IsNotPaused}, ::Float64) 
+function total_time_paused(pause::PausedInformation{IsNotPaused}, ::Float64)
     return pause.total_time_paused
 end
 

@@ -18,7 +18,10 @@ by implementing the `emits` function.
 This function is automatically called whenever the entity receives an observation on it's sensor. The `observation` will contain the data sent by the
 emitter as well as a reference to the emitter itself. 
 """
-function Rocket.on_next!(actor::EntityActor{E} where {E<:AbstractEntity{T, S, <:ActiveEntity} where {T, S}}, observation)
+function Rocket.on_next!(
+    actor::EntityActor{E} where {E<:AbstractEntity{T,S,<:ActiveEntity} where {T,S}},
+    observation,
+)
     subject = entity(actor)
     update!(subject)
     receive!(subject, observation)
@@ -35,7 +38,10 @@ end
 
 Handles the logic for an incoming observation for a passive entity. This means that we will only incorporate the observation into the entity's state.
 """
-function Rocket.on_next!(actor::EntityActor{E} where {E<:AbstractEntity{T, S, <:PassiveEntity} where {T, S}}, observation)
+function Rocket.on_next!(
+    actor::EntityActor{E} where {E<:AbstractEntity{T,S,<:PassiveEntity} where {T,S}},
+    observation,
+)
     receive!(entity(actor), observation)
 end
 
