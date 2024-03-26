@@ -15,7 +15,7 @@ folders_to_format = ["scripts", "src", "test"]
 overwrite = commandline_args["overwrite"]
 formatted = all(
     map(
-        folder -> JuliaFormatter.format(folder, overwrite = overwrite, verbose = true),
+        folder -> JuliaFormatter.format(folder, overwrite=overwrite, verbose=true),
         folders_to_format,
     ),
 )
