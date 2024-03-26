@@ -9,3 +9,6 @@ doc_init:
 
 docs: doc_init ## Generate documentation
 	julia --project=docs/ docs/make.jl
+
+bench: ## Run benchmark, use `make bench branch=...` to test against a specific branch
+	julia --startup-file=no --project=scripts/ scripts/bench.jl $(branch)
