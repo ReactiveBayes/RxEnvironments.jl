@@ -37,10 +37,10 @@ using Distributions
 # Empty agent, could contain states as well
 struct ThermostatAgent end
 
-mutable struct BayesianThermostat
-    temperature::Real
-    min_temp::Real
-    max_temp::Real
+mutable struct BayesianThermostat{T<:Real}
+    temperature::T
+    min_temp::T
+    max_temp::T
 end
 
 # Helper functions
@@ -63,7 +63,7 @@ By implementing `RxEnvironments.receive!`, `RxEnvironments.what_to_send` and `Rx
 
 ```julia
 # When the environment receives an action from the agent, we add the value of the action to the environment temperature.
-RxEnvironments.receive!(recipient::BayesianThermostat, emitter::ThermostatAgent, action::Real) = add_temperature!(recipient, action)
+RxEnvironments.receive!(recipient::BayesianThermostat{T}, emitter::ThermostatAgent, action::T) where {T} = add_temperature!(recipient, action)
 
 # The environment sends a noisy observation of the temperature to the agent.
 RxEnvironments.what_to_send(recipient::ThermostatAgent, emitter::BayesianThermostat) = temperature(emitter) + rand(noise(emitter))
@@ -75,7 +75,7 @@ RxEnvironments.update!(env::BayesianThermostat, elapsed_time)= add_temperature!(
 Now we've fully specified our environment, and we can interact with it. In order to create the environment, we use the `RxEnvironment` struct, and we add an agent to this environment using `add!`:
 
 ```julia
-environment = RxEnvironment(BayesianThermostat(0.0, -10, 10); emit_every_ms = 900)
+environment = RxEnvironment(BayesianThermostat(0.0, -10.0, 10.0); emit_every_ms = 900)
 agent = add!(environment, ThermostatAgent())
 ```
 
