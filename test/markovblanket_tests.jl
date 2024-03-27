@@ -15,7 +15,10 @@
     @testset "constructor" begin
         let actuator = Actuator()
             @test actuator isa Actuator
-            @test_throws MethodError Actuator(10)
+            @test_throws MethodError Actuator(10, 10)
+        end
+        let actuator = Actuator(10)
+            @test actuator isa Actuator{Any}
         end
     end
 

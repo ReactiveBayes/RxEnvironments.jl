@@ -69,14 +69,14 @@ function Rocket.subscribe!(
     if emitter === receiver
         throw(SelfSubscriptionException(emitter))
     end
-    actuator = Actuator()
+    actuator = Actuator(decorated(emitter))
     insert!(actuators(markov_blanket(emitter)), receiver, actuator)
     add_sensor!(markov_blanket(receiver), emitter, receiver)
     add_to_state!(decorated(emitter), decorated(receiver))
 end
 
 function Rocket.subscribe!(emitter::AbstractEntity, receiver::Rocket.Actor{T} where {T})
-    actuator = Actuator()
+    actuator = Actuator(decorated(emitter))
     insert!(actuators(emitter), receiver, actuator)
     return subscribe!(actuator, receiver)
 end
@@ -192,6 +192,15 @@ define different time intervals for different entity types.
 """
 time_interval(any) = 1
 
+"""
+    action_type(::T)
+
+Returns the default action type for an entity of type `T`. By default, this function returns `Any`. This is used
+to determine the type of actions that can be sent to an entity. Although this restricts the type of actions that can be 
+sent to an entity, it allows for more type-stable code. 
+"""
+action_type(any) = Any
+
 update!(any, elapsed_time) =
     @warn "`update!` triggered for entity of type $(typeof(any)), but no update function is defined for this type." maxlog = 1
 
@@ -204,7 +213,7 @@ Update the state of the entity `e` based on its current state and the time elaps
 - `e::AbstractEntity{T,ContinuousEntity,E}`: The entity to update.
 """
 function update!(e::AbstractEntity{T,ContinuousEntity,E}) where {T,E}
-    c = clock(e)
+    c = clock(e)::WallClock
     update!(decorated(e), elapsed_time(c))
     set_last_update!(c, time(c))
 end
@@ -226,7 +235,7 @@ function send!(
     emitter::AbstractEntity,
     action::Any,
 )
-    actuator = get_actuator(emitter, recipient)
+    actuator = get_actuator(emitter, recipient)::Actuator{action_type(decorated(emitter))}
     send_action!(actuator, action)
 end
 

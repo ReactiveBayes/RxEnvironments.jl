@@ -1,8 +1,8 @@
 using Rocket
 export create_entity
 
-mutable struct EntityActor{T,S,E} <: Rocket.Actor{Any}
-    entity::AbstractEntity{T,S,E}
+mutable struct EntityActor{T} <: Rocket.Actor{Any}
+    entity::T
     subscription::Union{Nothing,Rocket.Teardown}
 end
 
@@ -18,11 +18,14 @@ by implementing the `emits` function.
 This function is automatically called whenever the entity receives an observation on it's sensor. The `observation` will contain the data sent by the
 emitter as well as a reference to the emitter itself. 
 """
-function Rocket.on_next!(actor::EntityActor{T,S,ActiveEntity} where {T,S}, observation)
+function Rocket.on_next!(
+    actor::EntityActor{E} where {E<:AbstractEntity{T,S,<:ActiveEntity} where {T,S}},
+    observation,
+)
     subject = entity(actor)
     update!(subject)
     receive!(subject, observation)
-    for listener in subscribers(subject)
+    foreach(subscribers(subject)) do listener
         if emits(subject, listener, observation)
             action = what_to_send(listener, subject, observation)
             send!(listener, subject, action)
@@ -35,7 +38,10 @@ end
 
 Handles the logic for an incoming observation for a passive entity. This means that we will only incorporate the observation into the entity's state.
 """
-function Rocket.on_next!(actor::EntityActor{T,S,PassiveEntity} where {T,S}, observation)
+function Rocket.on_next!(
+    actor::EntityActor{E} where {E<:AbstractEntity{T,S,<:PassiveEntity} where {T,S}},
+    observation,
+)
     receive!(entity(actor), observation)
 end
 
@@ -91,7 +97,7 @@ The RxEntity is the vanilla implementation of an `AbstractEntity` that is used i
 """
 struct RxEntity{T,S,E} <: AbstractEntity{T,S,E}
     decorated::T
-    markov_blanket::MarkovBlanket
+    markov_blanket::MarkovBlanket{S}
     properties::EntityProperties{S,E}
 end
 
