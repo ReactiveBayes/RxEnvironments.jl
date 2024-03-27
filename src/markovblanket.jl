@@ -2,11 +2,12 @@ using Rocket
 using Dictionaries
 import Dictionaries: Dictionary
 
-struct Actuator
-    emissions::Rocket.RecentSubjectInstance
+struct Actuator{T}
+    emissions::Rocket.RecentSubjectInstance{T,Subject{T,AsapScheduler,AsapScheduler}}
 end
 
 Actuator() = Actuator(RecentSubject(Any))
+Actuator(agent) = Actuator(RecentSubject(action_type(agent)))
 
 emission_channel(actuator::Actuator) = actuator.emissions
 send_action!(actuator::Actuator, action) = next!(emission_channel(actuator), action)
@@ -14,9 +15,9 @@ send_action!(actuator::Actuator, action) = next!(emission_channel(actuator), act
 Rocket.subscribe!(actuator::Actuator, actor::Rocket.Actor{T} where {T}) =
     subscribe!(emission_channel(actuator), actor)
 
-struct SensorActor <: Rocket.Actor{Any}
-    emitter::AbstractEntity
-    receiver::AbstractEntity
+struct SensorActor{E,R} <: Rocket.Actor{Any} where {E<:AbstractEntity,R<:AbstractEntity}
+    emitter::E
+    receiver::R
 end
 
 emitter(actor::SensorActor) = actor.emitter
@@ -30,8 +31,8 @@ Rocket.on_error!(actor::SensorActor, error) = @error(
 )
 Rocket.on_complete!(actor::SensorActor) = println("SensorActor completed")
 
-struct Sensor
-    actor::SensorActor
+struct Sensor{E,R}
+    actor::SensorActor{E,R}
     subscription::Teardown
 end
 
@@ -41,10 +42,10 @@ Sensor(actor::SensorActor) =
     Sensor(actor, subscribe!(get_actuator(emitter(actor), receiver(actor)), actor))
 Rocket.unsubscribe!(sensor::Sensor) = Rocket.unsubscribe!(sensor.subscription)
 
-struct Observations{T}
-    state_space::T
-    buffer::AbstractDictionary{Any,Union{Observation,Nothing}}
-    target::Rocket.RecentSubjectInstance
+struct Observations{S,T}
+    state_space::S
+    buffer::Dictionary{Any,Union{Observation,Nothing}}
+    target::Rocket.RecentSubjectInstance{T,Subject{T,AsapScheduler,AsapScheduler}}
 end
 
 subject(observations::Observations) = observations.target
@@ -72,9 +73,9 @@ Rocket.subscribe!(observations::Observations, actor::F where {F<:AbstractActorFa
     subscribe!(target(observations) |> map(Any, (x) -> data(x)), actor)
 
 Rocket.next!(
-    observations::Observations{ContinuousEntity},
-    observation::AbstractObservation,
-) = next!(target(observations), observation)
+    observations::Observations{ContinuousEntity,<:T},
+    observation::T,
+) where {T<:AbstractObservation} = next!(target(observations), observation)
 
 function Rocket.next!(observations::Observations{DiscreteEntity}, observation::Observation)
     observations.buffer[emitter(observation)] = observation
@@ -86,8 +87,8 @@ function Rocket.next!(observations::Observations{DiscreteEntity}, observation::O
 end
 
 struct MarkovBlanket{S}
-    actuators::AbstractDictionary{Any,Actuator}
-    sensors::AbstractDictionary{Any,Sensor}
+    actuators::Dictionary{Any,Actuator}
+    sensors::Dictionary{Any,Sensor}
     observations::Observations{S}
 end
 
@@ -99,13 +100,17 @@ MarkovBlanket(state_space) = MarkovBlanket(
 
 actuators(markov_blanket::MarkovBlanket) = markov_blanket.actuators
 sensors(markov_blanket::MarkovBlanket) = markov_blanket.sensors
-observations(markov_blanket::MarkovBlanket) = markov_blanket.observations
+observations(markov_blanket::MarkovBlanket{DiscreteEntity}) =
+    markov_blanket.observations::Observations{DiscreteEntity,ObservationCollection}
+observations(markov_blanket::MarkovBlanket{ContinuousEntity}) =
+    markov_blanket.observations::Observations{ContinuousEntity,AbstractObservation}
 
 function get_actuator(markov_blanket::MarkovBlanket, agent)
-    if !haskey(actuators(markov_blanket), agent)
+    actuator_dictionary = actuators(markov_blanket)
+    if !haskey(actuator_dictionary, agent)
         throw(NotSubscribedException(markov_blanket, agent))
     end
-    return actuators(markov_blanket)[agent]
+    return actuator_dictionary[agent]
 end
 
 add_to_state!(entity, to_add) = nothing

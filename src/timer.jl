@@ -32,7 +32,7 @@ struct IsNotPaused end
 mutable struct PausedInformation{T}
     paused::T
     time_paused::TimeStamp
-    total_time_paused::Real
+    total_time_paused::Float64
 end
 PausedInformation() = PausedInformation(IsNotPaused(), TimeStamp(0), 0.0)
 
@@ -41,11 +41,11 @@ is_paused(pause::PausedInformation{IsNotPaused}) = false
 time_paused(pause::PausedInformation{IsPaused}) = time(pause.time_paused)
 time_paused(pause::PausedInformation{IsNotPaused}) = throw(NotPausedException())
 
-function total_time_paused(pause::PausedInformation{IsPaused}, current_time::Real)
+function total_time_paused(pause::PausedInformation{IsPaused}, current_time::Float64)
     return pause.total_time_paused + (current_time - time_paused(pause))
 end
 
-function total_time_paused(pause::PausedInformation{IsNotPaused}, ::Real)
+function total_time_paused(pause::PausedInformation{IsNotPaused}, ::Float64)
     return pause.total_time_paused
 end
 
@@ -53,7 +53,7 @@ end
 mutable struct WallClock <: Clock
     start_time::TimeStamp
     last_update::TimeStamp
-    real_time_factor::Real
+    real_time_factor::Float64
     paused::PausedInformation
 end
 
@@ -65,7 +65,7 @@ start_time(clock::WallClock) = time(clock.start_time)
 last_update(clock::WallClock) = time(clock.last_update)
 set_last_update!(clock::WallClock, time::Real) = clock.last_update.time = time
 real_time_factor(clock::WallClock) = clock.real_time_factor
-total_time_paused(clock::WallClock, current_time::Real) =
+total_time_paused(clock::WallClock, current_time::Float64) =
     total_time_paused(clock.paused, current_time)
 
 function pause!(clock::WallClock)

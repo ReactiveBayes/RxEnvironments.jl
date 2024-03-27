@@ -57,11 +57,11 @@ end
 In order to implement the design pattern described above, we need to create a structure in which we are going to store the precomputed trajectory of the mountain car:
 ```@example mountaincar
 
-mutable struct MountainCarTrajectory
+mutable struct MountainCarTrajectory{T<:Real}
     recompute::Bool
-    time_left::Real
+    time_left::T
     trajectory::Any
-    T::Real
+    T::T
 end
 
 # Convenient getters and setters
@@ -83,11 +83,11 @@ reduce_time_left!(trajectory::MountainCarTrajectory, elapsed_time) =
 Here, we also implement all helper functions that give us a convenient interface to work with this trajectory. This trajectory is wrapped in the state of a Mountain Car, which contains all variables of the mountain car that are subject to change, such as position and velocity.
 ```@example mountaincar
 
-mutable struct MountainCarState
-    position::Real
-    velocity::Real
-    throttle::Real
-    trajectory::MountainCarTrajectory
+mutable struct MountainCarState{T<:Real}
+    position::T
+    velocity::T
+    throttle::T
+    trajectory::MountainCarTrajectory{T}
 end
 
 # Convenient getters and setters
@@ -115,12 +115,12 @@ The actual Mountain Car struct will contain the state of the mountain car, as we
 ```@example mountaincar
 
 
-struct MountainCarAgent
-    state::MountainCarState
-    engine_power::Real
-    friction_coefficient::Real
-    mass::Real
-    target::Real
+struct MountainCarAgent{T<:Real}
+    state::MountainCarState{T}
+    engine_power::T
+    friction_coefficient::T
+    mass::T
+    target::T
 end
 
 MountainCarAgent(
@@ -167,9 +167,9 @@ MountainCarEnvironment(landscape) = MountainCarEnvironment([], landscape)
 In order to encode the actions conducted by mountain car entities on the environment, we introduce a `Throttle` struct that clamps an input action between $-1$ and $1$:
 
 ```@example mountaincar
-struct Throttle
-    throttle::Real
-    Throttle(throttle::Real) = new(clamp(throttle, -1, 1))
+struct Throttle{T<:Real}
+    throttle::T
+    Throttle(throttle::T) where {T<:Real} = new{T}(clamp(throttle, -1, 1))
 end
 ```
 Our environment contains a field `actors`, however, we still have to tell `RxEnvironments` how to add entities to this field:
@@ -261,8 +261,8 @@ We can create the environment with the `RxEnvironment` factory method:
 ```@example mountaincar
 car_engine_power = 0.6
 car_friction_coefficient = 0.5
-car_mass = 2
-car_target = 1
+car_mass = 2.0
+car_target = 1.0
 
 env = RxEnvironment(MountainCarEnvironment(landscape))
 agent = add!(
@@ -291,8 +291,8 @@ This will still utilize all environment dynamics we have written for the continu
 ```@example mountaincar
 car_engine_power = 0.6
 car_friction_coefficient = 0.5
-car_mass = 2
-car_target = 1
+car_mass = 2.0
+car_target = 1.0
 
 env = RxEnvironment(MountainCarEnvironment(landscape); is_discrete=true)
 agent = add!(
