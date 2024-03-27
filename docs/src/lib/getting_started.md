@@ -12,10 +12,10 @@ using Distributions
 # Empty agent, could contain states as well
 struct ThermostatAgent end
 
-mutable struct BayesianThermostat
-    temperature::Real
-    min_temp::Real
-    max_temp::Real
+mutable struct BayesianThermostat{T}
+    temperature::T
+    min_temp::T
+    max_temp::T
 end
 
 # Helper functions
@@ -50,7 +50,7 @@ RxEnvironments.update!(env::BayesianThermostat, elapsed_time)= add_temperature!(
 Now we've fully specified our environment, and we can interact with it. In order to create the environment, we use the `RxEnvironment` struct, and we add an agent to this environment using `add!`:
 
 ```@example thermostat
-environment = RxEnvironment(BayesianThermostat(0.0, -10, 10); emit_every_ms = 900)
+environment = RxEnvironment(BayesianThermostat(0.0, -10.0, 10.0); emit_every_ms = 900)
 agent = add!(environment, ThermostatAgent())
 ```
 
@@ -66,31 +66,6 @@ for i in 1:10
     RxEnvironments.send!(environment, agent, action)
     sleep(1)
 end
-```
-
-```
-[LogActor] Data: 0.006170718477015863
-[LogActor] Data: -0.09624863445330185
-[LogActor] Data: -0.3269267933074502
-[LogActor] Data: 0.001304207094952492
-[LogActor] Data: 0.03626599314271475
-[LogActor] Data: 0.010733164205412482
-[LogActor] Data: 0.12313893922057219
-[LogActor] Data: -0.013042652548091921
-[LogActor] Data: 0.03561033321842316
-[LogActor] Data: 0.6763921880509323
-[LogActor] Data: 0.8313618838112217
-[LogActor] Data: 1.7408316683602163
-[LogActor] Data: 1.7322639115928715
-[LogActor] Data: 1.458556241545732
-[LogActor] Data: 1.6689296645689367
-[LogActor] Data: 1.683300152848493
-[LogActor] Data: 2.087509970813057
-[LogActor] Data: 2.258940017058188
-[LogActor] Data: 2.6537100822978372
-[LogActor] Data: 2.6012179767058408
-[LogActor] Data: 3.0775745739101716
-[LogActor] Data: 2.7326464283572727
 ```
 
 Congratulations! You've now implemented a basic environment in `RxEnvironments`.
