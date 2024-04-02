@@ -107,9 +107,6 @@ observations(markov_blanket::MarkovBlanket{ContinuousEntity}) =
 
 function get_actuator(markov_blanket::MarkovBlanket, agent)
     actuator_dictionary = actuators(markov_blanket)
-    # if !haskey(actuator_dictionary, agent)
-    #     throw(NotSubscribedException(markov_blanket, agent))
-    # end
     return actuator_dictionary[agent]
 end
 
