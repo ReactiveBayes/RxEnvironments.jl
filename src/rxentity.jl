@@ -59,7 +59,7 @@ mutable struct EntityProperties{S,E}
     entity_actor::Union{EntityActor,Nothing}
 end
 
-EntityProperties(state_space::DiscreteEntity, is_environment; real_time_factor = 1.0) =
+EntityProperties(state_space::DiscreteEntity, is_environment; real_time_factor=1.0) =
     EntityProperties(
         state_space,
         is_environment,
@@ -71,7 +71,7 @@ EntityProperties(state_space::DiscreteEntity, is_environment; real_time_factor =
 EntityProperties(
     state_space::ContinuousEntity,
     is_environment;
-    real_time_factor::Real = 1.0,
+    real_time_factor::Real=1.0,
 ) = EntityProperties(
     state_space,
     is_environment,
@@ -95,9 +95,9 @@ The RxEntity is the vanilla implementation of an `AbstractEntity` that is used i
 - A `EntityProperties` that contains the state space, whether or not the entity is active, and the real time factor
 - A `EntityActor` that handles the logic for receiving observations and sending actions
 """
-struct RxEntity{T,S,E} <: AbstractEntity{T,S,E}
+struct RxEntity{T,S,E,A} <: AbstractEntity{T,S,E}
     decorated::T
-    markov_blanket::MarkovBlanket{S}
+    markov_blanket::MarkovBlanket{S,A}
     properties::EntityProperties{S,E}
 end
 
@@ -110,23 +110,23 @@ in order to create a more complex network of entities.
 """
 function create_entity(
     entity;
-    is_discrete::Bool = false,
-    is_active::Bool = false,
-    real_time_factor = 1,
+    is_discrete::Bool=false,
+    is_active::Bool=false,
+    real_time_factor=1,
 )
     state_space = is_discrete ? DiscreteEntity() : ContinuousEntity()
     operation_type = is_active ? ActiveEntity() : PassiveEntity()
     return create_entity(entity, state_space, operation_type, real_time_factor)
 end
 
-function create_entity(entity, state_space, active_or_passive, real_time_factor::Real = 1)
+function create_entity(entity, state_space, active_or_passive, real_time_factor::Real=1)
     result = RxEntity(
         entity,
-        MarkovBlanket(state_space),
+        MarkovBlanket(state_space, action_type(entity)),
         EntityProperties(
             state_space,
             active_or_passive;
-            real_time_factor = real_time_factor,
+            real_time_factor=real_time_factor,
         ),
     )
     entity_actor = EntityActor(result, nothing)

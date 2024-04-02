@@ -18,7 +18,7 @@
         e = create_entity(MockEnvironment())
         @test decorated(e) === MockEnvironment()
 
-        e = create_entity(MockEntity(); is_active = true)
+        e = create_entity(MockEntity(); is_active=true)
         @test decorated(e) === MockEntity()
     end
 
@@ -67,7 +67,7 @@
 
         # Test functionality for different real time factors
         for real_time_factor in [0.25, 0.5, 1, 2, 5]
-            let e = create_entity(MockEntity(); real_time_factor = real_time_factor)
+            let e = create_entity(MockEntity(); real_time_factor=real_time_factor)
                 obs = keep(Any)
                 subscribe_to_observations!(e, obs)
 
@@ -79,7 +79,7 @@
                 @test isapprox(
                     elapsed_time,
                     0.1 / real_time_factor,
-                    atol = 0.1 * real_time_factor,
+                    atol=0.1 * real_time_factor,
                 )
 
                 # Sanity check that no observations are obtained (timer and clock are decoupled)
@@ -109,7 +109,7 @@
         import RxEnvironments: add_timer!, elapsed_time, total_time_paused
 
         let e = create_entity(MockEntity())
-            @test isapprox(time(clock(e)), 0.0; atol = 1e-4)
+            @test isapprox(time(clock(e)), 0.0; atol=1e-4)
             add_timer!(e, 10)
 
             pause!(e)
@@ -190,7 +190,7 @@
 
                 unsubscribe!(first_entity, second_entity)
                 @test !is_subscribed(second_entity, first_entity)
-                @test_throws RxEnvironments.NotSubscribedException send!(
+                @test_throws KeyError send!(
                     second_entity,
                     first_entity,
                     1,
@@ -258,7 +258,7 @@
                     # Test that third_entity does not receive observations
                     @test length(third_obs) == 0
                     # Test that we can't send messages from third_entity to first_entity
-                    @test_throws RxEnvironments.NotSubscribedException send!(
+                    @test_throws KeyError send!(
                         third_entity,
                         first_entity,
                         1,
@@ -299,7 +299,7 @@
         end
 
         # Test that we can trigger emission behaviour
-        let first_entity = create_entity(SelectiveSendingEntity(); is_active = true)
+        let first_entity = create_entity(SelectiveSendingEntity(); is_active=true)
             let second_entity = create_entity(SelectiveReceivingEntity())
                 # Assert that we only block emission if the incoming message is `Nothing`
                 @test emits(decorated(first_entity), decorated(second_entity), nothing) ==
@@ -346,7 +346,7 @@
         import RxEnvironments: send!, data, subscribe_to_observations!
 
         # Test that a SelectiveSendingEntity sends a Float to SelectiveReceivingEntity if it receives a Float, and a Bool if it receives a Bool
-        let env = create_entity(SelectiveSendingEntity(); is_active = true)
+        let env = create_entity(SelectiveSendingEntity(); is_active=true)
             agent = create_entity(SelectiveReceivingEntity())
             add!(env, agent)
 
@@ -370,20 +370,20 @@ end
 
     include("mockenvironment.jl")
     @testset "constructor" begin
-        e = create_entity(MockEntity(); is_discrete = true)
+        e = create_entity(MockEntity(); is_discrete=true)
         @test e isa RxEnvironments.RxEntity{MockEntity}
     end
 
     @testset "markov blanket functionality" begin
-        let e = create_entity(MockEntity(); is_discrete = true)
+        let e = create_entity(MockEntity(); is_discrete=true)
             @test e.markov_blanket isa RxEnvironments.MarkovBlanket
         end
     end
 
     @testset "subscribe_to_observations!" begin
         import RxEnvironments: observations, data
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
                 add!(first_entity, second_entity)
                 obs = keep(Any)
                 subscribe_to_observations!(first_entity, obs)
@@ -415,7 +415,7 @@ end
 
     @testset "clock and time keeping" begin
         import RxEnvironments: clock, add_elapsed_time!
-        let e = create_entity(MockEntity(); is_discrete = true)
+        let e = create_entity(MockEntity(); is_discrete=true)
             obs = keep(Any)
             subscribe_to_observations!(e, obs)
 
@@ -434,7 +434,7 @@ end
     @testset "pause!" begin
         using RxEnvironments
 
-        let e = create_entity(MockEntity(); is_discrete = true)
+        let e = create_entity(MockEntity(); is_discrete=true)
             @test_logs (:warn, "Clock with manual control cannot be paused") pause!(e)
         end
     end
@@ -442,8 +442,8 @@ end
     @testset "add subscriber" begin
         # Test default case of two interacting entities
 
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
                 subscribe!(first_entity, second_entity)
                 @test !is_subscribed(first_entity, second_entity)
                 @test is_subscribed(second_entity, first_entity)
@@ -451,9 +451,9 @@ end
         end
 
         # Test case of three interacting entities
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
-                let third_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
+                let third_entity = create_entity(MockEntity(); is_discrete=true)
                     subscribe!(first_entity, second_entity)
                     subscribe!(second_entity, third_entity)
                     @test !is_subscribed(first_entity, second_entity)
@@ -465,7 +465,7 @@ end
         end
 
         # Test self-subscription
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
             @test_throws RxEnvironments.SelfSubscriptionException subscribe!(
                 first_entity,
                 first_entity,
@@ -474,8 +474,8 @@ end
     end
 
     @testset "mutual subscribe" begin
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
                 add!(first_entity, second_entity)
                 @test is_subscribed(first_entity, second_entity)
                 @test is_subscribed(second_entity, first_entity)
@@ -484,8 +484,8 @@ end
     end
 
     @testset "unsubscribe" begin
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
                 first_obs = keep(Any)
                 second_obs = keep(Any)
                 subscribe_to_observations!(first_entity, first_obs)
@@ -497,7 +497,7 @@ end
 
                 unsubscribe!(first_entity, second_entity)
                 @test !is_subscribed(second_entity, first_entity)
-                @test_throws RxEnvironments.NotSubscribedException send!(
+                @test_throws KeyError send!(
                     second_entity,
                     first_entity,
                     1,
@@ -510,8 +510,8 @@ end
         import RxEnvironments: data
 
         # Test simple case of two interacting entities
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
                 first_obs = keep(Any)
                 second_obs = keep(Any)
                 subscribe_to_observations!(first_entity, first_obs)
@@ -544,9 +544,9 @@ end
         # Test case of three interacting entities
         # Subscriptions:
         # first_entity <-> second_entity <-> third_entity
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
-                let third_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
+                let third_entity = create_entity(MockEntity(); is_discrete=true)
                     first_obs = keep(Any)
                     second_obs = keep(Any)
                     third_obs = keep(Any)
@@ -565,7 +565,7 @@ end
                     # Test that third_entity does not receive observations
                     @test length(third_obs) == 0
                     # Test that we can't send messages from third_entity to first_entity
-                    @test_throws RxEnvironments.NotSubscribedException send!(
+                    @test_throws KeyError send!(
                         third_entity,
                         first_entity,
                         1,
@@ -587,7 +587,7 @@ end
     end
 
     @testset "send message" begin
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
             obs = keep(Any)
             subscribe!(first_entity, obs)
             send!(obs, first_entity, 1)
@@ -601,8 +601,8 @@ end
         import RxEnvironments: emits, decorated
 
         # Test that by default we always emit
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
                 add!(first_entity, second_entity)
                 @test emits(decorated(first_entity), decorated(second_entity), nothing) ==
                       true
@@ -614,11 +614,11 @@ end
         # Test that we can trigger emission behaviour
         let first_entity = create_entity(
                 SelectiveSendingEntity();
-                is_active = true,
-                is_discrete = true,
+                is_active=true,
+                is_discrete=true,
             )
             let second_entity =
-                    create_entity(SelectiveReceivingEntity(); is_discrete = true)
+                    create_entity(SelectiveReceivingEntity(); is_discrete=true)
                 # Assert that we only block emission if the incoming message is `Nothing`
                 @test emits(decorated(first_entity), decorated(second_entity), nothing) ==
                       false
@@ -643,8 +643,8 @@ end
     @testset "terminate!" begin
         import RxEnvironments: terminate!, is_terminated
 
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
-            let second_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
+            let second_entity = create_entity(MockEntity(); is_discrete=true)
                 add!(first_entity, second_entity)
 
                 @test is_subscribed(first_entity, second_entity)
@@ -663,7 +663,7 @@ end
     @testset "impossible to add timer" begin
         import RxEnvironments: add_timer!
 
-        let e = create_entity(MockEntity(); is_discrete = true)
+        let e = create_entity(MockEntity(); is_discrete=true)
             @test_throws MethodError add_timer!(e, 1000)
         end
     end
@@ -674,10 +674,10 @@ end
         # Test that a SelectiveSendingEntity sends a Float to SelectiveReceivingEntity if it receives a Float, and a Bool if it receives a Bool
         let env = create_entity(
                 SelectiveSendingEntity();
-                is_active = true,
-                is_discrete = true,
+                is_active=true,
+                is_discrete=true,
             )
-            agent = create_entity(SelectiveReceivingEntity(); is_discrete = true)
+            agent = create_entity(SelectiveReceivingEntity(); is_discrete=true)
             add!(env, agent)
 
             obs = keep(Any)
@@ -698,7 +698,7 @@ end
 
     @testset "mix state-spaces" begin
         # Test that mixing of state spaces is not allowed
-        let first_entity = create_entity(MockEntity(); is_discrete = true)
+        let first_entity = create_entity(MockEntity(); is_discrete=true)
             let second_entity = create_entity(MockEntity())
                 @test_throws RxEnvironments.MixedStateSpaceException add!(
                     first_entity,
@@ -724,7 +724,7 @@ end
             @test state_space(result) === RxEnvironments.ContinuousEntity()
         end
 
-        let e = create_entity(MockEntity(); is_discrete = true)
+        let e = create_entity(MockEntity(); is_discrete=true)
             result = add!(e, MockEntity())
             @test state_space(result) === RxEnvironments.DiscreteEntity()
         end

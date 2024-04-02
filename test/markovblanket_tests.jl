@@ -51,17 +51,17 @@ end
         ContinuousEntity,
         create_entity
     @testset "constructor" begin
-        let markov_blanket = MarkovBlanket(DiscreteEntity())
+        let markov_blanket = MarkovBlanket(DiscreteEntity(), Any)
             @test markov_blanket isa MarkovBlanket{DiscreteEntity}
         end
-        let markov_blanket = MarkovBlanket(ContinuousEntity())
+        let markov_blanket = MarkovBlanket(ContinuousEntity(), Any)
             @test markov_blanket isa MarkovBlanket{ContinuousEntity}
         end
     end
 
     @testset "add and remove subscriber" begin
         import RxEnvironments: IsNotEnvironment
-        let env = create_entity(MockEnvironment(); is_active = true)
+        let env = create_entity(MockEnvironment(); is_active=true)
             agent = create_entity(MockEntity())
             subscribe!(env, agent)
             @test is_subscribed(agent, env)
@@ -76,7 +76,7 @@ end
             @test !is_subscribed(agent, env)
             @test is_subscribed(second_agent, env)
             @test length(subscribers(env)) == 1
-            @test_throws NotSubscribedException send!(env, agent, 10)
+            @test_throws KeyError send!(env, agent, 10)
 
             unsubscribe!(env, second_agent)
             @test !is_subscribed(agent, env)
@@ -96,7 +96,7 @@ end
     @testset "add subscription" begin
 
         import RxEnvironments: IsNotEnvironment
-        let env = create_entity(MockEnvironment(); is_active = true)
+        let env = create_entity(MockEnvironment(); is_active=true)
             agent = create_entity(MockEntity())
             subscribe!(agent, env)
             @test is_subscribed(env, agent)
@@ -121,7 +121,7 @@ end
 
     include("mockenvironment.jl")
 
-    let env = create_entity(MockEnvironment(); is_active = true)
+    let env = create_entity(MockEnvironment(); is_active=true)
         agent = create_entity(MockEntity())
         subscribe!(env, agent)
         actor = keep(Any)
