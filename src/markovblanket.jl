@@ -1,6 +1,4 @@
 using Rocket
-using Dictionaries
-import Dictionaries: Dictionary
 
 struct Actuator{T}
     emissions::Rocket.RecentSubjectInstance{T,Subject{T,AsapScheduler,AsapScheduler}}
