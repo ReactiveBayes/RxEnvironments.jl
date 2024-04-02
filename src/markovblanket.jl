@@ -44,7 +44,7 @@ Rocket.unsubscribe!(sensor::Sensor) = Rocket.unsubscribe!(sensor.subscription)
 
 struct Observations{S,T}
     state_space::S
-    buffer::Dictionary{Any,Union{Observation,Nothing}}
+    buffer::Dict{Any,Union{Observation,Nothing}}
     target::Rocket.RecentSubjectInstance{T,Subject{T,AsapScheduler,AsapScheduler}}
 end
 
@@ -52,12 +52,12 @@ subject(observations::Observations) = observations.target
 
 Observations(state_space::DiscreteEntity) = Observations(
     state_space,
-    Dictionary{Any,Union{Observation,Nothing}}(),
+    Dict{Any,Union{Observation,Nothing}}(),
     RecentSubject(ObservationCollection),
 )
 Observations(state_space::ContinuousEntity) = Observations(
     state_space,
-    Dictionary{Any,Union{Observation,Nothing}}(),
+    Dict{Any,Union{Observation,Nothing}}(),
     RecentSubject(AbstractObservation),
 )
 target(observations::Observations) = observations.target
@@ -80,21 +80,21 @@ Rocket.next!(
 function Rocket.next!(observations::Observations{DiscreteEntity}, observation::Observation)
     observations.buffer[emitter(observation)] = observation
     if all(values(observations.buffer) .!= nothing)
-        obs = copy(observations.buffer)
+        obs = collect(values(observations.buffer))
         clear_buffer!(observations)
         next!(target(observations), ObservationCollection(Tuple(obs)))
     end
 end
 
-struct MarkovBlanket{S}
-    actuators::Dictionary{Any,Actuator}
-    sensors::Dictionary{Any,Sensor}
+struct MarkovBlanket{S,T}
+    actuators::Dict{Any,Actuator{T}}
+    sensors::Dict{Any,Sensor}
     observations::Observations{S}
 end
 
-MarkovBlanket(state_space) = MarkovBlanket(
-    Dictionary{Any,Actuator}(),
-    Dictionary{Any,Sensor}(),
+MarkovBlanket(state_space, T) = MarkovBlanket(
+    Dict{Any,Actuator{T}}(),
+    Dict{Any,Sensor}(),
     Observations(state_space),
 )
 
@@ -121,8 +121,8 @@ function add_sensor!(
     receiver::AbstractEntity,
 )
     sensor = Sensor(emitter, receiver)
-    insert!(sensors(markov_blanket), emitter, sensor)
-    insert!(observations(markov_blanket).buffer, emitter, nothing)
+    sensors(markov_blanket)[emitter] = sensor
+    observations(markov_blanket).buffer[emitter] = nothing
 end
 
 function add_sensor!(
@@ -131,7 +131,7 @@ function add_sensor!(
     receiver::AbstractEntity,
 )
     sensor = Sensor(emitter, receiver)
-    insert!(sensors(markov_blanket), emitter, sensor)
+    sensors(markov_blanket)[emitter] = sensor
 end
 
 Base.show(io::IO, markov_blanket::MarkovBlanket{S}) where {S} =

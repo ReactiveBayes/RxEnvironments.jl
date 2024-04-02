@@ -70,14 +70,14 @@ function Rocket.subscribe!(
         throw(SelfSubscriptionException(emitter))
     end
     actuator = Actuator(decorated(emitter))
-    insert!(actuators(markov_blanket(emitter)), receiver, actuator)
+    actuators(markov_blanket(emitter))[receiver] = actuator
     add_sensor!(markov_blanket(receiver), emitter, receiver)
     add_to_state!(decorated(emitter), decorated(receiver))
 end
 
 function Rocket.subscribe!(emitter::AbstractEntity, receiver::Rocket.Actor{T} where {T})
     actuator = Actuator(decorated(emitter))
-    insert!(actuators(emitter), receiver, actuator)
+    actuators(emitter)[receiver] = actuator
     return subscribe!(actuator, receiver)
 end
 
