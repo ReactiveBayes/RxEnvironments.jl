@@ -124,7 +124,7 @@ The Markov Blankets for both entities will be subscribed to each other.
 - `second`: The entity to be added to `first`.
 - `is_active=false`: A boolean indicating whether `second` should be instantiated as an active entity.
 """
-function add!(first::AbstractEntity{T,S,E}, second; is_active = false) where {T,S,E}
+function add!(first::AbstractEntity{T,S,E}, second; is_active=false) where {T,S,E}
     operation_type = is_active ? ActiveEntity() : PassiveEntity()
     entity = create_entity(second, state_space(first), operation_type)
     add!(first, entity)
@@ -304,8 +304,8 @@ emits(subject, listener, observation::Any) = true
 
 function add_timer!(
     entity::AbstractEntity{T,ContinuousEntity,E} where {T,E},
-    emit_every_ms::Int;
-    real_time_factor::Real = 1.0,
+    emit_every_ms::Real;
+    real_time_factor::Real=1.0,
 )
     @assert real_time_factor > 0.0
     c = Timer(emit_every_ms, entity)

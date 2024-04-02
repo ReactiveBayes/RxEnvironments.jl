@@ -117,7 +117,7 @@ mutable struct Timer
     subscription::Any
 end
 
-function Timer(emit_every_ms::Int, entity)
+function Timer(emit_every_ms::Real, entity)
     timer = Rocket.interval(emit_every_ms)
     actor = TimerActor(entity)
     subscription = subscribe!(timer, actor)
