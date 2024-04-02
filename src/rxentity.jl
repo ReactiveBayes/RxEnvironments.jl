@@ -95,9 +95,9 @@ The RxEntity is the vanilla implementation of an `AbstractEntity` that is used i
 - A `EntityProperties` that contains the state space, whether or not the entity is active, and the real time factor
 - A `EntityActor` that handles the logic for receiving observations and sending actions
 """
-struct RxEntity{T,S,E} <: AbstractEntity{T,S,E}
+struct RxEntity{T,S,E,A} <: AbstractEntity{T,S,E}
     decorated::T
-    markov_blanket::MarkovBlanket{S}
+    markov_blanket::MarkovBlanket{S,A}
     properties::EntityProperties{S,E}
 end
 
