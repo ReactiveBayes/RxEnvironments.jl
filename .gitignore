@@ -6,3 +6,5 @@
 
 .DS_Store
 benchmark*.md
+
+benchmark/tune.json
