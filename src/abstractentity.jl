@@ -86,10 +86,7 @@ end
 
 Subscribe `actor` to the observations of `entity`. Any data sent to `entity` will be received by `actor` after this function is called.
 """
-function subscribe_to_observations!(entity::AbstractEntity, actor)
-    subscribe!(observations(entity), actor)
-    return actor
-end
+subscribe_to_observations!(entity::AbstractEntity, actor) = subscribe!(observations(entity), actor)
 
 apply_to_observations(entity::AbstractEntity, T::Type, lambda::Function) =
     subject(observations(entity)) |> map(T, lambda)
