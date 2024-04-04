@@ -107,8 +107,8 @@ function Rocket.on_next!(actor::TimerActor, time::Int)
     next!(observations(entity(actor)), TimerMessage())
 end
 
-function Rocket.on_error!(actor::TimerActor, error)
-    showerror(stdout, error)
+function Rocket.on_error!(actor::TimerActor, err)
+    error(err)
 end
 
 mutable struct Timer
