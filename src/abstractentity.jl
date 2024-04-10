@@ -232,8 +232,12 @@ function send!(
     emitter::AbstractEntity,
     action::Any,
 )
-    actuator = get_actuator(emitter, recipient)::Actuator{action_type(decorated(emitter))}
-    send_action!(actuator, action)
+    if recipient ∈ subscribers(emitter)
+        actuator = get_actuator(emitter, recipient)::Actuator{action_type(decorated(emitter))}
+        send_action!(actuator, action)
+    else
+        throw(NotSubscribedException(emitter, recipient))
+    end
 end
 
 function what_to_send(
