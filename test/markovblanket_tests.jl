@@ -76,7 +76,7 @@ end
             @test !is_subscribed(agent, env)
             @test is_subscribed(second_agent, env)
             @test length(subscribers(env)) == 1
-            @test_throws KeyError send!(env, agent, 10)
+            @test_throws RxEnvironments.NotSubscribedException send!(env, agent, 10)
 
             unsubscribe!(env, second_agent)
             @test !is_subscribed(agent, env)
@@ -139,16 +139,13 @@ end
     end
 end
 
-# @testitem "send branching" begin
-#     using RxEnvironments
-#     import RxEnvironments: DiscreteEntity, create_entity
-#     include("../mockenvironment.jl")
-#     let env = RxEnvironment(MockEnvironment(0.0); discrete = true)
-#         agent = add!(env, MockAgent())
-#         obs = subscribe_to_observations!(agent, RxEnvironments.keep(Any))
-#         send!(env, agent, 10)
-#         send!(env, agent, 10.0)
-#         @test obs.values[1] == "Integer"
+@testitem "show" begin
+    using RxEnvironments
 
-#     end
-# end
+    include("mockenvironment.jl")
+
+    let e = RxEnvironment(MockEntity())
+        markov_blanket = RxEnvironments.markov_blanket(e)
+        @test occursin(r"MarkovBlanket{RxEnvironments.ContinuousEntity}", repr(markov_blanket))
+    end
+end

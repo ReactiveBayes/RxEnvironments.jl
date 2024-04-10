@@ -60,6 +60,20 @@
             terminate!(env)
         end
     end
+
+    @testset "keep actor" begin
+        using Rocket
+        using RxEnvironments
+
+        let e = RxEnvironment(MockEntity())
+            other = create_entity(MockEntity())
+            add!(e, other)
+            actor = keep(Any)
+            subscribe!(e, actor)
+            send!(e, other, 1)
+            @test last(actor) == nothing
+        end
+    end
 end
 
 @testitem "discrete environment" begin

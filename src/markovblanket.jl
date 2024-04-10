@@ -67,8 +67,6 @@ end
 
 Rocket.subscribe!(observations::Observations, actor::Rocket.Actor{T} where {T}) =
     subscribe!(target(observations), actor)
-Rocket.subscribe!(observations::Observations, actor::F where {F<:AbstractActorFactory}) =
-    subscribe!(target(observations) |> map(Any, (x) -> data(x)), actor)
 
 Rocket.next!(
     observations::Observations{ContinuousEntity,<:T},

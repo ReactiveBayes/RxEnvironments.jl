@@ -7,6 +7,7 @@
         e = create_entity(MockEntity())
         @test !is_active(e)
         @test e isa RxEnvironments.RxEntity{MockEntity}
+        @test occursin(r"Continuous", repr(e))
     end
 
     @testset "decorated" begin
@@ -190,7 +191,7 @@
 
                 unsubscribe!(first_entity, second_entity)
                 @test !is_subscribed(second_entity, first_entity)
-                @test_throws KeyError send!(
+                @test_throws RxEnvironments.NotSubscribedException send!(
                     second_entity,
                     first_entity,
                     1,
@@ -372,6 +373,7 @@ end
     @testset "constructor" begin
         e = create_entity(MockEntity(); is_discrete=true)
         @test e isa RxEnvironments.RxEntity{MockEntity}
+        @test occursin(r"Discrete", repr(e))
     end
 
     @testset "markov blanket functionality" begin
@@ -398,6 +400,8 @@ end
                 @test last(obs) === RxEnvironments.ObservationCollection((
                     RxEnvironments.Observation(second_entity, nothing),
                 ))
+                @test length(last(obs)) == 1
+                @test data(last(obs)) === nothing
                 @test data.(obs.values) == [nothing]
 
                 next!(
@@ -497,7 +501,7 @@ end
 
                 unsubscribe!(first_entity, second_entity)
                 @test !is_subscribed(second_entity, first_entity)
-                @test_throws KeyError send!(
+                @test_throws RxEnvironments.NotSubscribedException send!(
                     second_entity,
                     first_entity,
                     1,
