@@ -28,7 +28,7 @@ function Rocket.on_next!(
     foreach(subscribers(subject)) do listener
         if emits(subject, listener, observation)
             action = what_to_send(listener, subject, observation)
-            send!(listener, subject, action)
+            __send!(listener, subject, action)
         end
     end
 end

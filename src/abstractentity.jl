@@ -233,11 +233,24 @@ function send!(
     action::Any,
 )
     if recipient ∈ subscribers(emitter)
-        actuator = get_actuator(emitter, recipient)::Actuator{action_type(decorated(emitter))}
-        send_action!(actuator, action)
+        __send!(recipient, emitter, action)
     else
         throw(NotSubscribedException(emitter, recipient))
     end
+end
+
+"""
+    __send!(recipient::AbstractEntity, emitter::AbstractEntity, action::Any)
+
+Send an action from `emitter` to `recipient`.
+"""
+function __send!(
+    recipient::Union{AbstractEntity,Rocket.Actor},
+    emitter::AbstractEntity,
+    action::Any,
+)
+    actuator = get_actuator(emitter, recipient)::Actuator{action_type(decorated(emitter))}
+    send_action!(actuator, action)
 end
 
 function what_to_send(
