@@ -33,6 +33,5 @@ Base.showerror(io::IO, e::SelfSubscriptionException) =
 
 mutable struct NotPausedException <: Exception end
 
-
 Base.showerror(io::IO, e::NotPausedException) =
     print(io, "Trying to access paused time for unpaused entity")
