@@ -190,7 +190,7 @@
 
                 unsubscribe!(first_entity, second_entity)
                 @test !is_subscribed(second_entity, first_entity)
-                @test_throws KeyError send!(
+                @test_throws RxEnvironments.NotSubscribedException send!(
                     second_entity,
                     first_entity,
                     1,
@@ -497,7 +497,7 @@ end
 
                 unsubscribe!(first_entity, second_entity)
                 @test !is_subscribed(second_entity, first_entity)
-                @test_throws KeyError send!(
+                @test_throws RxEnvironments.NotSubscribedException send!(
                     second_entity,
                     first_entity,
                     1,

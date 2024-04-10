@@ -76,7 +76,7 @@ end
             @test !is_subscribed(agent, env)
             @test is_subscribed(second_agent, env)
             @test length(subscribers(env)) == 1
-            @test_throws KeyError send!(env, agent, 10)
+            @test_throws RxEnvironments.NotSubscribedException send!(env, agent, 10)
 
             unsubscribe!(env, second_agent)
             @test !is_subscribed(agent, env)
