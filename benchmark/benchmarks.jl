@@ -1,5 +1,5 @@
 using BenchmarkTools
-
+import RxEnvironments: __send!
 const SUITE = BenchmarkGroup()
 
 include("mockenv.jl")
@@ -9,8 +9,8 @@ function simple_discrete_benchmarks()
     SUITE = BenchmarkGroup(["Simple Discrete Environment"])
     env = RxEnvironment(MockEnvironment(); is_discrete=true)
     agent = add!(env, MockEntity())
-    SUITE["send to agent"] = @benchmarkable send!($agent, $env, 10.0)
-    SUITE["send to environment"] = @benchmarkable send!($env, $agent, 10.0)
+    SUITE["send to agent"] = @benchmarkable __send!($agent, $env, 10.0)
+    SUITE["send to environment"] = @benchmarkable __send!($env, $agent, 10.0)
     return SUITE
 end
 
@@ -25,8 +25,8 @@ function complex_discrete_benchmarks()
     add!(hearing_aid, agent)
     add!(hearing_aid, user)
 
-    SUITE["send to agent"] = @benchmarkable send!($hearing_aid, $world, view([1.0, 2.0, 3.0], 1:2))
-    SUITE["send to environment"] = @benchmarkable send!($world, $hearing_aid, 10.0)
+    SUITE["send to agent"] = @benchmarkable __send!($hearing_aid, $world, view([1.0, 2.0, 3.0], 1:2))
+    SUITE["send to environment"] = @benchmarkable __send!($world, $hearing_aid, 10.0)
     return SUITE
 end
 
@@ -34,8 +34,8 @@ function simple_continuous_benchmarks()
     SUITE = BenchmarkGroup(["Simple Continuous Environment"])
     env = RxEnvironment(MockEnvironment(); is_discrete=false)
     agent = add!(env, MockEntity())
-    SUITE["send to agent"] = @benchmarkable send!($agent, $env, 10.0)
-    SUITE["send to environment"] = @benchmarkable send!($env, $agent, 10.0)
+    SUITE["send to agent"] = @benchmarkable __send!($agent, $env, 10.0)
+    SUITE["send to environment"] = @benchmarkable __send!($env, $agent, 10.0)
     return SUITE
 end
 
@@ -50,8 +50,8 @@ function complex_continuous_benchmarks()
     add!(hearing_aid, agent)
     add!(hearing_aid, user)
 
-    SUITE["send to agent"] = @benchmarkable send!($hearing_aid, $world, view([1.0, 2.0, 3.0], 1:2))
-    SUITE["send to environment"] = @benchmarkable send!($world, $hearing_aid, 10.0)
+    SUITE["send to agent"] = @benchmarkable __send!($hearing_aid, $world, view([1.0, 2.0, 3.0], 1:2))
+    SUITE["send to environment"] = @benchmarkable __send!($world, $hearing_aid, 10.0)
     return SUITE
 end
 

@@ -232,6 +232,23 @@ function send!(
     emitter::AbstractEntity,
     action::Any,
 )
+    if recipient ∈ subscribers(emitter)
+        __send!(recipient, emitter, action)
+    else
+        throw(NotSubscribedException(emitter, recipient))
+    end
+end
+
+"""
+    __send!(recipient::AbstractEntity, emitter::AbstractEntity, action::Any)
+
+Send an action from `emitter` to `recipient`.
+"""
+function __send!(
+    recipient::Union{AbstractEntity,Rocket.Actor},
+    emitter::AbstractEntity,
+    action::Any,
+)
     actuator = get_actuator(emitter, recipient)::Actuator{action_type(decorated(emitter))}
     send_action!(actuator, action)
 end
@@ -272,7 +289,6 @@ receive!(recipient::AbstractEntity, observation::Observation) =
 receive!(recipient::AbstractEntity, emitter::AbstractEntity, observation::Any) =
     receive!(decorated(recipient), decorated(emitter), observation)
 receive!(recipient::AbstractEntity, obs::TimerMessage) = receive!(decorated(recipient), obs)
-receive!(recipient::AbstractEntity, observation::Any) = nothing
 receive!(recipient, emitter, observation) = nothing
 receive!(recipient, observation) = nothing
 
