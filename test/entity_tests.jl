@@ -581,6 +581,7 @@ end
                     @test length(second_obs) == 0
                     send!(second_entity, third_entity, 2)
                     @test length(second_obs) == 1
+                    @test sort(collect(data(last(second_obs)))) == [1, 2]
                 end
             end
         end
