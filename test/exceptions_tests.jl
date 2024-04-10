@@ -53,3 +53,16 @@ end
         @test occursin(r"Entity cannot subscribe to itself, attempted in (.*?)", String(take!(buf)))
     end
 end
+
+@testitem "NotPausedException" begin
+    using RxEnvironments
+
+    import RxEnvironments: NotPausedException
+    let exception = NotPausedException()
+        @test exception isa NotPausedException
+        @test_throws NotPausedException throw(exception)
+        buf = IOBuffer()
+        showerror(buf, exception)
+        @test occursin(r"Trying to access paused time for unpaused entity", String(take!(buf)))
+    end
+end
