@@ -47,6 +47,11 @@
             @test last(obs) === RxEnvironments.Observation(e, 1)
             @test data.(obs.values) == [nothing, 1]
         end
+
+        let e = create_entity(MockEntity())
+            obs = RxEnvironments.logger()
+            subscribe_to_observations!(e, obs)
+        end
     end
 
     @testset "apply_to_observations" begin
