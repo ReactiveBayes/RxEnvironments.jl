@@ -7,4 +7,4 @@ HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 RxEnvironments = "5ea003d0-0c30-4e5c-84d5-cc22d8d83890"
 
 [compat]
-DifferentialEquations = "~7.11"
+DifferentialEquations = "7"
