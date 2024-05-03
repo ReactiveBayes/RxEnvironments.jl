@@ -20,9 +20,9 @@ Will emit an observation to every subscribed agent every 1000 milliseconds. Howe
 `RxEnvironments` natively represents any environment as a continuous environment. However, discrete environments are also supported. By including the keyword argument `discrete=true` to the `RxEnvironment` function, we convert the environment to a discrete environment. There are 2 major differences between a discrete `RxEnvironment` and a continuous one:
 
 - A discrete environment waits until all agents in the environment have conducted an action, and only then takes the last action emitted by every agent into account. I.e. if we have an environment with `agent_1` and `agent_2` as agents. If `agent_1` emits two actions before `agent_2` emits, the environment will only incorporate the second action emitted by `agent_1` whenever `agent_2` emits.
-- A discrete environment needs to implement `update!(::EnvironmentType)`, without the `elapsed_time` argument, since the state-transition does not depend on the elapsed time.
+- A discrete environment has a fixed time between state transitions, which can be set by implementing `RxEnvironments.time_interval(::YourEntityType)`. This function should return the time interval between state transitions in seconds, which by default is 1.0.
 
-Tip: by implementing `update!(::Environment) = update!(::Environment, dt)` for a constant `dt`, a custom environment can be initialized both as a continuous as a discrete environment.
+Note that by "Discrete", we mean that the environment is discrete in time, not in state space. The state space can still be continuous. Note, however, that for more complex entity interactions, the fact that a discrete entity waits for all subscribers to emit before transitioning to the next state can lead to undesired behavior.
 
 ## Animating Environments
 Animating an environment is done using the `GLMakie` package. In order to animate your custom environments, please implement `RxEnvironments.plot_state(ax, ::EnvironmentType)`, where `ax` is the `GLMakie` axis object that you can plot towards. If you need access to other agents or entities in order to plot your environments, you can extend `RxEnvironments.add_to_state!(::EnvironmentType, ::AgentType)` to make sure you have access to subscribed agents in the state.
