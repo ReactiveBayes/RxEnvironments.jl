@@ -62,5 +62,7 @@ Now, we can create the environment and the agent and visualize the environment. 
 ```@example DiscreteControlSpaceEnv
 env = RxEnvironment(WindyGridWorld((0, 0, 0, 1, 1, 1, 2, 2, 1, 0), [], (8, 5)))
 agent = add!(env, WindyGridWorldAgent((1, 1)))
+```
+```@julia
 RxEnvironments.animate_state(env)
 ```
