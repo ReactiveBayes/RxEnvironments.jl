@@ -59,6 +59,11 @@ end
 
 Now, we can create the environment and the agent and visualize the environment. We create a 10x10 grid with a goal at position (8, 5) and a crosswind that pushes the agent up by 1, and 2 around the goal. We place the agent at position (1, 1) and visualize the environment.
 
+!!! note
+
+    It should be noted that, even though we have a discrete space environment with discrete timesteps, we don't use the `discrete=true` keyword argument in the `RxEnvironment` function. In this setting, because the environment only changes when an agent emits an action and has no time-dependent dynamics, the environment is effectively discrete and there is no difference. However, if we have multiple agents, the environment without the `discrete=true` keyword argument will update the state whenever any agent emits an action, whereas the environment with the `discrete=true` keyword argument will only update the state when all agents have emitted an action.
+
+
 ```@example DiscreteControlSpaceEnv
 env = RxEnvironment(WindyGridWorld((0, 0, 0, 1, 1, 1, 2, 2, 1, 0), [], (8, 5)))
 agent = add!(env, WindyGridWorldAgent((1, 1)))
@@ -66,3 +71,4 @@ agent = add!(env, WindyGridWorldAgent((1, 1)))
 ```@julia
 RxEnvironments.animate_state(env)
 ```
+![](../img/animate_discrete.png)

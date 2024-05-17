@@ -17,6 +17,7 @@ Pkg.add("RxEnvironments")
 Pages = [
   "lib/getting_started.md",
   "lib/example_mountaincar.md",
+  "lib/example_discrete_control_space_env.md",
   "lib/advanced_usage.md",
   "lib/philosophy.md",
   "lib/api_reference.md",
