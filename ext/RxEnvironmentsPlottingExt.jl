@@ -4,7 +4,7 @@ using RxEnvironments, GLMakie, Rocket
 
 function RxEnvironments.animate_state(subject::AbstractEntity)
     @info "Animating state of $(subject)"
-    fig  = Figure()
+    fig = Figure()
     screen = display(fig)
     actor = PlottingActor(subject, fig, screen)
     subscription = subscribe!(subject, actor)
@@ -18,12 +18,13 @@ struct PlottingActor <: Rocket.Actor{Any}
     screen
 end
 
-function Rocket.on_next!(actor::PlottingActor, observation) 
+function Rocket.on_next!(actor::PlottingActor, observation)
     empty!(actor.fig)
     subject = RxEnvironments.decorated(actor.entity)
     ax = Axis(actor.fig[1, 1])
     RxEnvironments.plot_state(ax, subject)
-end 
+    save("$(join(rand("abcdefghijklmnopqrstuvwxyz", 10))).png", actor.fig)
+end
 
 function Rocket.on_complete!(actor::PlottingActor)
     GLMakie.destroy!(actor.screen)
