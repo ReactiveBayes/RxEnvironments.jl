@@ -74,6 +74,30 @@
             @test last(actor) == nothing
         end
     end
+
+    @testset "timekeeping" begin
+        # Test functionality for different real time factors
+        for real_time_factor in [0.25, 0.5, 1, 2, 5]
+            let e = RxEnvironment(MockEntity(), real_time_factor=real_time_factor)
+                obs = keep(Any)
+                subscribe_to_observations!(e, obs)
+
+                # Test timekeeping functionality
+                @test clock(e).real_time_factor == real_time_factor
+                prev_time = time(clock(e))
+                sleep(0.1)
+                elapsed_time = time(clock(e)) - prev_time
+                @test isapprox(
+                    elapsed_time,
+                    0.1 / real_time_factor,
+                    atol=0.1 * real_time_factor,
+                )
+
+                # Sanity check that no observations are obtained (timer and clock are decoupled)
+                @test length(obs) == 0
+            end
+        end
+    end
 end
 
 @testitem "discrete environment" begin
