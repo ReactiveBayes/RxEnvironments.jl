@@ -40,16 +40,16 @@ for i in 1:10
     action = rand()
     RxEnvironments.send!(environment, agent, action)
     sleep(1)
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[LogActor] Data: 0.7982316776213558
-[LogActor] Data: 0.6217902415705381
-[LogActor] Data: 0.5732128400848635
-[LogActor] Data: 1.1946610189414562
-[LogActor] Data: 1.1704156592934738
-[LogActor] Data: 1.8072358486092346
-[LogActor] Data: 1.7050839491602179
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[LogActor] Data: 0.5651200974464263
+[LogActor] Data: 0.6534543203511649
+[LogActor] Data: 1.5917256392975665
+[LogActor] Data: 1.3649696531368274
+[LogActor] Data: 1.26048959687589
+[LogActor] Data: 2.139307913420874
+[LogActor] Data: 2.0259229964833017
 Error in Timer:
-[LogActor] Data: 2.179500758694916StackOverflowError()
-[LogActor] Data: 2.0371646384591213
+[LogActor] Data: 2.2940998509401176StackOverflowError()
+[LogActor] Data: 1.9378334438653126
 
 Stacktrace:
  [1] error(s::StackOverflowError)
@@ -67,16 +67,16 @@ Stacktrace:
  [7] macro expansion
    @ ./asyncevent.jl:281 [inlined]
  [8] (::Base.var&quot;#702#703&quot;{Rocket.var&quot;#138#139&quot;{Rocket.TimerActor{RxEnvironments.TimerActor{RxEnvironments.RxEntity{Main.__atexample__named__mountaincar.MountainCarEnvironment, RxEnvironments.ContinuousEntity, RxEnvironments.ActiveEntity, Any}}}}, Timer})()
-   @ Base ./task.jl:134[LogActor] Data: 1.9565483206912913
-[LogActor] Data: 2.528703625557368
-[LogActor] Data: 2.3254023546756115
-[LogActor] Data: 2.7937194360036592
-[LogActor] Data: 2.9122732779864684
-[LogActor] Data: 2.7078630477858225
-[LogActor] Data: 2.764421606676415
-[LogActor] Data: 3.524063611486407
-[LogActor] Data: 3.3893423811129604
-[LogActor] Data: 3.4749875429780874
-[LogActor] Data: 3.7381121904539643
-[LogActor] Data: 3.859370820218665
-[LogActor] Data: 3.7259938006448374</code></pre><p>Congratulations! You&#39;ve now implemented a basic environment in <code>RxEnvironments</code>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Introduction</a><a class="docs-footer-nextpage" href="../example_mountaincar/">Mountain Car »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Monday 9 September 2024 16:15">Monday 9 September 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   @ Base ./task.jl:134[LogActor] Data: 1.9397605969658775
+[LogActor] Data: 2.4352492838322184
+[LogActor] Data: 2.322890690667807
+[LogActor] Data: 2.7187293418969323
+[LogActor] Data: 2.78976470705797
+[LogActor] Data: 3.3234332118384264
+[LogActor] Data: 3.4132900487047984
+[LogActor] Data: 3.55234092224155
+[LogActor] Data: 3.6951167016064397
+[LogActor] Data: 4.471234439543486
+[LogActor] Data: 4.424934094292289
+[LogActor] Data: 4.9589318955752875
+[LogActor] Data: 4.859352625551858</code></pre><p>Congratulations! You&#39;ve now implemented a basic environment in <code>RxEnvironments</code>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Introduction</a><a class="docs-footer-nextpage" href="../example_mountaincar/">Mountain Car »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Monday 9 September 2024 16:16">Monday 9 September 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
