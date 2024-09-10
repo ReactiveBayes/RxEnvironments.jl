@@ -74,18 +74,19 @@
         # Test functionality for different real time factors
         for real_time_factor in [0.25, 0.5, 1, 2, 5]
             let e = create_entity(MockEntity(); real_time_factor=real_time_factor)
+                t = 0.2
                 obs = keep(Any)
                 subscribe_to_observations!(e, obs)
 
                 # Test timekeeping functionality
                 @test clock(e).real_time_factor == real_time_factor
                 prev_time = time(clock(e))
-                sleep(0.1)
+                sleep(t)
                 elapsed_time = time(clock(e)) - prev_time
                 @test isapprox(
                     elapsed_time,
-                    0.1 / real_time_factor,
-                    atol=0.1 * real_time_factor,
+                    t / real_time_factor,
+                    rtol=0.1,
                 )
 
                 # Sanity check that no observations are obtained (timer and clock are decoupled)
