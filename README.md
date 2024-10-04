@@ -4,20 +4,20 @@
 
 
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://biaslab.github.io/RxEnvironments.jl/dev
+[docs-dev-url]: https://reactivebayes.github.io/RxEnvironments.jl/dev
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://biaslab.github.io/RxEnvironments.jl/stable
+[docs-stable-url]: https://reactivebayes.github.io/RxEnvironments.jl/stable
 
-[ci-img]: https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml/badge.svg?branch=main
-[ci-url]: https://github.com/biaslab/RxEnvironments.jl/actions/workflows/CI.yml?query=branch%3Amain
+[ci-img]: https://github.com/ReactiveBayes/RxEnvironments.jl/actions/workflows/CI.yml/badge.svg?branch=main
+[ci-url]: https://github.com/ReactiveBayes/RxEnvironments.jl/actions/workflows/CI.yml?query=branch%3Amain
 
-[codecov-img]: https://codecov.io/gh/biaslab/RxEnvironments.jl/graph/badge.svg?token=CxR2jysX7Z
-[codecov-url]: https://codecov.io/gh/biaslab/RxEnvironments.jl?branch=main
+[codecov-img]: https://codecov.io/gh/ReactiveBayes/RxEnvironments.jl/graph/badge.svg?token=CxR2jysX7Z
+[codecov-url]: https://codecov.io/gh/ReactiveBayes/RxEnvironments.jl?branch=main
 
 # RxEnvironments
 
-`RxEnvironments` contains all boilerplate code to create reactive environments for self-learning agents, allowing for state transitions with variable time between state updates.`RxEnvironments` exports the `RxEnvironment` and `RxEntity` wrapper structs, that facilitate all plumbing to make an environment fully reactive. Under the hood, `RxEnvironments` uses [Rocket.jl](https://www.github.com/biaslab/Rocket.jl).
+`RxEnvironments` contains all boilerplate code to create reactive environments for self-learning agents, allowing for state transitions with variable time between state updates.`RxEnvironments` exports the `RxEnvironment` and `RxEntity` wrapper structs, that facilitate all plumbing to make an environment fully reactive. Under the hood, `RxEnvironments` uses [Rocket.jl](https://www.github.com/ReactiveBayes/Rocket.jl).
 
 # Installation
 `RxEnvironments.jl` can be installed through the Julia Registry:
@@ -121,11 +121,11 @@ end
 Congratulations! You've now implemented a basic environment in `RxEnvironments`.
 
 # Next steps
-You can head to the [documentation](https://biaslab.github.io/RxEnvironments.jl/stable) for a more extensive reference on the contents of the package. 
+You can head to the [documentation](https://reactivebayes.github.io/RxEnvironments.jl/stable) for a more extensive reference on the contents of the package. 
 
 # Missing anything?
 
 This package is a WIP, feel free to open an issue with a feature request.
 
 # License
-This package is open-source and available under the [MIT License](https://github.com/biaslab/RxEnvironments.jl/blob/main/LICENSE).
+This package is open-source and available under the [MIT License](https://github.com/reactivebayes/RxEnvironments.jl/blob/main/LICENSE).
