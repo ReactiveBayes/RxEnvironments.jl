@@ -741,3 +741,15 @@ end
         end
     end
 end
+
+
+@testitem "Show error when update! errors" begin
+    using RxEnvironments
+
+    struct DumbEnvironment end
+    RxEnvironments.update!(::DumbEnvironment, any) = error("Dumb error")
+    env = RxEnvironment(DumbEnvironment(); emit_every_ms=10)
+    sleep(0.1)
+    @test true
+
+end
