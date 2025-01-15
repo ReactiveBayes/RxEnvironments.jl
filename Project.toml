@@ -1,7 +1,7 @@
 name = "RxEnvironments"
 uuid = "5ea003d0-0c30-4e5c-84d5-cc22d8d83890"
 authors = ["Wouter Nuijten"]
-version = "0.2.13"
+version = "0.2.14"
 
 [deps]
 Exceptions = "25a0344a-2aab-46d0-b534-6f1410d4c65f"
